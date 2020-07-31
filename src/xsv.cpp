@@ -1,5 +1,5 @@
 /*
-	Copyright (C) 2020 daltomi <daltomi@disroot.org> <daltomi@disroot.org>
+	Copyright (C) 2020 daltomi <daltomi@disroot.org>
 
 	This file is part of xsv.
 
@@ -127,7 +127,7 @@ int main(void)
 	btn[DOWN]->callback(ActionCb);
 	btn[ADD]->callback(AddCb,(void*)window);
 
-	{ 
+	{
 		Fl_Box *o = new Fl_Box(BTN_W * 6 + BTN_PAD, 0, 10, 10);
 		o->box(FL_FLAT_BOX);
 		o->hide();
@@ -186,7 +186,7 @@ static void FillBrowser(void)
 	while (fgets(buffer, N_BUFFER, psv))
 	{
 		buffer[N_BUFFER - 1] = '\0';
-		
+
 		char* pb = buffer;
 
 		if (iselect_count++ == iselect) {
@@ -247,7 +247,7 @@ static void GetSelected(void)
 		{
 			iselect = i;
 			break;
-		} 
+		}
 	}
 }
 
@@ -283,7 +283,7 @@ static void ActionCb(UNUSED Fl_Widget* w, UNUSED void* data)
 
 	if (btnId == btn[RUN])
 	{
-		RunSv(service, SV_UP);		
+		RunSv(service, SV_UP);
 	}
 	else if (btnId == btn[DOWN])
 	{
@@ -332,8 +332,8 @@ static void RunSv(char const* const service, char const* const action)
 			fl_alert("The command was executed but ended with error.\n%s", cmd);
 			exit(EXIT_FAILURE);
 		}
-	} 
-	
+	}
+
 	FillBrowser();
 }
 
