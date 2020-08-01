@@ -17,7 +17,7 @@
 	along with xsv.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include <FL/Fl.H>
-#include <FL/Fl_Window.H>
+#include <FL/Fl_Double_Window.H>
 #include <FL/Fl_Hold_Browser.H>
 #include <FL/Fl_Button.H>
 #include <FL/Fl_Group.H>
@@ -103,7 +103,7 @@ static void FillBrowserEnable(void);
 static void FillBrowserList(void);
 static int GetSelected(Fl_Browser const* const browser);
 static void RunSv(char const* const service, char const* const action);
-static void ShowWindowModal(Fl_Window* const wnd);
+static void ShowWindowModal(Fl_Double_Window* const wnd);
 static void SetButtonAlign(int const start, int const end, int const align);
 static void SetButtonFont(int const start, int const end);
 static void SetFont(Fl_Widget* w);
@@ -149,7 +149,7 @@ int main(void)
 
 	fl_register_images();
 
-	Fl_Window* wnd = new Fl_Window(600, 400);
+	Fl_Double_Window* wnd = new Fl_Double_Window(600, 400);
 	Fl_Group* grp = new Fl_Group(0, 0, wnd->w(), 30);
 	btn[QUIT] = new Fl_Button(BTN_X, BTN_Y, BTN_W, BTN_H, "Quit");
 	btn[RUN] = new Fl_Button(BTN_W + BTN_PAD, BTN_Y, BTN_W, BTN_H, "Run");
@@ -599,7 +599,7 @@ static void SetButtonAlign(int const start, int const end, int const align)
 }
 
 
-static void ShowWindowModal(Fl_Window* const wnd)
+static void ShowWindowModal(Fl_Double_Window* const wnd)
 {
 	ASSERT_DBG(wnd);
 
@@ -616,7 +616,7 @@ static void ShowWindowModal(Fl_Window* const wnd)
 static void CloseWindowCb(UNUSED Fl_Widget* w, void* data)
 {
 	ASSERT_DBG(data);
-	((Fl_Window*)data)->hide();
+	((Fl_Double_Window*)data)->hide();
 }
 
 
@@ -624,9 +624,9 @@ static void AddServicesCb(UNUSED Fl_Widget* w, UNUSED void* data)
 {
 	ASSERT_DBG(data);
 
-	Fl_Window* wndParent = (Fl_Window*)data;
+	Fl_Double_Window* wndParent = (Fl_Double_Window*)data;
 
-	Fl_Window* wnd = new Fl_Window(wndParent->x() + 300 / 2,
+	Fl_Double_Window* wnd = new Fl_Double_Window(wndParent->x() + 300 / 2,
 							wndParent->y(),
 							300,
 							350,
