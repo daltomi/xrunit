@@ -307,7 +307,11 @@ static void FillBrowserEnable(void)
 		}
 		else if (pb[0] == 'f' || pb[0] == 'F')
 		{
-			browser[ENABLE]->icon(browser[ENABLE]->size(), get_icon_finish());
+			browser[ENABLE]->icon(browser[ENABLE]->size(), get_icon_warning());
+		}
+		else if (pb[0] == 'w' || pb[0] == 'W')
+		{
+			browser[ENABLE]->icon(browser[ENABLE]->size(), get_icon_warning());
 		}
 		else
 		{
