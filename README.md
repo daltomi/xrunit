@@ -35,9 +35,19 @@ make release
 | FONT        | FLTK font name  | FL_HELVETICA
 | FONT_SZ     | font size | 11
 
+Example
+
+File `my_define.h`
+
 ```
-Ej:
-CXXFLAGS=-DTIME_UPDATE=2 make debug
+#define SV "/usr/local/bin/sv"
+#define SV_DIR "/etc/local/runit/sv"
+```
+
+Then run make in your terminal:
+
+```
+CXXFLAGS="-include my_define.h" make debug
 ```
 
 

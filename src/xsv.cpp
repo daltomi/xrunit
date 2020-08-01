@@ -130,6 +130,7 @@ int main(void)
 	MESSAGE_DBG("TITLE: %s", TITLE);
 	MESSAGE_DBG("TIME_UPDATE: %d", TIME_UPDATE);
 	MESSAGE_DBG("SV: %s", SV);
+	MESSAGE_DBG("SV_DIR: %s", SV_DIR);
 	MESSAGE_DBG("SV_RUN_DIR: %s", SV_RUN_DIR);
 
 	if (geteuid() != 0)
