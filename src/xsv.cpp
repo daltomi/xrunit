@@ -61,6 +61,8 @@
 #define SV_LIST SV SV_STATUS " " SV_RUN_DIR"/*"
 #define LS_SV "ls -1 " SV_DIR
 #define LS_SV_RUN "ls -1 " SV_RUN_DIR
+#define SYMLINK "ln -s "
+#define UNLINK "unlink "
 #define UNUSED __attribute__((unused))
 #define SELECT_RESET 1
 #define STR_SZ  200
@@ -503,14 +505,14 @@ static void IntallUninstallCb(Fl_Widget* w, UNUSED void* data)
 
 		RemoveNewLine(src);
 
-		strncpy(cmd, "ln -s ", STR_SZ * 2 - 1);
+		strncpy(cmd, SYMLINK, STR_SZ * 2 - 1);
 		strncat(cmd, src, STR_SZ * 2- 1);
 		strcat(cmd, " ");
 		strncat(cmd, dest, STR_SZ  * 2- 1);
 	}
 	else if (btnId == btn[UNINSTALL])
 	{
-		strncpy(cmd, "unlink ", STR_SZ * 2 - 1);
+		strncpy(cmd, UNLINK, STR_SZ * 2 - 1);
 		strcat(cmd, " ");
 		strncat(cmd, dest, STR_SZ * 2 - 1);
 	}
