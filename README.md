@@ -34,7 +34,7 @@ make release
 | TIME_UPDATE | seconds of updating the list of service | 5 | integer
 | FONT        | FLTK font name  | FL_HELVETICA | integer
 | FONT_SZ     | font size | 11 | integer
-| ASK_DOWN_SERVICES | service name | tty,dbus,udev,elogind | string
+| ASK_SERVICES | ask about these services before down/remove | tty,dbus,udev,elogind | string
 
 Example
 

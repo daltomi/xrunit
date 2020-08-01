@@ -57,12 +57,12 @@
 #define SV_DIR "/etc/runit/sv"
 #endif
 
-#ifndef ASK_DOWN_SERVICES
+#ifndef ASK_SERVICES
 // It doesn't have to be the exact name
-#define ASK_DOWN_SERVICES "tty,dbus,udev,elogind"
+#define ASK_SERVICES "tty,dbus,udev,elogind"
 #endif
 
-#define ASK_DOWN_SERVICE_DELIM ","
+#define ASK_SERVICES_DELIM ","
 
 #define SV_STATUS " status "
 #define SV_UP " up "
@@ -120,6 +120,7 @@ static void SetFont(Fl_Widget* w);
 static void SetFont(Fl_Hold_Browser* w);
 static void System(char const* const cmd);
 static void RemoveNewLine(char* str);
+static bool AskIfContinue(char const* const service);
 
 static void QuitCb(UNUSED Fl_Widget* w, UNUSED void* data);
 static void SelectCb(UNUSED Fl_Widget* w, UNUSED void* data);
@@ -144,7 +145,7 @@ int main(int argc, char* argv[])
 	ASSERT((strlen(SV_DIR) > 0) && (strlen(SV_DIR) < STR_SZ));
 	ASSERT((strlen(SV_RUN_DIR) > 0) && (strlen(SV_RUN_DIR) < STR_SZ));
 	ASSERT((strlen(SV) > 0) && (strlen(SV) < STR_SZ));
-	ASSERT(strlen(ASK_DOWN_SERVICES) > 0);
+	ASSERT(strlen(ASK_SERVICES) > 0);
 
 	MESSAGE_DBG("TITLE: %s", TITLE);
 	MESSAGE_DBG("TIME_UPDATE: %d", TIME_UPDATE);
@@ -470,6 +471,39 @@ static void SelectCb(UNUSED Fl_Widget* w, UNUSED void* data)
 }
 
 
+static bool AskIfContinue(char const* const service)
+{
+	ASSERT_DBG(service);
+	ASSERT_DBG(service[0] != '\0');
+
+	char* str = strdup(ASK_SERVICES);
+
+	ASSERT_DBG(str);
+
+	char* tok = strtok(str, ASK_SERVICES_DELIM);
+
+	ASSERT_DBG(tok);
+
+	do
+	{
+		if (strstr(service, tok))
+		{
+			MESSAGE_DBG("ASK_SERVICES: %s", tok);
+
+			if (0 == fl_choice("Warning: Priority service name detected:'%s'\n"
+							"Do you continue?", "Cancel", "Continue", 0, service))
+			{
+				free(str);
+				return false;
+			}
+		}
+	} while ((tok = strtok(0, ASK_SERVICES_DELIM)));
+
+	free(str);
+	return true;
+}
+
+
 static void RunDownCb(UNUSED Fl_Widget* w, UNUSED void* data)
 {
 	Fl_Button* btnId = (Fl_Button*)w;
@@ -498,38 +532,16 @@ static void RunDownCb(UNUSED Fl_Widget* w, UNUSED void* data)
 	}
 	else if (btnId == btn[DOWN])
 	{
-		char* str = strdup(ASK_DOWN_SERVICES);
-
-		ASSERT_DBG(str);
-
-		char* tok = strtok(str, ASK_DOWN_SERVICE_DELIM);
-
-		ASSERT_DBG(tok);
-
-		do
+		if (AskIfContinue(service))
 		{
-			if (strstr(service, tok))
-			{
-				MESSAGE_DBG("ASK_DOWN_SERVICES: %s", tok);
-
-				if (0 == fl_choice("Warning: Priority service name detected: '%s'\n"
-								"Do you continue?", "Cancel", "Continue", 0, service))
-				{
-					free(str);
-					goto clean;
-				}
-			}
-		} while ((tok = strtok(0, ASK_DOWN_SERVICE_DELIM)));
-
-		free(str);
-		RunSv(service, SV_DOWN);
+			RunSv(service, SV_DOWN);
+		}
 	}
 	else
 	{
 		STOP_DBG("Button identifier not covered: %p", btnId);
 	}
 
-clean:
 	free(service);
 	service = 0;
 }
@@ -559,6 +571,14 @@ static void IntallUninstallCb(Fl_Widget* w, UNUSED void* data)
 
 	int const item = GetSelected(browser[LIST]);
 	char const* const itemText = browser[LIST]->text(item);
+
+	if (btnId == btn[UNINSTALL])
+	{
+		if (not AskIfContinue(itemText))
+		{
+			return;
+		}
+	}
 
 	strncpy(dest, SV_RUN_DIR, STR_SZ - 1);
 	strncat(dest, "/", 1);
