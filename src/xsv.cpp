@@ -29,6 +29,7 @@
 #include <unistd.h>
 #include <stdio.h>
 #include <limits.h>
+#include <string.h>
 
 #include "config.h"
 
@@ -56,6 +57,13 @@
 #define SV_DIR "/etc/runit/sv"
 #endif
 
+#ifndef ASK_DOWN_SERVICES
+// It doesn't have to be the exact name
+#define ASK_DOWN_SERVICES "tty,dbus,udev,elogind"
+#endif
+
+#define ASK_DOWN_SERVICE_DELIM ","
+
 #define SV_STATUS " status "
 #define SV_UP " up "
 #define SV_DOWN " down "
@@ -64,7 +72,9 @@
 #define LS_SV_RUN "ls -1 " SV_RUN_DIR
 #define SYMLINK "ln -s "
 #define UNLINK "unlink "
+
 #define UNUSED __attribute__((unused))
+
 #define SELECT_RESET 1
 #define STR_SZ  200
 #define BTN_W 80
@@ -134,6 +144,7 @@ int main(void)
 	ASSERT((strlen(SV_DIR) > 0) && (strlen(SV_DIR) < STR_SZ));
 	ASSERT((strlen(SV_RUN_DIR) > 0) && (strlen(SV_RUN_DIR) < STR_SZ));
 	ASSERT((strlen(SV) > 0) && (strlen(SV) < STR_SZ));
+	ASSERT(strlen(ASK_DOWN_SERVICES) > 0);
 
 	MESSAGE_DBG("TITLE: %s", TITLE);
 	MESSAGE_DBG("TIME_UPDATE: %d", TIME_UPDATE);
@@ -473,6 +484,30 @@ static void RunDownCb(UNUSED Fl_Widget* w, UNUSED void* data)
 	}
 	else if (btnId == btn[DOWN])
 	{
+		char* str = strdup(ASK_DOWN_SERVICES);
+
+		ASSERT_DBG(str);
+
+		char* tok = strtok(str, ASK_DOWN_SERVICE_DELIM);
+
+		ASSERT_DBG(tok);
+
+		do
+		{
+			if (strstr(service, tok))
+			{
+				MESSAGE_DBG("ASK_DOWN_SERVICES: %s", tok);
+
+				if (0 == fl_choice("Warning: Priority service name detected: '%s'\n"
+								"Do you continue?", "Cancel", "Continue", 0, service))
+				{
+					free(str);
+					goto clean;
+				}
+			}
+		} while ((tok = strtok(0, ASK_DOWN_SERVICE_DELIM)));
+
+		free(str);
 		RunSv(service, SV_DOWN);
 	}
 	else
@@ -480,6 +515,7 @@ static void RunDownCb(UNUSED Fl_Widget* w, UNUSED void* data)
 		STOP_DBG("Button identifier not covered: %p", btnId);
 	}
 
+clean:
 	free(service);
 	service = 0;
 }
@@ -502,7 +538,8 @@ static void IntallUninstallCb(Fl_Widget* w, UNUSED void* data)
 
 	char dest[STR_SZ];
 	char src[STR_SZ];
-	char cmd[STR_SZ * 2];
+	#define STR_SZ_2 STR_SZ * 2
+	char cmd[STR_SZ_2];
 
 	Fl_Button* btnId = (Fl_Button*)w;
 
@@ -525,21 +562,23 @@ static void IntallUninstallCb(Fl_Widget* w, UNUSED void* data)
 
 		RemoveNewLine(src);
 
-		strncpy(cmd, SYMLINK, STR_SZ * 2 - 1);
-		strncat(cmd, src, STR_SZ * 2- 1);
+		strncpy(cmd, SYMLINK, STR_SZ_2 - 1);
+		strncat(cmd, src, STR_SZ_2 - 1);
 		strcat(cmd, " ");
-		strncat(cmd, dest, STR_SZ  * 2- 1);
+		strncat(cmd, dest,STR_SZ_2 - 1);
 	}
 	else if (btnId == btn[UNINSTALL])
 	{
-		strncpy(cmd, UNLINK, STR_SZ * 2 - 1);
+		strncpy(cmd, UNLINK, STR_SZ_2 - 1);
 		strcat(cmd, " ");
-		strncat(cmd, dest, STR_SZ * 2 - 1);
+		strncat(cmd, dest, STR_SZ_2 - 1);
 	}
 	else
 	{
 		STOP_DBG("Button identifier not covered: %p", btnId);
 	}
+
+	cmd[STR_SZ_2 - 1] = '\0';
 
 	RemoveNewLine(cmd);
 	System(cmd);
