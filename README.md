@@ -27,6 +27,7 @@ make release
 | Directive | Description | Default |
 |-------------------------------|---------|---------
 | SV |  sv binary | /usr/bin/sv
+| SV_DIR      |  available services directory | /etc/runit/sv
 | SV_RUN_DIR      |  services directory | /run/runit/service
 | TIME_UPDATE | seconds of updating the list of service | 5
 ```
