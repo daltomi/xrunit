@@ -101,7 +101,7 @@ enum {
 
 static void FillBrowserEnable(void);
 static void FillBrowserList(void);
-static int GetSelected(Fl_Browser const* const browser);
+static int GetSelected(Fl_Browser const* const brw);
 static void RunSv(char const* const service, char const* const action);
 static void ShowWindowModal(Fl_Double_Window* const wnd);
 static void SetButtonAlign(int const start, int const end, int const align);
@@ -398,17 +398,28 @@ static void QuitCb(UNUSED Fl_Widget* w, UNUSED void* data)
 }
 
 
-static int GetSelected(Fl_Browser const* const browser)
+static int GetSelected(Fl_Browser const* const brw)
 {
-	for (int i = 1; i <= browser->size(); i++)
+	for (int i = 1; i <= brw->size(); i++)
 	{
-		if (browser->selected(i))
+		if (brw->selected(i))
 		{
 			return i;
 		}
 	}
 
-	return 1;
+	int iselected = SELECT_RESET;
+
+	if (brw == browser[ENABLE])
+	{
+		iselected = itemSelect[ENABLE];
+	}
+	else
+	{
+		iselected = itemSelect[LIST];
+	}
+
+	return iselected;
 }
 
 
