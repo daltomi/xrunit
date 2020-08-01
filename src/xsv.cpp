@@ -48,17 +48,17 @@
 #endif
 
 #ifndef SV_RUN_DIR
-#define SV_RUN_DIR " /run/runit/service"
+#define SV_RUN_DIR "/run/runit/service"
 #endif
 
 #ifndef SV_DIR
-#define SV_DIR " /etc/runit/sv"
+#define SV_DIR "/etc/runit/sv"
 #endif
 
 #define SV_STATUS " status "
 #define SV_UP " up "
 #define SV_DOWN " down "
-#define SV_LIST SV SV_STATUS SV_RUN_DIR"/*"
+#define SV_LIST SV SV_STATUS " " SV_RUN_DIR"/*"
 #define LS_SV "ls -1 " SV_DIR
 #define LS_SV_RUN "ls -1 " SV_RUN_DIR
 #define UNUSED __attribute__((unused))
@@ -105,11 +105,14 @@ static void SetButtonAlign(int const start, int const end, int const align);
 static void SetButtonFont(int const start, int const end);
 static void SetFont(Fl_Widget* w);
 static void SetFont(Fl_Hold_Browser* w);
+static void System(char const* const cmd);
+static void RemoveNewLine(char* str);
 
 static void QuitCb(UNUSED Fl_Widget* w, UNUSED void* data);
 static void SelectCb(UNUSED Fl_Widget* w, UNUSED void* data);
-static void ActionCb(Fl_Widget* w, UNUSED void* data);
-static void AddCb(UNUSED Fl_Widget* w, UNUSED void* data);
+static void RunDownCb(Fl_Widget* w, UNUSED void* data);
+static void IntallUninstallCb(Fl_Widget* w, UNUSED void* data);
+static void AddServicesCb(UNUSED Fl_Widget* w, UNUSED void* data);
 static void TimerCb(UNUSED void* data);
 
 static int  itemSelect[BROWSER_MAX] { [ENABLE] = SELECT_RESET, [LIST] = SELECT_RESET };
@@ -117,8 +120,8 @@ static int  itemSelect[BROWSER_MAX] { [ENABLE] = SELECT_RESET, [LIST] = SELECT_R
 static Fl_Hold_Browser* browser[BROWSER_MAX];
 static Fl_Button* btn[BTN_MAX];
 
-static char const* STR_INSTALL = "install";
-static char const* STR_UNINSTALL = "uninstall";
+static char const* STR_ADD = "Add";
+static char const* STR_REMOVE = "Remove";
 
 int main(void)
 {
@@ -151,9 +154,9 @@ int main(void)
 	btn[ADD]->image(get_icon_add());
 
 	btn[QUIT]->callback(QuitCb);
-	btn[RUN]->callback(ActionCb);
-	btn[DOWN]->callback(ActionCb);
-	btn[ADD]->callback(AddCb,(void*)wnd);
+	btn[RUN]->callback(RunDownCb);
+	btn[DOWN]->callback(RunDownCb);
+	btn[ADD]->callback(AddServicesCb,(void*)wnd);
 
 	{
 		Fl_Box *o = new Fl_Box(BTN_W * 6 + BTN_PAD, 0, 10, 10);
@@ -223,7 +226,7 @@ static void FillBrowserEnable(void)
 
 	if (!psv)
 	{
-		fl_alert("Failed to open the pipe.\nCommand line: %s\n", SV_LIST);
+		fl_alert("Failed to open the pipe.\nCommand line: %s", SV_LIST);
 		exit(EXIT_FAILURE);
 	}
 
@@ -303,7 +306,7 @@ static void FillBrowserList(void)
 
 	if (!pls)
 	{
-		fl_alert("Failed to open the pipe.\nCommand line: %s\n", LS_SV);
+		fl_alert("Failed to open the pipe.\nCommand line: %s", LS_SV);
 		exit(EXIT_FAILURE);
 	}
 
@@ -319,8 +322,8 @@ static void FillBrowserList(void)
 	{
 		buffer[STR_SZ - 1] = '\0';
 
-		browser[LIST]->add(buffer, (void*)STR_UNINSTALL);
-		browser[LIST]->icon(item++, get_icon_down());
+		browser[LIST]->add(buffer, (void*)STR_REMOVE);
+		browser[LIST]->icon(item++, get_icon_disable());
 	}
 
 	pclose(pls);
@@ -329,7 +332,7 @@ static void FillBrowserList(void)
 
 	if (!plsRun)
 	{
-		fl_alert("Failed to open the pipe.\nCommand line: %s\n", LS_SV_RUN);
+		fl_alert("Failed to open the pipe.\nCommand line: %s", LS_SV_RUN);
 		exit(EXIT_FAILURE);
 	}
 
@@ -337,14 +340,14 @@ static void FillBrowserList(void)
 	{
 		buffer[STR_SZ - 1] = '\0';
 
-		for (int i = 1; i <= browser[LIST]->size(); ++i)
+		for (int item = 1; item <= browser[LIST]->size(); ++item)
 		{
-			char const* const find = browser[LIST]->text(i);
+			char const* const find = browser[LIST]->text(item);
 
 			if (strstr(buffer, find))
 			{
-				browser[LIST]->icon(i, get_icon_run());
-				browser[LIST]->data(i, (void*)STR_INSTALL);
+				browser[LIST]->icon(item, get_icon_enable());
+				browser[LIST]->data(item, (void*)STR_ADD);
 				break;
 			}
 
@@ -353,17 +356,17 @@ static void FillBrowserList(void)
 
 	pclose(plsRun);
 
-	for (int i = 1; i <= browser[LIST]->size(); ++i)
+	for (int item = 1; item <= browser[LIST]->size(); ++item)
 	{
 		if (iselect_count++ == itemSelect[LIST])
 		{
-			char* data = (char*)browser[LIST]->data(i);
+			char* data = (char*)browser[LIST]->data(item);
 
-			if (data == STR_INSTALL)
+			if (data == STR_ADD)
 			{
 				btn[UNINSTALL]->activate();
 			}
-			else if (data == STR_UNINSTALL)
+			else if (data == STR_REMOVE)
 			{
 				btn[INSTALL]->activate();
 			}
@@ -422,7 +425,7 @@ static void SelectCb(UNUSED Fl_Widget* w, UNUSED void* data)
 }
 
 
-static void ActionCb(UNUSED Fl_Widget* w, UNUSED void* data)
+static void RunDownCb(UNUSED Fl_Widget* w, UNUSED void* data)
 {
 	Fl_Button* btnId = (Fl_Button*)w;
 
@@ -462,18 +465,72 @@ static void ActionCb(UNUSED Fl_Widget* w, UNUSED void* data)
 }
 
 
-static void RunSv(char const* const service, char const* const action)
+static void RemoveNewLine(char* str)
 {
-	char cmd [STR_SZ];
+	char* cp = strchr(str, '\n');
 
-	cmd[STR_SZ - 1] = '\0';
+	if (cp)
+	{
+		*cp = '\0';
+	}
+}
 
-	strncpy(cmd, SV, STR_SZ - 1);
-	strncat(cmd, action, STR_SZ - 1);
-	strncat(cmd, service, STR_SZ - 1);
 
-	MESSAGE_DBG("exec cmd: %s", cmd);
+static void IntallUninstallCb(Fl_Widget* w, UNUSED void* data)
+{
+	ASSERT_DBG(w);
 
+	char dest[STR_SZ];
+	char src[STR_SZ];
+	char cmd[STR_SZ * 2];
+
+	Fl_Button* btnId = (Fl_Button*)w;
+
+	int const item = GetSelected(browser[LIST]);
+	char const* const itemText = browser[LIST]->text(item);
+
+	strncpy(dest, SV_RUN_DIR, STR_SZ - 1);
+	strncat(dest, "/", 1);
+	strncat(dest, itemText, STR_SZ - 1);
+	dest[STR_SZ - 1] = '\0';
+
+	RemoveNewLine(dest);
+
+	if (btnId == btn[INSTALL])
+	{
+		strncpy(src, SV_DIR, STR_SZ - 1);
+		strncat(src, "/", 1);
+		strncat(src,  itemText, STR_SZ - 1);
+		src[STR_SZ - 1] = '\0';
+
+		RemoveNewLine(src);
+
+		strncpy(cmd, "ln -s ", STR_SZ * 2 - 1);
+		strncat(cmd, src, STR_SZ * 2- 1);
+		strcat(cmd, " ");
+		strncat(cmd, dest, STR_SZ  * 2- 1);
+	}
+	else if (btnId == btn[UNINSTALL])
+	{
+		strncpy(cmd, "unlink ", STR_SZ * 2 - 1);
+		strcat(cmd, " ");
+		strncat(cmd, dest, STR_SZ * 2 - 1);
+	}
+	else
+	{
+		STOP_DBG("Button identifier not covered: %p", btnId);
+	}
+
+	RemoveNewLine(cmd);
+	System(cmd);
+
+	FillBrowserEnable();
+	FillBrowserList();
+}
+
+
+static void System(char const* const cmd)
+{
 	int const ret = system(cmd);
 
 	if (ret == -1)
@@ -496,6 +553,22 @@ static void RunSv(char const* const service, char const* const action)
 			exit(EXIT_FAILURE);
 		}
 	}
+}
+
+
+static void RunSv(char const* const service, char const* const action)
+{
+	char cmd [STR_SZ];
+
+	cmd[STR_SZ - 1] = '\0';
+
+	strncpy(cmd, SV, STR_SZ - 1);
+	strncat(cmd, action, STR_SZ - 1);
+	strncat(cmd, service, STR_SZ - 1);
+
+	MESSAGE_DBG("exec cmd: %s", cmd);
+
+	System(cmd);
 
 	FillBrowserEnable();
 }
@@ -538,7 +611,7 @@ static void CloseWindowCb(UNUSED Fl_Widget* w, void* data)
 }
 
 
-static void AddCb(UNUSED Fl_Widget* w, UNUSED void* data)
+static void AddServicesCb(UNUSED Fl_Widget* w, UNUSED void* data)
 {
 	ASSERT_DBG(data);
 
@@ -551,8 +624,8 @@ static void AddCb(UNUSED Fl_Widget* w, UNUSED void* data)
 							TITLE_SERVICE);
 
 	btn[CLOSE] = new Fl_Button(BTN_X, BTN_Y, BTN_W, BTN_H, "Close");
-	btn[INSTALL] = new Fl_Button(BTN_W + BTN_PAD, BTN_Y, BTN_W, BTN_H, "Install");
-	btn[UNINSTALL] = new Fl_Button(BTN_W * 2 + BTN_PAD, BTN_Y, BTN_W, BTN_H, "Uninstall");
+	btn[INSTALL] = new Fl_Button(BTN_W + BTN_PAD, BTN_Y, BTN_W, BTN_H, STR_ADD);
+	btn[UNINSTALL] = new Fl_Button(BTN_W * 2 + BTN_PAD, BTN_Y, BTN_W, BTN_H, STR_REMOVE);
 	browser[LIST] = new Fl_Hold_Browser(4, 40, wnd->w() - 8, wnd->h() - 48);
 
 	SetFont(browser[LIST]);
@@ -563,10 +636,12 @@ static void AddCb(UNUSED Fl_Widget* w, UNUSED void* data)
 	SetButtonAlign(CLOSE, UNINSTALL, 256);
 
 	btn[CLOSE]->image(get_icon_quit());
-	btn[INSTALL]->image(get_icon_run());
-	btn[UNINSTALL]->image(get_icon_down());
+	btn[INSTALL]->image(get_icon_add());
+	btn[UNINSTALL]->image(get_icon_remove());
 
 	btn[CLOSE]->callback(CloseWindowCb, (void*)wnd);
+	btn[INSTALL]->callback(IntallUninstallCb);
+	btn[UNINSTALL]->callback(IntallUninstallCb);
 
 	FillBrowserList();
 
