@@ -23,6 +23,7 @@ make release
 ```
 
 * Use debug mode while in alpha, bug report.
+* This program needs to be run with administrator permissions.
 
 ### Preprocessor directives
 
@@ -51,6 +52,12 @@ Then run make in your terminal:
 CXXFLAGS="-include my_define.h" make debug
 ```
 
+### Makefile targets:
 
-This program needs to be run with administrator permissions.
+| Target | Description |
+|--------|--------------|
+| clean  |  Clean the project directory |
+| debug  | Build the executable with debug symbols |
+| release | Build the executable for performance |
+| dist   | Create a compressed file with the project files |
 
