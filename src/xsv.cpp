@@ -28,6 +28,7 @@
 
 #include <unistd.h>
 #include <stdio.h>
+#include <limits.h>
 
 #include "config.h"
 
@@ -127,6 +128,13 @@ static char const* STR_REMOVE = "Remove";
 
 int main(void)
 {
+	ASSERT((TIME_UPDATE > 1) && (TIME_UPDATE < 100));
+	ASSERT((FONT >= 0) && (FONT < SSIZE_MAX));
+	ASSERT((FONT_SZ > 0) && (FONT_SZ < SSIZE_MAX));
+	ASSERT((strlen(SV_DIR) > 0) && (strlen(SV_DIR) < STR_SZ));
+	ASSERT((strlen(SV_RUN_DIR) > 0) && (strlen(SV_RUN_DIR) < STR_SZ));
+	ASSERT((strlen(SV) > 0) && (strlen(SV) < STR_SZ));
+
 	MESSAGE_DBG("TITLE: %s", TITLE);
 	MESSAGE_DBG("TIME_UPDATE: %d", TIME_UPDATE);
 	MESSAGE_DBG("SV: %s", SV);

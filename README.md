@@ -26,14 +26,14 @@ make release
 
 ### Preprocessor directives
 
-| Directive | Description | Default |
-|-------------------------------|---------|---------
-| SV |  sv binary | /usr/bin/sv
-| SV_DIR      |  available services directory | /etc/runit/sv
-| SV_RUN_DIR      |  services directory | /run/runit/service
-| TIME_UPDATE | seconds of updating the list of service | 5
-| FONT        | FLTK font name  | FL_HELVETICA
-| FONT_SZ     | font size | 11
+| Directive | Description | Default | Type |
+|-------------------------------|---------|---------|---------
+| SV |  sv binary | /usr/bin/sv | string
+| SV_DIR      |  available services directory | /etc/runit/sv | string
+| SV_RUN_DIR      |  services directory | /run/runit/service | string
+| TIME_UPDATE | seconds of updating the list of service | 5 | integer
+| FONT        | FLTK font name  | FL_HELVETICA | integer
+| FONT_SZ     | font size | 11 | integer
 
 Example
 
