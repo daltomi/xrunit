@@ -34,7 +34,7 @@
 #include "config.h"
 
 #ifdef DEBUG
-#define TITLE "xsv  " VERSION " - Debug"
+#define TITLE "xsv " VERSION " - Debug"
 #else
 #define TITLE "xsv " VERSION
 #endif
@@ -136,7 +136,7 @@ static Fl_Button* btn[BTN_MAX];
 static char const* STR_ADD = "Add";
 static char const* STR_REMOVE = "Remove";
 
-int main(void)
+int main(int argc, char* argv[])
 {
 	ASSERT((TIME_UPDATE > 1) && (TIME_UPDATE < 100));
 	ASSERT((FONT >= 0) && (FONT < SSIZE_MAX));
@@ -152,6 +152,15 @@ int main(void)
 	MESSAGE_DBG("SV_DIR: %s", SV_DIR);
 	MESSAGE_DBG("SV_RUN_DIR: %s", SV_RUN_DIR);
 
+	if (argc == 2)
+	{
+		if ((strstr(argv[1], "--version") || strstr(argv[1], "-v")))
+		{
+			printf("%s\n", TITLE);
+			exit(EXIT_SUCCESS);
+		}
+	}
+
 	if (geteuid() != 0)
 	{
 		fl_alert("Administrator permissions are required");
@@ -159,6 +168,7 @@ int main(void)
 	}
 
 	fl_register_images();
+	fl_message_title_default(TITLE);
 
 	Fl_Double_Window* wnd = new Fl_Double_Window(600, 400);
 	Fl_Group* grp = new Fl_Group(0, 0, wnd->w(), 30);
