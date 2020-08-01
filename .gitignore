@@ -3,3 +3,4 @@ config.h
 png2h
 xsv
 *.o
+*.zip
