@@ -397,9 +397,7 @@ static int GetSelected(Fl_Browser const* const browser)
 		}
 	}
 
-	ASSERT(0);
-
-	return 1; /* UNUSED */
+	return 1;
 }
 
 
