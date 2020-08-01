@@ -4,7 +4,7 @@ endif
 
 APP := xsv
 
-APP_VER := "0.6"
+APP_VER := "0.7"
 
 CXX ?= g++
 
