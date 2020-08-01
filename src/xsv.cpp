@@ -490,7 +490,7 @@ static bool AskIfContinue(char const* const service)
 		{
 			MESSAGE_DBG("ASK_SERVICES: %s", tok);
 
-			if (0 == fl_choice("Warning: Priority service name detected:'%s'\n"
+			if (0 == fl_choice("Warning: Protected service name detected: %s\n"
 							"Do you continue?", "Cancel", "Continue", 0, service))
 			{
 				free(str);
