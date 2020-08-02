@@ -6,8 +6,12 @@ Graphical interface for `sv (control and manage services monitored by runsv)`
 <img src="https://git.disroot.org/daltomi/xsv/raw/branch/master/screenshot.png"/>
 
 
-I use ArtixLinux, and the project is designed for it, if you use another distribution you can experiment
-with the preprocessor directives and always compile in debug mode.
+### Support
+
+I use ArtixLinux, and the project is designed for it.
+
+If you use another distribution you can experiment with the
+preprocessor directives and always compile in debug mode.
 
 
 ### Dependencies
