@@ -16,6 +16,8 @@ preprocessor directives and always compile in debug mode.
 
 ### Dependencies
 
+* C++ standard: >= c++11
+
 * Libraries : **fltk**
 
 * Build:  **g++**, **make**, **fltk-config**
