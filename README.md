@@ -14,11 +14,12 @@ If you use another distribution you can experiment with the
 preprocessor directives and always compile in debug mode.
 
 
+
 ### Dependencies
 
 * C++ standard: >= c++11
 
-* Libraries : **fltk**
+* Libraries : **fltk (>= 1.3.4rc1)**
 
 * Build:  **g++**, **make**, **fltk-config**
 
