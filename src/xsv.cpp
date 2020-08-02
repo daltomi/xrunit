@@ -109,25 +109,25 @@ enum {
 	BROWSER_MAX
 };
 
-static void FillBrowserEnable(void);
-static void FillBrowserList(void);
-static int GetSelected(Fl_Browser const* const brw);
-static void RunSv(char const* const service, char const* const action);
-static void ShowWindowModal(Fl_Double_Window* const wnd);
-static void SetButtonAlign(int const start, int const end, int const align);
-static void SetButtonFont(int const start, int const end);
-static void SetFont(Fl_Widget* w);
-static void SetFont(Fl_Hold_Browser* w);
-static void System(char const* const cmd);
-static void RemoveNewLine(char* str);
-static bool AskIfContinue(char const* const service);
+void FillBrowserEnable(void);
+void FillBrowserList(void);
+int GetSelected(Fl_Browser const* const brw);
+void RunSv(char const* const service, char const* const action);
+void ShowWindowModal(Fl_Double_Window* const wnd);
+void SetButtonAlign(int const start, int const end, int const align);
+void SetButtonFont(int const start, int const end);
+void SetFont(Fl_Widget* w);
+void SetFont(Fl_Hold_Browser* w);
+void System(char const* const cmd);
+void RemoveNewLine(char* str);
+bool AskIfContinue(char const* const service);
 
-static void QuitCb(UNUSED Fl_Widget* w, UNUSED void* data);
-static void SelectCb(UNUSED Fl_Widget* w, UNUSED void* data);
-static void RunDownCb(Fl_Widget* w, UNUSED void* data);
-static void IntallUninstallCb(Fl_Widget* w, UNUSED void* data);
-static void AddServicesCb(UNUSED Fl_Widget* w, UNUSED void* data);
-static void TimerCb(UNUSED void* data);
+void QuitCb(UNUSED Fl_Widget* w, UNUSED void* data);
+void SelectCb(UNUSED Fl_Widget* w, UNUSED void* data);
+void RunDownCb(Fl_Widget* w, UNUSED void* data);
+void IntallUninstallCb(Fl_Widget* w, UNUSED void* data);
+void AddServicesCb(UNUSED Fl_Widget* w, UNUSED void* data);
+void TimerCb(UNUSED void* data);
 
 static int  itemSelect[BROWSER_MAX] { [ENABLE] = SELECT_RESET, [LIST] = SELECT_RESET };
 
@@ -225,7 +225,7 @@ int main(int argc, char* argv[])
 }
 
 
-static void SetFont(Fl_Widget* w)
+void SetFont(Fl_Widget* w)
 {
 	ASSERT_DBG(w);
 	w->labelfont(FONT);
@@ -233,14 +233,14 @@ static void SetFont(Fl_Widget* w)
 }
 
 
-static void SetFont(Fl_Hold_Browser* w)
+void SetFont(Fl_Hold_Browser* w)
 {
 	ASSERT_DBG(w);
 	w->textfont(FONT);
 	w->textsize(FONT_SZ);
 }
 
-static void SetButtonFont(int const start, int const end)
+void SetButtonFont(int const start, int const end)
 {
 	for (int i = start; i <= end; i++)
 	{
@@ -249,7 +249,7 @@ static void SetButtonFont(int const start, int const end)
 }
 
 
-static void FillBrowserEnable(void)
+void FillBrowserEnable(void)
 {
 	char buffer[STR_SZ];
 
@@ -332,7 +332,7 @@ static void FillBrowserEnable(void)
 }
 
 
-static void FillBrowserList(void)
+void FillBrowserList(void)
 {
 	char buffer[STR_SZ];
 
@@ -418,13 +418,13 @@ static void FillBrowserList(void)
 }
 
 
-static void QuitCb(UNUSED Fl_Widget* w, UNUSED void* data)
+void QuitCb(UNUSED Fl_Widget* w, UNUSED void* data)
 {
 	exit(EXIT_SUCCESS);
 }
 
 
-static int GetSelected(Fl_Browser const* const brw)
+int GetSelected(Fl_Browser const* const brw)
 {
 	for (int i = 1; i <= brw->size(); i++)
 	{
@@ -449,7 +449,7 @@ static int GetSelected(Fl_Browser const* const brw)
 }
 
 
-static void SelectCb(UNUSED Fl_Widget* w, UNUSED void* data)
+void SelectCb(UNUSED Fl_Widget* w, UNUSED void* data)
 {
 	ASSERT_DBG(w);
 
@@ -471,7 +471,7 @@ static void SelectCb(UNUSED Fl_Widget* w, UNUSED void* data)
 }
 
 
-static bool AskIfContinue(char const* const service)
+bool AskIfContinue(char const* const service)
 {
 	ASSERT_DBG(service);
 	ASSERT_DBG(service[0] != '\0');
@@ -504,7 +504,7 @@ static bool AskIfContinue(char const* const service)
 }
 
 
-static void RunDownCb(UNUSED Fl_Widget* w, UNUSED void* data)
+void RunDownCb(UNUSED Fl_Widget* w, UNUSED void* data)
 {
 	Fl_Button* btnId = (Fl_Button*)w;
 
@@ -547,7 +547,7 @@ static void RunDownCb(UNUSED Fl_Widget* w, UNUSED void* data)
 }
 
 
-static void RemoveNewLine(char* str)
+void RemoveNewLine(char* str)
 {
 	char* cp = strchr(str, '\n');
 
@@ -558,7 +558,7 @@ static void RemoveNewLine(char* str)
 }
 
 
-static void IntallUninstallCb(Fl_Widget* w, UNUSED void* data)
+void IntallUninstallCb(Fl_Widget* w, UNUSED void* data)
 {
 	ASSERT_DBG(w);
 
@@ -622,7 +622,7 @@ static void IntallUninstallCb(Fl_Widget* w, UNUSED void* data)
 }
 
 
-static void System(char const* const cmd)
+void System(char const* const cmd)
 {
 	int const ret = system(cmd);
 
@@ -649,7 +649,7 @@ static void System(char const* const cmd)
 }
 
 
-static void RunSv(char const* const service, char const* const action)
+void RunSv(char const* const service, char const* const action)
 {
 	char cmd [STR_SZ];
 
@@ -667,14 +667,14 @@ static void RunSv(char const* const service, char const* const action)
 }
 
 
-static void TimerCb(UNUSED void* data)
+void TimerCb(UNUSED void* data)
 {
 	FillBrowserEnable();
 	Fl::repeat_timeout(TIME_UPDATE, TimerCb);
 }
 
 
-static void SetButtonAlign(int const start, int const end, int const align)
+void SetButtonAlign(int const start, int const end, int const align)
 {
 	for (int i = start; i <= end; ++i)
 	{
@@ -683,7 +683,7 @@ static void SetButtonAlign(int const start, int const end, int const align)
 }
 
 
-static void ShowWindowModal(Fl_Double_Window* const wnd)
+void ShowWindowModal(Fl_Double_Window* const wnd)
 {
 	ASSERT_DBG(wnd);
 
@@ -697,14 +697,14 @@ static void ShowWindowModal(Fl_Double_Window* const wnd)
 }
 
 
-static void CloseWindowCb(UNUSED Fl_Widget* w, void* data)
+void CloseWindowCb(UNUSED Fl_Widget* w, void* data)
 {
 	ASSERT_DBG(data);
 	((Fl_Double_Window*)data)->hide();
 }
 
 
-static void AddServicesCb(UNUSED Fl_Widget* w, UNUSED void* data)
+void AddServicesCb(UNUSED Fl_Widget* w, UNUSED void* data)
 {
 	ASSERT_DBG(data);
 
