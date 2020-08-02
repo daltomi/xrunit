@@ -267,6 +267,7 @@ void FillBrowserEnable(void)
 
 	btn[DOWN]->deactivate();
 	btn[RUN]->deactivate();
+	btn[ADD]->deactivate();
 
 	int iselect_count = SELECT_RESET;
 
@@ -282,10 +283,12 @@ void FillBrowserEnable(void)
 			if (pb[0] == 'd' || pb[0] == 'D')
 			{
 				btn[RUN]->activate();
+				btn[ADD]->activate();
 			}
-			else
+			else if (pb[0] == 'r' || pb[0] == 'R')
 			{
 				btn[DOWN]->activate();
+				btn[ADD]->activate();
 			}
 		}
 
