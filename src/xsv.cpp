@@ -123,10 +123,10 @@ void RemoveNewLine(char* str);
 bool AskIfContinue(char const* const service);
 
 void QuitCb(UNUSED Fl_Widget* w, UNUSED void* data);
-void SelectCb(UNUSED Fl_Widget* w, UNUSED void* data);
+void SelectCb(Fl_Widget* w, UNUSED void* data);
 void RunDownCb(Fl_Widget* w, UNUSED void* data);
 void IntallUninstallCb(Fl_Widget* w, UNUSED void* data);
-void AddServicesCb(UNUSED Fl_Widget* w, UNUSED void* data);
+void AddServicesCb(UNUSED Fl_Widget* w, void* data);
 void TimerCb(UNUSED void* data);
 
 static int  itemSelect[BROWSER_MAX] { [ENABLE] = SELECT_RESET, [LIST] = SELECT_RESET };
@@ -452,7 +452,7 @@ int GetSelected(Fl_Browser const* const brw)
 }
 
 
-void SelectCb(UNUSED Fl_Widget* w, UNUSED void* data)
+void SelectCb(Fl_Widget* w, UNUSED void* data)
 {
 	ASSERT_DBG(w);
 
@@ -507,7 +507,7 @@ bool AskIfContinue(char const* const service)
 }
 
 
-void RunDownCb(UNUSED Fl_Widget* w, UNUSED void* data)
+void RunDownCb(Fl_Widget* w, UNUSED void* data)
 {
 	Fl_Button* btnId = (Fl_Button*)w;
 
@@ -707,7 +707,7 @@ void CloseWindowCb(UNUSED Fl_Widget* w, void* data)
 }
 
 
-void AddServicesCb(UNUSED Fl_Widget* w, UNUSED void* data)
+void AddServicesCb(UNUSED Fl_Widget* w, void* data)
 {
 	ASSERT_DBG(data);
 
