@@ -91,6 +91,7 @@
 #define FONT_SZ 11
 #endif
 
+
 enum {
 /* Not move */
 
@@ -585,7 +586,7 @@ void IntallUninstallCb(Fl_Widget* w, UNUSED void* data)
 
 	strncpy(dest, SV_RUN_DIR, STR_SZ - 1);
 	strncat(dest, "/", 1);
-	strncat(dest, itemText, STR_SZ - 1);
+	strncat(dest, itemText, STR_SZ - strlen(dest) - 1);
 	dest[STR_SZ - 1] = '\0';
 
 	RemoveNewLine(dest);
@@ -594,21 +595,21 @@ void IntallUninstallCb(Fl_Widget* w, UNUSED void* data)
 	{
 		strncpy(src, SV_DIR, STR_SZ - 1);
 		strncat(src, "/", 1);
-		strncat(src,  itemText, STR_SZ - 1);
+		strncat(src,  itemText, STR_SZ - strlen(src) - 1);
 		src[STR_SZ - 1] = '\0';
 
 		RemoveNewLine(src);
 
 		strncpy(cmd, SYMLINK, STR_SZ_2 - 1);
-		strncat(cmd, src, STR_SZ_2 - 1);
+		strncat(cmd, src, STR_SZ_2 - strlen(cmd) - 1);
 		strcat(cmd, " ");
-		strncat(cmd, dest,STR_SZ_2 - 1);
+		strncat(cmd, dest, STR_SZ_2 - strlen(cmd) - 1);
 	}
 	else if (btnId == btn[UNINSTALL])
 	{
 		strncpy(cmd, UNLINK, STR_SZ_2 - 1);
 		strcat(cmd, " ");
-		strncat(cmd, dest, STR_SZ_2 - 1);
+		strncat(cmd, dest, STR_SZ_2 - strlen(cmd) - 1);
 	}
 	else
 	{
@@ -659,8 +660,8 @@ void RunSv(char const* const service, char const* const action)
 	cmd[STR_SZ - 1] = '\0';
 
 	strncpy(cmd, SV, STR_SZ - 1);
-	strncat(cmd, action, STR_SZ - 1);
-	strncat(cmd, service, STR_SZ - 1);
+	strncat(cmd, action, STR_SZ - strlen(cmd) - 1);
+	strncat(cmd, service, STR_SZ - strlen(cmd) - 1);
 
 	MESSAGE_DBG("exec cmd: %s", cmd);
 
