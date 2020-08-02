@@ -6,7 +6,8 @@ Graphical interface for `sv (control and manage services monitored by runsv)`
 <img src="https://git.disroot.org/daltomi/xsv/raw/branch/master/screenshot.png"/>
 
 
-## Tested on Artix Linux, alpha state.
+I use ArtixLinux, and the project is designed for it, if you use another distribution you can experiment
+with the preprocessor directives and always compile in debug mode.
 
 
 ### Dependencies
@@ -22,7 +23,6 @@ make debug
 make release
 ```
 
-* Use debug mode while in alpha, bug report.
 * This program needs to be run with administrator permissions.
 
 ### Preprocessor directives
