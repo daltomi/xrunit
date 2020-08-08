@@ -19,7 +19,7 @@ preprocessor directives and always compile in debug mode.
 
 * C++ standard: >= c++11
 
-* Libraries : **fltk (>= 1.3.4rc1)**
+* Libraries : **fltk** (>= 1.3.4rc1)
 
 * Build:  **g++**, **make**, **fltk-config**
 
