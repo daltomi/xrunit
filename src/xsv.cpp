@@ -567,7 +567,6 @@ void IntallUninstallCb(Fl_Widget* w, UNUSED void* data)
 	ASSERT_DBG(w);
 
 	char dest[STR_SZ];
-	char src[STR_SZ];
 	#define STR_SZ_2 STR_SZ * 2
 	char cmd[STR_SZ_2];
 
@@ -593,6 +592,8 @@ void IntallUninstallCb(Fl_Widget* w, UNUSED void* data)
 
 	if (btnId == btn[INSTALL])
 	{
+		char src[STR_SZ];
+
 		strncpy(src, SV_DIR, STR_SZ - 1);
 		strncat(src, "/", 1);
 		strncat(src,  itemText, STR_SZ - strlen(src) - 1);
