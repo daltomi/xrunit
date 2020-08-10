@@ -67,6 +67,7 @@
 #define SV_STATUS " status "
 #define SV_UP " up "
 #define SV_DOWN " down "
+#define SV_RESTART " restart "
 #define SV_LIST SV SV_STATUS " " SV_RUN_DIR"/*"
 #define LS_SV "ls -1 " SV_DIR
 #define LS_SV_RUN "ls -1 " SV_RUN_DIR
@@ -99,6 +100,7 @@ enum {
 	QUIT,
 	RUN,
 	DOWN,
+	RESTART,
 	ADD,
 	CLOSE,
 	INSTALL,
@@ -125,7 +127,7 @@ bool AskIfContinue(char const* const service);
 
 void QuitCb(UNUSED Fl_Widget* w, UNUSED void* data);
 void SelectCb(Fl_Widget* w, UNUSED void* data);
-void RunDownCb(Fl_Widget* w, UNUSED void* data);
+void CommandCb(Fl_Widget* w, UNUSED void* data);
 void IntallUninstallCb(Fl_Widget* w, UNUSED void* data);
 void AddServicesCb(UNUSED Fl_Widget* w, void* data);
 void TimerCb(UNUSED void* data);
@@ -177,7 +179,8 @@ int main(int argc, char* argv[])
 	btn[QUIT] = new Fl_Button(BTN_X, BTN_Y, BTN_W, BTN_H, "Quit");
 	btn[RUN] = new Fl_Button(BTN_W + BTN_PAD, BTN_Y, BTN_W, BTN_H, "Run");
 	btn[DOWN] = new Fl_Button(BTN_W * 2 + BTN_PAD, BTN_Y, BTN_W, BTN_H, "Down");
-	btn[ADD] = new Fl_Button(BTN_W * 3 + BTN_PAD, BTN_Y, BTN_W + 20, BTN_H, "Service...");
+	btn[RESTART] = new Fl_Button(BTN_W * 3 + BTN_PAD, BTN_Y, BTN_W, BTN_H, "Restart");
+	btn[ADD] = new Fl_Button(BTN_W * 4 + BTN_PAD, BTN_Y, BTN_W + 20, BTN_H, "Service...");
 
 	SetButtonAlign(QUIT, ADD, 256);
 	SetButtonFont(QUIT, ADD);
@@ -185,11 +188,13 @@ int main(int argc, char* argv[])
 	btn[QUIT]->image(get_icon_quit());
 	btn[RUN]->image(get_icon_run());
 	btn[DOWN]->image(get_icon_down());
+	btn[RESTART]->image(get_icon_restart());
 	btn[ADD]->image(get_icon_add());
 
 	btn[QUIT]->callback(QuitCb);
-	btn[RUN]->callback(RunDownCb);
-	btn[DOWN]->callback(RunDownCb);
+	btn[RUN]->callback(CommandCb);
+	btn[DOWN]->callback(CommandCb);
+	btn[RESTART]->callback(CommandCb);
 	btn[ADD]->callback(AddServicesCb,(void*)wnd);
 
 	{
@@ -269,6 +274,7 @@ void FillBrowserEnable(void)
 	btn[DOWN]->deactivate();
 	btn[RUN]->deactivate();
 	btn[ADD]->deactivate();
+	btn[RESTART]->deactivate();
 
 	int iselect_count = SELECT_RESET;
 
@@ -289,6 +295,7 @@ void FillBrowserEnable(void)
 			else if (pb[0] == 'r' || pb[0] == 'R')
 			{
 				btn[DOWN]->activate();
+				btn[RESTART]->activate();
 				btn[ADD]->activate();
 			}
 		}
@@ -508,7 +515,7 @@ bool AskIfContinue(char const* const service)
 }
 
 
-void RunDownCb(Fl_Widget* w, UNUSED void* data)
+void CommandCb(Fl_Widget* w, UNUSED void* data)
 {
 	Fl_Button* btnId = (Fl_Button*)w;
 
@@ -533,6 +540,10 @@ void RunDownCb(Fl_Widget* w, UNUSED void* data)
 	if (btnId == btn[RUN])
 	{
 		RunSv(service, SV_UP);
+	}
+	else if (btnId == btn[RESTART])
+	{
+		RunSv(service, SV_RESTART);
 	}
 	else if (btnId == btn[DOWN])
 	{
