@@ -543,7 +543,10 @@ void CommandCb(Fl_Widget* w, UNUSED void* data)
 	}
 	else if (btnId == btn[RESTART])
 	{
-		RunSv(service, SV_RESTART);
+		if (AskIfContinue(service))
+		{
+			RunSv(service, SV_RESTART);
+		}
 	}
 	else if (btnId == btn[DOWN])
 	{
