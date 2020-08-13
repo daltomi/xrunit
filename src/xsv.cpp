@@ -27,6 +27,9 @@
 #include <FL/fl_ask.H>
 
 #include <unistd.h>
+#include <sys/wait.h>
+#include <sys/stat.h>
+#include <errno.h>
 #include <stdio.h>
 #include <limits.h>
 #include <string.h>
@@ -46,7 +49,7 @@
 #endif
 
 #ifndef SV
-#define SV "/usr/bin/sv"
+#define SV "sv"
 #endif
 
 #ifndef SV_RUN_DIR
@@ -64,15 +67,10 @@
 
 #define ASK_SERVICES_DELIM ","
 
-#define SV_STATUS " status "
-#define SV_UP " up "
-#define SV_DOWN " down "
-#define SV_RESTART " restart "
-#define SV_LIST SV SV_STATUS " " SV_RUN_DIR"/*"
+// popen cmds
+#define SV_LIST SV " status " SV_RUN_DIR"/*"
 #define LS_SV "ls -1 " SV_DIR
 #define LS_SV_RUN "ls -1 " SV_RUN_DIR
-#define SYMLINK "ln -s "
-#define UNLINK "unlink "
 
 #define UNUSED __attribute__((unused))
 
@@ -121,7 +119,7 @@ void SetButtonAlign(int const start, int const end, int const align);
 void SetButtonFont(int const start, int const end);
 void SetFont(Fl_Widget* w);
 void SetFont(Fl_Hold_Browser* w);
-void System(char const* const cmd);
+void System(char const* const exec, char* const* argv);
 void RemoveNewLine(char* str);
 bool AskIfContinue(char const* const service);
 
@@ -478,7 +476,6 @@ void SelectCb(Fl_Widget* w, UNUSED void* data)
 		itemSelect[LIST] = iselected;
 		FillBrowserList();
 	}
-
 }
 
 
@@ -539,20 +536,20 @@ void CommandCb(Fl_Widget* w, UNUSED void* data)
 
 	if (btnId == btn[RUN])
 	{
-		RunSv(service, SV_UP);
+		RunSv(service, "up");
 	}
 	else if (btnId == btn[RESTART])
 	{
 		if (AskIfContinue(service))
 		{
-			RunSv(service, SV_RESTART);
+			RunSv(service, "restart");
 		}
 	}
 	else if (btnId == btn[DOWN])
 	{
 		if (AskIfContinue(service))
 		{
-			RunSv(service, SV_DOWN);
+			RunSv(service, "down");
 		}
 	}
 	else
@@ -581,8 +578,7 @@ void IntallUninstallCb(Fl_Widget* w, UNUSED void* data)
 	ASSERT_DBG(w);
 
 	char dest[STR_SZ];
-	#define STR_SZ_2 STR_SZ * 2
-	char cmd[STR_SZ_2];
+	char* argv[5];
 
 	Fl_Button* btnId = (Fl_Button*)w;
 
@@ -615,73 +611,76 @@ void IntallUninstallCb(Fl_Widget* w, UNUSED void* data)
 
 		RemoveNewLine(src);
 
-		strncpy(cmd, SYMLINK, STR_SZ_2 - 1);
-		strncat(cmd, src, STR_SZ_2 - strlen(cmd) - 1);
-		strcat(cmd, " ");
-		strncat(cmd, dest, STR_SZ_2 - strlen(cmd) - 1);
+		argv[0] = "ln";
+		argv[1] = "-s";
+		argv[2] = src;
+		argv[3] = dest;
+		argv[4] = 0;
+		System("ln", argv);
 	}
 	else if (btnId == btn[UNINSTALL])
 	{
-		strncpy(cmd, UNLINK, STR_SZ_2 - 1);
-		strcat(cmd, " ");
-		strncat(cmd, dest, STR_SZ_2 - strlen(cmd) - 1);
+		argv[0] = "unlink";
+		argv[1] = dest;
+		argv[2] = 0;
+		System("unlink", argv);
 	}
 	else
 	{
 		STOP_DBG("Button identifier not covered: %p", btnId);
 	}
 
-	cmd[STR_SZ_2 - 1] = '\0';
-
-	RemoveNewLine(cmd);
-	System(cmd);
-
 	FillBrowserEnable();
 	FillBrowserList();
 }
 
 
-void System(char const* const cmd)
+void System(char const* const exec, char* const* argv)
 {
-	int const ret = system(cmd);
+	int wpid = 0, status = 0;
 
-	if (ret == -1)
+	if (fork() == 0)
 	{
-		fl_alert("system(): internal error");
-		exit(EXIT_FAILURE);
-	}
+		errno = 0;
 
-	if (127 == WEXITSTATUS(ret))
-	{
-		fl_alert("The command could not be executed:\n%s", cmd);
-		exit(EXIT_FAILURE);
-	}
+		int ret = execvp(exec, argv);
 
-	if (WIFEXITED(ret))
-	{
-		if (WEXITSTATUS(ret) != 0)
+		if (ret == -1)
 		{
-			fl_alert("The command was executed but ended with error.\n%s", cmd);
+			STOP("There was a failure while executing the process %s, error=%s\n", exec, strerror(errno));
+		}
+
+		if (127 == WEXITSTATUS(ret))
+		{
+			fl_alert("The command could not be executed:\n%s", exec);
 			exit(EXIT_FAILURE);
 		}
+
+		if (WIFEXITED(ret))
+		{
+			if (WEXITSTATUS(ret) != 0)
+			{
+				fl_alert("The command was executed but ended with error.\n%s", exec);
+				exit(EXIT_FAILURE);
+			}
+		}
+
+		exit(EXIT_SUCCESS);
 	}
+
+	while ((wpid = wait(&status)) > 0);
 }
 
 
 void RunSv(char const* const service, char const* const action)
 {
-	char cmd [STR_SZ];
+	char* argv[4];
+	argv[0] = SV;
+	argv[1] = (char*)action;
+	argv[2] = (char*)service;
+	argv[3] = 0;
 
-	cmd[STR_SZ - 1] = '\0';
-
-	strncpy(cmd, SV, STR_SZ - 1);
-	strncat(cmd, action, STR_SZ - strlen(cmd) - 1);
-	strncat(cmd, service, STR_SZ - strlen(cmd) - 1);
-
-	MESSAGE_DBG("exec cmd: %s", cmd);
-
-	System(cmd);
-
+	System(SV, argv);
 	FillBrowserEnable();
 }
 

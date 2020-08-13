@@ -4,7 +4,7 @@ endif
 
 APP := xsv
 
-APP_VER := "1.3"
+APP_VER := "1.4"
 
 PKG_REV := "1"
 
@@ -21,7 +21,7 @@ CXXLIBS_RELEASE :=-Wl,-s
 endif
 
 CXXFLAGS += -Wall $(shell fltk-config --cxxflags) -Iicons
-CXXFLAGS_RELEASE:= -O3 -DNDEBUG
+CXXFLAGS_RELEASE:= -O3 -DNDEBUG -Wno-write-strings
 CXXFLAGS_DEBUG:= -O2 -g -DDEBUG -Wextra -Wimplicit-fallthrough
 
 
