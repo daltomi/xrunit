@@ -683,6 +683,14 @@ void System(char const* const exec, char* const* argv)
 
 void SanitizeEnv(void)
 {
+	char* display = getenv("DISPLAY");
+
+	ASSERT(display);
+
+	char* xauthority = getenv("XAUTHORITY");
+
+	ASSERT(xauthority);
+
 	if (clearenv() != 0)
 	{
 		STOP("clearenv() function failed");
@@ -721,6 +729,20 @@ void SanitizeEnv(void)
 	if (setenv("IFS", "\t\n", 1) == -1)
 	{
 		STOP("setenv(IFS) function failed: %s", strerror(errno));
+	}
+
+	errno = 0;
+
+	if (setenv("DISPLAY", display, 1) == -1)
+	{
+		STOP("setenv(DISPLAY) function failed: %s", strerror(errno));
+	}
+
+	errno = 0;
+
+	if (setenv("XAUTHORITY", xauthority, 1) == -1)
+	{
+		STOP("setenv(XAUTHORITY) function failed: %s", strerror(errno));
 	}
 }
 
