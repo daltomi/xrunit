@@ -258,7 +258,7 @@ void FillBrowserEnable(void)
 {
 	char buffer[STR_SZ];
 
-	FILE* psv = 0;
+	FILE* psv = (FILE*)NULL;
 
 	SanitizeEnv();
 
@@ -303,7 +303,7 @@ void FillBrowserEnable(void)
 
 		char* pc = strchr(pb, ':');
 
-		ASSERT_DBG(pc != 0);
+		ASSERT_DBG(pc != (char*)NULL);
 		ASSERT_DBG(*pc != '\0');
 
 		*pc =  '\t';
@@ -348,8 +348,8 @@ void FillBrowserList(void)
 {
 	char buffer[STR_SZ];
 
-	FILE* pls = 0;
-	FILE* plsRun = 0;
+	FILE* pls = (FILE*)NULL;
+	FILE* plsRun = (FILE*)NULL;
 
 	SanitizeEnv();
 
@@ -565,7 +565,7 @@ void CommandCb(Fl_Widget* w, UNUSED void* data)
 	}
 
 	free(service);
-	service = 0;
+	service = (char*)NULL;
 }
 
 
@@ -622,14 +622,14 @@ void IntallUninstallCb(Fl_Widget* w, UNUSED void* data)
 		argv[1] = "-s";
 		argv[2] = src;
 		argv[3] = dest;
-		argv[4] = 0;
+		argv[4] = (char*)NULL;
 		System("ln", argv);
 	}
 	else if (btnId == btn[UNINSTALL])
 	{
 		argv[0] = "unlink";
 		argv[1] = dest;
-		argv[2] = 0;
+		argv[2] = (char*)NULL;
 		System("unlink", argv);
 	}
 	else
@@ -722,7 +722,7 @@ void SanitizeEnv(void)
 	}
 
 	free(pathbuf);
-	pathbuf = 0;
+	pathbuf = (char*)NULL;
 
 	errno = 0;
 
@@ -753,7 +753,7 @@ void RunSv(char const* const service, char const* const action)
 	argv[0] = SV;
 	argv[1] = (char*)action;
 	argv[2] = (char*)service;
-	argv[3] = 0;
+	argv[3] = (char*)NULL;
 
 	System(SV, argv);
 	FillBrowserEnable();
