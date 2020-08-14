@@ -120,6 +120,7 @@ void SetButtonFont(int const start, int const end);
 void SetFont(Fl_Widget* w);
 void SetFont(Fl_Hold_Browser* w);
 void System(char const* const exec, char* const* argv);
+void SanitizeEnv(void);
 void RemoveNewLine(char* str);
 bool AskIfContinue(char const* const service);
 
@@ -259,6 +260,8 @@ void FillBrowserEnable(void)
 
 	FILE* psv = 0;
 
+	SanitizeEnv();
+
 	psv = popen(SV_LIST, "r");
 
 	if (!psv)
@@ -348,6 +351,8 @@ void FillBrowserList(void)
 	FILE* pls = 0;
 	FILE* plsRun = 0;
 
+	SanitizeEnv();
+
 	pls = popen(LS_SV, "r");
 
 	if (!pls)
@@ -373,6 +378,8 @@ void FillBrowserList(void)
 	}
 
 	pclose(pls);
+
+	SanitizeEnv();
 
 	plsRun = popen(LS_SV_RUN, "r");
 
@@ -639,6 +646,8 @@ void System(char const* const exec, char* const* argv)
 {
 	int wpid = 0, status = 0;
 
+	SanitizeEnv();
+
 	if (fork() == 0)
 	{
 		errno = 0;
@@ -669,6 +678,50 @@ void System(char const* const exec, char* const* argv)
 	}
 
 	while ((wpid = wait(&status)) > 0);
+}
+
+
+void SanitizeEnv(void)
+{
+	if (clearenv() != 0)
+	{
+		STOP("clearenv() function failed");
+	}
+
+	size_t const n = confstr(_CS_PATH, 0, 0);
+
+	if (n == 0)
+	{
+		STOP("confstr(_CS_PATH, 0, 0) function failed");
+	}
+
+	char* pathbuf = (char*)calloc(n, sizeof(char));
+
+	ASSERT_DBG(pathbuf);
+
+	if (confstr(_CS_PATH, pathbuf, n) == 0)
+	{
+		free(pathbuf);
+		STOP("confstr(_CS_PATH, pathbuf, n) function failed");
+	}
+
+	errno = 0;
+
+	if (setenv("PATH", pathbuf, 1) == -1)
+	{
+		free(pathbuf);
+		STOP("setenv(PATH) function failed: %s", strerror(errno));
+	}
+
+	free(pathbuf);
+	pathbuf = 0;
+
+	errno = 0;
+
+	if (setenv("IFS", "\t\n", 1) == -1)
+	{
+		STOP("setenv(IFS) function failed: %s", strerror(errno));
+	}
 }
 
 
