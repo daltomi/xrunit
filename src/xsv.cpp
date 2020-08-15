@@ -16,99 +16,11 @@
 	You should have received a copy of the GNU General Public License
 	along with xsv.  If not, see <http://www.gnu.org/licenses/>.
 */
-#include <FL/Fl.H>
-#include <FL/Fl_Double_Window.H>
-#include <FL/Fl_Hold_Browser.H>
-#include <FL/Fl_Button.H>
-#include <FL/Fl_Group.H>
-#include <FL/Fl_Box.H>
-#include <FL/Fl_Image.H>
-#include <FL/Fl_Shared_Image.H>
-#include <FL/fl_ask.H>
-
-#include <unistd.h>
-#include <sys/wait.h>
-#include <sys/stat.h>
-#include <errno.h>
-#include <stdio.h>
-#include <limits.h>
-#include <string.h>
 
 #include "config.h"
-
-#ifdef DEBUG
-#define TITLE "xsv " VERSION " - Debug"
-#else
-#define TITLE "xsv " VERSION
-#endif
-
-#define TITLE_SERVICE TITLE " - Services"
-
-#ifndef TIME_UPDATE
-#define TIME_UPDATE 5
-#endif
-
-#ifndef SV
-#define SV "sv"
-#endif
-
-#ifndef SV_RUN_DIR
-#define SV_RUN_DIR "/run/runit/service"
-#endif
-
-#ifndef SV_DIR
-#define SV_DIR "/etc/runit/sv"
-#endif
-
-#ifndef ASK_SERVICES
-// It doesn't have to be the exact name
-#define ASK_SERVICES "tty,dbus,udev,elogind"
-#endif
-
-#define ASK_SERVICES_DELIM ","
-
-// popen cmds
-#define SV_LIST SV " status " SV_RUN_DIR"/*"
-#define LS_SV "ls -1 " SV_DIR
-#define LS_SV_RUN "ls -1 " SV_RUN_DIR
-
-#define UNUSED __attribute__((unused))
-
-#define SELECT_RESET 1
-#define STR_SZ  200
-#define BTN_W 80
-#define BTN_H 25
-#define BTN_X 10
-#define BTN_Y 10
-#define BTN_PAD 15
-
-#ifndef FONT
-#define FONT FL_HELVETICA
-#endif
-
-#ifndef FONT_SZ
-#define FONT_SZ 11
-#endif
-
-
-enum {
-/* Not move */
-
-/* Fl_Button */
-	QUIT,
-	RUN,
-	DOWN,
-	RESTART,
-	ADD,
-	CLOSE,
-	INSTALL,
-	UNINSTALL,
-	BTN_MAX,
-/* Fl_Hold_Browser */
-	ENABLE = 0,
-	LIST,
-	BROWSER_MAX
-};
+#include "system.h"
+#include "pipe.h"
+#include "icons.h"
 
 void FillBrowserEnable(void);
 void FillBrowserList(void);
@@ -119,8 +31,6 @@ void SetButtonAlign(int const start, int const end, int const align);
 void SetButtonFont(int const start, int const end);
 void SetFont(Fl_Widget* w);
 void SetFont(Fl_Hold_Browser* w);
-void System(char const* const exec, char* const* argv);
-void SanitizeEnv(void);
 void RemoveNewLine(char* str);
 bool AskIfContinue(char const* const service);
 
@@ -131,7 +41,7 @@ void IntallUninstallCb(Fl_Widget* w, UNUSED void* data);
 void AddServicesCb(UNUSED Fl_Widget* w, void* data);
 void TimerCb(UNUSED void* data);
 
-static int  itemSelect[BROWSER_MAX] { [ENABLE] = SELECT_RESET, [LIST] = SELECT_RESET };
+static int itemSelect[BROWSER_MAX] { [ENABLE] = SELECT_RESET, [LIST] = SELECT_RESET };
 
 static Fl_Hold_Browser* browser[BROWSER_MAX];
 static Fl_Button* btn[BTN_MAX];
@@ -258,17 +168,7 @@ void FillBrowserEnable(void)
 {
 	char buffer[STR_SZ];
 
-	FILE* psv = (FILE*)NULL;
-
-	SanitizeEnv();
-
-	psv = popen(SV_LIST, "r");
-
-	if (!psv)
-	{
-		fl_alert("Failed to open the pipe.\nCommand line: %s", SV_LIST);
-		exit(EXIT_FAILURE);
-	}
+	FILE* psv = PipeOpen(SV_LIST);
 
 	browser[ENABLE]->clear();
 
@@ -332,7 +232,7 @@ void FillBrowserEnable(void)
 		}
 	}
 
-	pclose(psv);
+	PipeClose(psv);
 
 	if (browser[ENABLE]->size() == 0)
 	{
@@ -348,18 +248,7 @@ void FillBrowserList(void)
 {
 	char buffer[STR_SZ];
 
-	FILE* pls = (FILE*)NULL;
-	FILE* plsRun = (FILE*)NULL;
-
-	SanitizeEnv();
-
-	pls = popen(LS_SV, "r");
-
-	if (!pls)
-	{
-		fl_alert("Failed to open the pipe.\nCommand line: %s", LS_SV);
-		exit(EXIT_FAILURE);
-	}
+	FILE* pipe = PipeOpen(LS_SV);
 
 	btn[INSTALL]->deactivate();
 	btn[UNINSTALL]->deactivate();
@@ -369,7 +258,7 @@ void FillBrowserList(void)
 	int iselect_count = SELECT_RESET;
 	int item = 1;
 
-	while (fgets(buffer, STR_SZ, pls))
+	while (fgets(buffer, STR_SZ, pipe))
 	{
 		buffer[STR_SZ - 1] = '\0';
 
@@ -377,19 +266,11 @@ void FillBrowserList(void)
 		browser[LIST]->icon(item++, get_icon_disable());
 	}
 
-	pclose(pls);
+	PipeClose(pipe);
 
-	SanitizeEnv();
+	pipe = PipeOpen(LS_SV_RUN);
 
-	plsRun = popen(LS_SV_RUN, "r");
-
-	if (!plsRun)
-	{
-		fl_alert("Failed to open the pipe.\nCommand line: %s", LS_SV_RUN);
-		exit(EXIT_FAILURE);
-	}
-
-	while (fgets(buffer, STR_SZ, plsRun))
+	while (fgets(buffer, STR_SZ, pipe))
 	{
 		buffer[STR_SZ - 1] = '\0';
 
@@ -407,7 +288,7 @@ void FillBrowserList(void)
 		}
 	}
 
-	pclose(plsRun);
+	PipeClose(pipe);
 
 	for (int item = 1; item <= browser[LIST]->size(); ++item)
 	{
@@ -639,111 +520,6 @@ void IntallUninstallCb(Fl_Widget* w, UNUSED void* data)
 
 	FillBrowserEnable();
 	FillBrowserList();
-}
-
-
-void System(char const* const exec, char* const* argv)
-{
-	int wpid = 0, status = 0;
-
-	SanitizeEnv();
-
-	if (fork() == 0)
-	{
-		errno = 0;
-
-		int ret = execvp(exec, argv);
-
-		if (ret == -1)
-		{
-			STOP("There was a failure while executing the process %s, error=%s\n", exec, strerror(errno));
-		}
-
-		if (127 == WEXITSTATUS(ret))
-		{
-			fl_alert("The command could not be executed:\n%s", exec);
-			exit(EXIT_FAILURE);
-		}
-
-		if (WIFEXITED(ret))
-		{
-			if (WEXITSTATUS(ret) != 0)
-			{
-				fl_alert("The command was executed but ended with error.\n%s", exec);
-				exit(EXIT_FAILURE);
-			}
-		}
-
-		exit(EXIT_SUCCESS);
-	}
-
-	while ((wpid = wait(&status)) > 0);
-}
-
-
-void SanitizeEnv(void)
-{
-	char* display = getenv("DISPLAY");
-
-	ASSERT(display);
-
-	char* xauthority = getenv("XAUTHORITY");
-
-	ASSERT(xauthority);
-
-	if (clearenv() != 0)
-	{
-		STOP("clearenv() function failed");
-	}
-
-	size_t const n = confstr(_CS_PATH, 0, 0);
-
-	if (n == 0)
-	{
-		STOP("confstr(_CS_PATH, 0, 0) function failed");
-	}
-
-	char* pathbuf = (char*)calloc(n, sizeof(char));
-
-	ASSERT_DBG(pathbuf);
-
-	if (confstr(_CS_PATH, pathbuf, n) == 0)
-	{
-		free(pathbuf);
-		STOP("confstr(_CS_PATH, pathbuf, n) function failed");
-	}
-
-	errno = 0;
-
-	if (setenv("PATH", pathbuf, 1) == -1)
-	{
-		free(pathbuf);
-		STOP("setenv(PATH) function failed: %s", strerror(errno));
-	}
-
-	free(pathbuf);
-	pathbuf = (char*)NULL;
-
-	errno = 0;
-
-	if (setenv("IFS", "\t\n", 1) == -1)
-	{
-		STOP("setenv(IFS) function failed: %s", strerror(errno));
-	}
-
-	errno = 0;
-
-	if (setenv("DISPLAY", display, 1) == -1)
-	{
-		STOP("setenv(DISPLAY) function failed: %s", strerror(errno));
-	}
-
-	errno = 0;
-
-	if (setenv("XAUTHORITY", xauthority, 1) == -1)
-	{
-		STOP("setenv(XAUTHORITY) function failed: %s", strerror(errno));
-	}
 }
 
 
