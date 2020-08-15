@@ -20,7 +20,7 @@
 #ifndef PIPE_H_INCLUDE
 #define PIPE_H_INCLUDE
 
-FILE* PipeOpen(char const* const cmd, char const* const type);
+FILE* PipeOpen(char const* const cmd);
 
 void PipeClose(FILE* pipe);
 

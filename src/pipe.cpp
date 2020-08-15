@@ -20,10 +20,9 @@
 #include "system.h"
 #include "pipe.h"
 
-FILE* PipeOpen(char const* const cmd, char const* const type)
+FILE* PipeOpen(char const* const cmd)
 {
 	ASSERT_DBG(cmd);
-	ASSERT_DBG(type);
 
 	SanitizeEnv();
 

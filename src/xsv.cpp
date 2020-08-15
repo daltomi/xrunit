@@ -168,7 +168,7 @@ void FillBrowserEnable(void)
 {
 	char buffer[STR_SZ];
 
-	FILE* psv = PipeOpen(SV_LIST, "r");
+	FILE* psv = PipeOpen(SV_LIST);
 
 	browser[ENABLE]->clear();
 
@@ -248,7 +248,7 @@ void FillBrowserList(void)
 {
 	char buffer[STR_SZ];
 
-	FILE* pipe = PipeOpen(LS_SV, "r");
+	FILE* pipe = PipeOpen(LS_SV);
 
 	btn[INSTALL]->deactivate();
 	btn[UNINSTALL]->deactivate();
@@ -268,7 +268,7 @@ void FillBrowserList(void)
 
 	PipeClose(pipe);
 
-	pipe = PipeOpen(LS_SV_RUN, "r");
+	pipe = PipeOpen(LS_SV_RUN);
 
 	while (fgets(buffer, STR_SZ, pipe))
 	{
