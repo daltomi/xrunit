@@ -19,8 +19,6 @@
 #include "config.h"
 #include "system.h"
 
-static void SanitizeEnv(void);
-
 void System(char const* const exec, char* const* argv)
 {
 	int wpid = 0, status = 0;
@@ -60,7 +58,7 @@ void System(char const* const exec, char* const* argv)
 }
 
 
-static void SanitizeEnv(void)
+void SanitizeEnv(void)
 {
 	char* display = getenv("DISPLAY");
 
@@ -123,30 +121,5 @@ static void SanitizeEnv(void)
 	{
 		STOP("setenv(XAUTHORITY) function failed: %s", strerror(errno));
 	}
-}
-
-
-FILE* PipeOpen(char const* const cmd, char const* const type)
-{
-	ASSERT_DBG(cmd);
-	ASSERT_DBG(type);
-
-	SanitizeEnv();
-
-	FILE* pipe = popen(cmd, "r");
-
-	if (!pipe)
-	{
-		fl_alert("Failed to open the pipe.\nCommand line: %s", cmd);
-		exit(EXIT_FAILURE);
-	}
-
-	return pipe;
-}
-
-void PipeClose(FILE* pipe)
-{
-	ASSERT_DBG(pipe);
-	pclose(pipe);
 }
 

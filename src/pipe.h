@@ -17,11 +17,11 @@
 	along with xsv.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef SYSTEM_H_INCLUDE
-#define SYSTEM_H_INCLUDE
+#ifndef PIPE_H_INCLUDE
+#define PIPE_H_INCLUDE
 
-void System(char const* const exec, char* const* argv);
+FILE* PipeOpen(char const* const cmd, char const* const type);
 
-void SanitizeEnv(void);
+void PipeClose(FILE* pipe);
 
 #endif

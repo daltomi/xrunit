@@ -16,12 +16,32 @@
 	You should have received a copy of the GNU General Public License
 	along with xsv.  If not, see <http://www.gnu.org/licenses/>.
 */
+#include "config.h"
+#include "system.h"
+#include "pipe.h"
 
-#ifndef SYSTEM_H_INCLUDE
-#define SYSTEM_H_INCLUDE
+FILE* PipeOpen(char const* const cmd, char const* const type)
+{
+	ASSERT_DBG(cmd);
+	ASSERT_DBG(type);
 
-void System(char const* const exec, char* const* argv);
+	SanitizeEnv();
 
-void SanitizeEnv(void);
+	FILE* pipe = popen(cmd, "r");
 
-#endif
+	if (!pipe)
+	{
+		fl_alert("Failed to open the pipe.\nCommand line: %s", cmd);
+		exit(EXIT_FAILURE);
+	}
+
+	return pipe;
+}
+
+
+void PipeClose(FILE* pipe)
+{
+	ASSERT_DBG(pipe);
+	pclose(pipe);
+}
+

@@ -19,6 +19,7 @@
 
 #include "config.h"
 #include "system.h"
+#include "pipe.h"
 #include "icons.h"
 
 void FillBrowserEnable(void);
