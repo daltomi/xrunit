@@ -96,6 +96,7 @@ int main (int argc, char * argv [])
 	// Quitar la extension de archivo.
 	*(char * )(strchr (input, '.')) = '\0';
 
+	fprintf(file, "#pragma once\n\n");
 	write_name_data ();
 	write_img_data ();
 	write_img_property ();

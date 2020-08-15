@@ -19,10 +19,99 @@
 
 #ifndef CONFIG_H_INCLUDE
 #define CONFIG_H_INCLUDE
+#include <FL/Fl.H>
+#include <FL/Fl_Double_Window.H>
+#include <FL/Fl_Hold_Browser.H>
+#include <FL/Fl_Button.H>
+#include <FL/Fl_Group.H>
+#include <FL/Fl_Box.H>
+#include <FL/Fl_Image.H>
+#include <FL/Fl_Shared_Image.H>
+#include <FL/fl_ask.H>
 
-#include "icons.h"
+#include <unistd.h>
+#include <sys/wait.h>
+#include <sys/stat.h>
+#include <errno.h>
+#include <stdio.h>
+#include <limits.h>
+#include <string.h>
+
 #include "debug.h"
 
 #define VERSION @APP_VER@
+
+#ifdef DEBUG
+#define TITLE "xsv " VERSION " - Debug"
+#else
+#define TITLE "xsv " VERSION
+#endif
+
+#define TITLE_SERVICE TITLE " - Services"
+
+#ifndef TIME_UPDATE
+#define TIME_UPDATE 5
+#endif
+
+#ifndef SV
+#define SV "sv"
+#endif
+
+#ifndef SV_RUN_DIR
+#define SV_RUN_DIR "/run/runit/service"
+#endif
+
+#ifndef SV_DIR
+#define SV_DIR "/etc/runit/sv"
+#endif
+
+#ifndef ASK_SERVICES
+// It doesn't have to be the exact name
+#define ASK_SERVICES "tty,dbus,udev,elogind"
+#endif
+
+#define ASK_SERVICES_DELIM ","
+
+// popen cmds
+#define SV_LIST SV " status " SV_RUN_DIR"/*"
+#define LS_SV "ls -1 " SV_DIR
+#define LS_SV_RUN "ls -1 " SV_RUN_DIR
+
+#define UNUSED __attribute__((unused))
+
+#define SELECT_RESET 1
+#define STR_SZ  200
+#define BTN_W 80
+#define BTN_H 25
+#define BTN_X 10
+#define BTN_Y 10
+#define BTN_PAD 15
+
+#ifndef FONT
+#define FONT FL_HELVETICA
+#endif
+
+#ifndef FONT_SZ
+#define FONT_SZ 11
+#endif
+
+enum {
+/* Not move */
+
+/* Fl_Button */
+	QUIT,
+	RUN,
+	DOWN,
+	RESTART,
+	ADD,
+	CLOSE,
+	INSTALL,
+	UNINSTALL,
+	BTN_MAX,
+/* Fl_Hold_Browser */
+	ENABLE = 0,
+	LIST,
+	BROWSER_MAX
+};
 
 #endif
