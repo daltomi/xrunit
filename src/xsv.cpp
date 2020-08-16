@@ -168,7 +168,7 @@ void FillBrowserEnable(void)
 {
 	char buffer[STR_SZ];
 
-	FILE* psv = PipeOpen(SV_LIST);
+	FILE* pipe = PipeOpen(SV_LIST);
 
 	browser[ENABLE]->clear();
 
@@ -179,7 +179,7 @@ void FillBrowserEnable(void)
 
 	int iselect_count = SELECT_RESET;
 
-	while (fgets(buffer, STR_SZ, psv))
+	while (fgets(buffer, STR_SZ, pipe))
 	{
 		buffer[STR_SZ - 1] = '\0';
 
@@ -187,7 +187,6 @@ void FillBrowserEnable(void)
 
 		if (iselect_count++ == itemSelect[ENABLE])
 		{
-
 			if (pb[0] == 'd' || pb[0] == 'D')
 			{
 				btn[RUN]->activate();
@@ -232,7 +231,7 @@ void FillBrowserEnable(void)
 		}
 	}
 
-	PipeClose(psv);
+	PipeClose(pipe);
 
 	if (browser[ENABLE]->size() == 0)
 	{
