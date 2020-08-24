@@ -31,7 +31,7 @@ void SetButtonAlign(int const start, int const end, int const align);
 void SetButtonFont(int const start, int const end);
 void SetFont(Fl_Widget* w);
 void SetFont(Fl_Hold_Browser* w);
-void RemoveNewLine(char* str);
+void RemoveNewLine(std::string& str);
 bool AskIfContinue(char const* const service);
 
 void QuitCb(UNUSED Fl_Widget* w, UNUSED void* data);
@@ -450,14 +450,10 @@ void CommandCb(Fl_Widget* w, UNUSED void* data)
 }
 
 
-void RemoveNewLine(char* str)
+void RemoveNewLine(std::string& str)
 {
-	char* cp = strchr(str, '\n');
+	str.erase(str.find('\n'));
 
-	if (cp)
-	{
-		*cp = '\0';
-	}
 }
 
 
@@ -465,7 +461,6 @@ void IntallUninstallCb(Fl_Widget* w, UNUSED void* data)
 {
 	ASSERT_DBG(w);
 
-	char dest[STR_SZ];
 	char* argv[5];
 
 	Fl_Button* btnId = (Fl_Button*)w;
@@ -481,35 +476,31 @@ void IntallUninstallCb(Fl_Widget* w, UNUSED void* data)
 		}
 	}
 
-	strncpy(dest, SV_RUN_DIR, STR_SZ - 1);
-	strncat(dest, "/", 1);
-	strncat(dest, itemText, STR_SZ - strlen(dest) - 1);
-	dest[STR_SZ - 1] = '\0';
+	std::string dest = SV_RUN_DIR;
+	dest += "/";
+	dest += itemText;
 
 	RemoveNewLine(dest);
 
 	if (btnId == btn[INSTALL])
 	{
-		char src[STR_SZ];
-
-		strncpy(src, SV_DIR, STR_SZ - 1);
-		strncat(src, "/", 1);
-		strncat(src,  itemText, STR_SZ - strlen(src) - 1);
-		src[STR_SZ - 1] = '\0';
+		std::string src = SV_DIR;
+		src += "/";
+		src += itemText;
 
 		RemoveNewLine(src);
 
 		argv[0] = "ln";
 		argv[1] = "-s";
-		argv[2] = src;
-		argv[3] = dest;
+		argv[2] = (char*)src.c_str();
+		argv[3] = (char*)dest.c_str();
 		argv[4] = (char*)NULL;
 		System("ln", argv);
 	}
 	else if (btnId == btn[UNINSTALL])
 	{
 		argv[0] = "unlink";
-		argv[1] = dest;
+		argv[1] = (char*)dest.c_str();
 		argv[2] = (char*)NULL;
 		System("unlink", argv);
 	}
