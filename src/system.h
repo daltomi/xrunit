@@ -24,4 +24,16 @@ void System(char const* const exec, char* const* argv);
 
 void SanitizeEnv(void);
 
+bool FileAccessOk(char const* const fileName, bool showError);
+
+bool DirAccessOk(char const* const dirName, bool showError);
+
+FILE* PipeOpen(char const* const cmd);
+
+void PipeClose(FILE* pipe);
+
+void FileToExecutableMode(char const* const fileName);
+
+bool MakeDir(char const* const dirName, bool showError);
+
 #endif

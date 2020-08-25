@@ -123,3 +123,101 @@ void SanitizeEnv(void)
 	}
 }
 
+
+bool FileAccessOk(char const* const fileName, bool showError)
+{
+	ASSERT_DBG(fileName);
+
+	if (-1 == access(fileName, F_OK | R_OK | W_OK))
+	{
+		if (showError)
+		{
+			fl_alert("File: %s, error: %s", fileName, strerror(errno));
+		}
+
+		return false;
+	}
+
+	return true;
+}
+
+
+bool DirAccessOk(char const* const dirName, bool showError)
+{
+	ASSERT_DBG(dirName);
+
+	struct stat st;
+
+	errno = 0;
+
+	if (lstat(dirName, &st) == -1)
+	{
+		if (showError)
+		{
+			fl_alert("Dir: %s, error: %s", dirName, strerror(errno));
+		}
+		return false;
+	}
+
+	if (S_IFDIR == (st.st_mode & S_IFMT))
+	{
+		return true;
+	}
+	return false;
+}
+
+
+FILE* PipeOpen(char const* const cmd)
+{
+	ASSERT_DBG(cmd);
+
+	SanitizeEnv();
+
+	FILE* pipe = popen(cmd, "r");
+
+	if (!pipe)
+	{
+		fl_alert("Failed to open the pipe.\nCommand line: %s", cmd);
+		exit(EXIT_FAILURE);
+	}
+
+	return pipe;
+}
+
+
+void PipeClose(FILE* pipe)
+{
+	ASSERT_DBG(pipe);
+	pclose(pipe);
+}
+
+
+void FileToExecutableMode(char const* const fileName)
+{
+	ASSERT_DBG(fileName);
+
+	errno = 0;
+
+	if (-1 == chmod(fileName, S_IXUSR | S_IXGRP | S_IXOTH))
+	{
+		fl_alert("File mode change failed: %s\nError:%s", fileName, strerror(errno));
+	}
+}
+
+bool MakeDir(char const* const dirName, bool showError)
+{
+	ASSERT_DBG(dirName);
+
+	errno = 0;
+
+	if (mkdir(dirName, 0777) == -1)
+	{
+		if (showError)
+		{
+			fl_alert("Make dir failed: %s\nError:%s", dirName, strerror(errno));
+		}
+		return false;
+	}
+
+	return true;
+}

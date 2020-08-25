@@ -28,6 +28,9 @@
 #include <FL/Fl_Image.H>
 #include <FL/Fl_Shared_Image.H>
 #include <FL/fl_ask.H>
+#include <FL/Fl_Input.H>
+#include <FL/Fl_Tabs.H>
+#include <FL/Fl_Text_Editor.H>
 
 #include <unistd.h>
 #include <sys/wait.h>
@@ -35,7 +38,10 @@
 #include <errno.h>
 #include <stdio.h>
 #include <limits.h>
-#include <string.h>
+
+#include <string>
+
+#include <string>
 
 #include "debug.h"
 
@@ -48,6 +54,8 @@
 #endif
 
 #define TITLE_SERVICE TITLE " - Services"
+#define TITLE_SERVICE_NEW TITLE " - New service"
+#define TITLE_SERVICE_EDIT TITLE " - Edit service"
 
 #ifndef TIME_UPDATE
 #define TIME_UPDATE 5
@@ -85,7 +93,7 @@
 #define BTN_H 25
 #define BTN_X 10
 #define BTN_Y 10
-#define BTN_PAD 15
+#define BTN_PAD 12
 
 #ifndef FONT
 #define FONT FL_HELVETICA
@@ -107,11 +115,30 @@ enum {
 	CLOSE,
 	INSTALL,
 	UNINSTALL,
+	EDIT,
+	NEW,
+	SAVE,
+	CANCEL,
 	BTN_MAX,
 /* Fl_Hold_Browser */
 	ENABLE = 0,
 	LIST,
-	BROWSER_MAX
+	BROWSER_MAX,
+/* Fl_Text_Buffer */
+	TBUF_SERV = 0,
+	TBUF_LOG,
+	TBUF_MAX,
+/* Fl_Text_Editor */
+	TEDT_SERV = 0,
+	TEDT_LOG,
+	TEDT_MAX,
 };
 
+
+struct NewEditSave
+{
+	char const* service;
+	void* data;
+	int id;
+};
 #endif

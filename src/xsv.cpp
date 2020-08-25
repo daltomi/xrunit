@@ -19,7 +19,6 @@
 
 #include "config.h"
 #include "system.h"
-#include "pipe.h"
 #include "icons.h"
 
 void FillBrowserEnable(void);
@@ -31,8 +30,9 @@ void SetButtonAlign(int const start, int const end, int const align);
 void SetButtonFont(int const start, int const end);
 void SetFont(Fl_Widget* w);
 void SetFont(Fl_Hold_Browser* w);
-void RemoveNewLine(char* str);
+void RemoveNewLine(std::string& str);
 bool AskIfContinue(char const* const service);
+void MakeServicePath(std::string const& service, std::string& path);
 
 void QuitCb(UNUSED Fl_Widget* w, UNUSED void* data);
 void SelectCb(Fl_Widget* w, UNUSED void* data);
@@ -40,14 +40,19 @@ void CommandCb(Fl_Widget* w, UNUSED void* data);
 void IntallUninstallCb(Fl_Widget* w, UNUSED void* data);
 void AddServicesCb(UNUSED Fl_Widget* w, void* data);
 void TimerCb(UNUSED void* data);
+void EditNewCb(Fl_Widget* w, void* data);
 
 static int itemSelect[BROWSER_MAX] { [ENABLE] = SELECT_RESET, [LIST] = SELECT_RESET };
 
 static Fl_Hold_Browser* browser[BROWSER_MAX];
 static Fl_Button* btn[BTN_MAX];
+static Fl_Text_Buffer* tbuf[TBUF_MAX];
+static Fl_Text_Editor* tedt[TEDT_MAX];
 
-static char const* STR_ADD = "Add";
-static char const* STR_REMOVE = "Remove";
+static char const* STR_LOAD = "Load";
+static char const* STR_UNLOAD = "Unload";
+static char const* STR_EDIT = "Edit...";
+static char const* STR_NEW = "New...";
 
 int main(int argc, char* argv[])
 {
@@ -261,7 +266,7 @@ void FillBrowserList(void)
 	{
 		buffer[STR_SZ - 1] = '\0';
 
-		browser[LIST]->add(buffer, (void*)STR_REMOVE);
+		browser[LIST]->add(buffer, (void*)STR_UNLOAD);
 		browser[LIST]->icon(item++, get_icon_disable());
 	}
 
@@ -280,7 +285,7 @@ void FillBrowserList(void)
 			if (strstr(buffer, find))
 			{
 				browser[LIST]->icon(item, get_icon_enable());
-				browser[LIST]->data(item, (void*)STR_ADD);
+				browser[LIST]->data(item, (void*)STR_LOAD);
 				break;
 			}
 
@@ -295,11 +300,11 @@ void FillBrowserList(void)
 		{
 			char* data = (char*)browser[LIST]->data(item);
 
-			if (data == STR_ADD)
+			if (data == STR_LOAD)
 			{
 				btn[UNINSTALL]->activate();
 			}
-			else if (data == STR_REMOVE)
+			else if (data == STR_UNLOAD)
 			{
 				btn[INSTALL]->activate();
 			}
@@ -449,14 +454,9 @@ void CommandCb(Fl_Widget* w, UNUSED void* data)
 }
 
 
-void RemoveNewLine(char* str)
+void RemoveNewLine(std::string& str)
 {
-	char* cp = strchr(str, '\n');
-
-	if (cp)
-	{
-		*cp = '\0';
-	}
+	str.erase(str.find('\n'));
 }
 
 
@@ -464,7 +464,6 @@ void IntallUninstallCb(Fl_Widget* w, UNUSED void* data)
 {
 	ASSERT_DBG(w);
 
-	char dest[STR_SZ];
 	char* argv[5];
 
 	Fl_Button* btnId = (Fl_Button*)w;
@@ -480,35 +479,31 @@ void IntallUninstallCb(Fl_Widget* w, UNUSED void* data)
 		}
 	}
 
-	strncpy(dest, SV_RUN_DIR, STR_SZ - 1);
-	strncat(dest, "/", 1);
-	strncat(dest, itemText, STR_SZ - strlen(dest) - 1);
-	dest[STR_SZ - 1] = '\0';
+	std::string dest = SV_RUN_DIR;
+	dest += "/";
+	dest += itemText;
 
 	RemoveNewLine(dest);
 
 	if (btnId == btn[INSTALL])
 	{
-		char src[STR_SZ];
+		std::string src;
 
-		strncpy(src, SV_DIR, STR_SZ - 1);
-		strncat(src, "/", 1);
-		strncat(src,  itemText, STR_SZ - strlen(src) - 1);
-		src[STR_SZ - 1] = '\0';
+		MakeServicePath(itemText, src);
 
 		RemoveNewLine(src);
 
 		argv[0] = "ln";
 		argv[1] = "-s";
-		argv[2] = src;
-		argv[3] = dest;
+		argv[2] = (char*)src.c_str();
+		argv[3] = (char*)dest.c_str();
 		argv[4] = (char*)NULL;
 		System("ln", argv);
 	}
 	else if (btnId == btn[UNINSTALL])
 	{
 		argv[0] = "unlink";
-		argv[1] = dest;
+		argv[1] = (char*)dest.c_str();
 		argv[2] = (char*)NULL;
 		System("unlink", argv);
 	}
@@ -580,39 +575,282 @@ void AddServicesCb(UNUSED Fl_Widget* w, void* data)
 
 	Fl_Double_Window* wnd = new Fl_Double_Window(wndParent->x() + 300 / 2,
 							wndParent->y(),
-							300,
-							350,
+							430,
+							380,
 							TITLE_SERVICE);
 
 	btn[CLOSE] = new Fl_Button(BTN_X, BTN_Y, BTN_W, BTN_H, "Close");
-	btn[INSTALL] = new Fl_Button(BTN_W + BTN_PAD, BTN_Y, BTN_W, BTN_H, STR_ADD);
-	btn[UNINSTALL] = new Fl_Button(BTN_W * 2 + BTN_PAD, BTN_Y, BTN_W, BTN_H, STR_REMOVE);
+	btn[INSTALL] = new Fl_Button(BTN_W + BTN_PAD, BTN_Y, BTN_W, BTN_H, STR_LOAD);
+	btn[UNINSTALL] = new Fl_Button(BTN_W * 2 + BTN_PAD, BTN_Y, BTN_W, BTN_H, STR_UNLOAD);
+	btn[EDIT] = new Fl_Button(BTN_W * 3 + BTN_PAD, BTN_Y, BTN_W, BTN_H, STR_EDIT);
+	btn[NEW] = new Fl_Button(BTN_W * 4 + BTN_PAD, BTN_Y, BTN_W, BTN_H, STR_NEW);
 	browser[LIST] = new Fl_Hold_Browser(4, 40, wnd->w() - 8, wnd->h() - 48);
-
-	SetFont(browser[LIST]);
-	SetButtonFont(CLOSE, UNINSTALL);
-
-	browser[LIST]->callback(SelectCb);
-
-	SetButtonAlign(CLOSE, UNINSTALL, 256);
 
 	btn[CLOSE]->image(get_icon_quit());
 	btn[INSTALL]->image(get_icon_add());
 	btn[UNINSTALL]->image(get_icon_remove());
+	btn[EDIT]->image(get_icon_edit());
+	btn[NEW]->image(get_icon_new());
 
+	browser[LIST]->callback(SelectCb);
 	btn[CLOSE]->callback(CloseWindowCb, (void*)wnd);
 	btn[INSTALL]->callback(IntallUninstallCb);
 	btn[UNINSTALL]->callback(IntallUninstallCb);
+	btn[EDIT]->callback(EditNewCb, (void*)wnd);
+	btn[NEW]->callback(EditNewCb, (void*)wnd);
+
+	SetFont(browser[LIST]);
+	SetButtonFont(CLOSE, NEW);
+	SetButtonAlign(CLOSE, NEW, 256);
 
 	FillBrowserList();
 
 	ShowWindowModal(wnd);
 
-	for (int i = CLOSE; i <= UNINSTALL; i++)
+	for (int i = CLOSE; i <= NEW; i++)
 	{
 		delete btn[i];
 	}
 
 	delete browser[LIST];
 	delete wnd;
+}
+
+void MakeServicePath(std::string const& service, std::string& path)
+{
+	path = SV_DIR;
+	path +=  "/";
+	path += service;
+}
+
+static void MakeLogDirPath(std::string const& service, std::string& path)
+{
+	MakeServicePath(service, path);
+	path += "/log/";
+}
+
+static void MakeServiceDirPath(std::string const& service, std::string& path)
+{
+	MakeServicePath(service, path);
+	path += "/";
+}
+
+static void MakeServiceRunPath(std::string const& service, std::string& path)
+{
+	MakeServiceDirPath(service, path);
+	path += "run";
+}
+
+
+static void MakeLogRunPath(std::string const& service, std::string& path)
+{
+	MakeLogDirPath(service, path);
+	path += "run";
+}
+
+
+static void EditLoad(void)
+{
+	bool const showError = true;
+	int const item = GetSelected(browser[LIST]);
+	std::string service = browser[LIST]->text(item);
+
+	RemoveNewLine(service);
+
+	std::string path;
+
+	MakeServiceRunPath(service, path);
+
+	if (!FileAccessOk(path.c_str(), not showError))
+	{
+		fl_alert("The service '%s' exists but the 'run' file was not found.", service.c_str());
+	}
+
+	tbuf[TBUF_SERV]->loadfile(path.c_str());
+
+	MakeLogRunPath(service, path);
+
+	FileAccessOk(path.c_str(), not showError);
+
+	tbuf[TBUF_LOG]->loadfile(path.c_str());
+}
+
+
+static void NewEditSaveCb(UNUSED Fl_Widget* w, void* data)
+{
+	struct NewEditSave* infoSave = (struct NewEditSave*)data;
+
+	char const* const service = infoSave->service;
+
+	if (strlen(service) == 0 || strchr(service, ' '))
+	{
+		fl_alert("The name of the Service is not indicated.");
+		return;
+	}
+
+	if (tbuf[TBUF_SERV]->length() == 0)
+	{
+		fl_alert("Nothing to save.");
+		return;
+	}
+
+	int const id = infoSave->id;
+	bool showError = true;
+	std::string path;
+	std::string dir;
+
+	switch (id)
+	{
+		case NEW:
+			MakeServiceDirPath(service, dir);
+
+			if (DirAccessOk(dir.c_str(), not showError))
+			{
+				fl_alert("The service '%s' already exists.", service);
+				return;
+			}
+
+			MakeDir(dir.c_str(), showError);
+
+		/* Fallthrough */
+
+		case EDIT:
+
+			MakeServiceRunPath(service, path);
+			tbuf[TBUF_SERV]->savefile(path.c_str());
+			FileToExecutableMode(path.c_str());
+
+			if (tbuf[TBUF_LOG]->length() > 0)
+			{
+				MakeLogRunPath(service, path);
+				MakeLogDirPath(service, dir);
+
+				if (!DirAccessOk(dir.c_str(), not showError))
+				{
+					MakeDir(dir.c_str(), showError);
+				}
+
+				tbuf[TBUF_LOG]->savefile(path.c_str());
+				FileToExecutableMode(path.c_str());
+			}
+			break;
+	}
+
+	((Fl_Double_Window*)infoSave->data)->hide();
+}
+
+void EditNewCb(Fl_Widget* w, void* data)
+{
+	ASSERT_DBG(data);
+
+	Fl_Double_Window* wndParent = (Fl_Double_Window*)data;
+
+	Fl_Button* btnId = (Fl_Button*)w;
+
+	int id = NEW;
+
+	char const* title = TITLE_SERVICE_NEW;
+
+	if (btnId == btn[EDIT])
+	{
+		title = TITLE_SERVICE_EDIT;
+		id = EDIT;
+	}
+
+	int const item = GetSelected(browser[LIST]);
+	std::string service = browser[LIST]->text(item);
+	RemoveNewLine(service);
+
+	Fl_Double_Window* wnd = new Fl_Double_Window(wndParent->x() + 300 / 2,
+							wndParent->y(),
+							500,
+							365,
+							title);
+
+	Fl_Input *input = new Fl_Input(130, 15, 180, 25);
+	input->label("Service name:");
+	input->textfont(FONT);
+	input->textsize(FONT_SZ);
+	SetFont(input);
+
+	struct NewEditSave infoSave;
+	infoSave.id = id;
+	infoSave.data = (void*)wnd;
+
+	if (id == EDIT)
+	{
+		input->type(FL_INPUT_READONLY);
+		input->value(service.c_str());
+		infoSave.service = input->value();
+	}
+	else /* NEW */
+	{
+		input->value(" "); // force malloc
+		infoSave.service = input->value();
+		input->value(""); // clean
+	}
+
+	tbuf[TBUF_SERV] = new Fl_Text_Buffer();
+	tbuf[TBUF_LOG] = new Fl_Text_Buffer();
+
+	Fl_Tabs* tabs = new Fl_Tabs(15, 50, 475, 265);
+
+		Fl_Group* grp0 = new Fl_Group(15, 75, 475, 300, "Service");
+			tedt[TEDT_SERV] = new Fl_Text_Editor(20, 80, 460, 230);
+			tedt[TEDT_SERV]->box(FL_FLAT_BOX);
+			tedt[TEDT_SERV]->textfont(FL_COURIER);
+			tedt[TEDT_SERV]->textsize(FONT_SZ);
+			tedt[TEDT_SERV]->buffer(tbuf[TBUF_SERV]);
+		grp0->end();
+
+		Fl_Group* grp1 = new Fl_Group(15, 75, 475, 300, "Log (optional)");
+			grp1->hide();
+			tedt[TEDT_LOG] = new Fl_Text_Editor(20, 80, 460, 230);
+			tedt[TEDT_LOG]->box(FL_FLAT_BOX);
+			tedt[TEDT_LOG]->textfont(FL_COURIER);
+			tedt[TEDT_LOG]->textsize(FONT_SZ);
+			tedt[TEDT_LOG]->buffer(tbuf[TBUF_LOG]);
+		grp1->end();
+
+	tabs->end();
+
+	SetFont(grp0);
+	SetFont(grp1);
+	SetFont(tedt[TEDT_LOG]);
+	SetFont(tedt[TEDT_SERV]);
+
+	btn[SAVE] = new Fl_Button(480 - (BTN_W + BTN_PAD) * 2, 360 - BTN_H, BTN_W, BTN_H, "Save");
+	btn[CANCEL] = new Fl_Button(480 - (BTN_W + BTN_PAD), 360 - BTN_H, BTN_W, BTN_H, "Close");
+
+	btn[SAVE]->callback(NewEditSaveCb, (void*)&infoSave);
+	btn[CANCEL]->callback(CloseWindowCb, (void*)wnd);
+
+	btn[SAVE]->image(get_icon_save());
+	btn[CANCEL]->image(get_icon_quit());
+
+	SetButtonFont(SAVE, CANCEL);
+	SetButtonAlign(SAVE, CANCEL, 256);
+
+	if (id == EDIT)
+	{
+		EditLoad();
+	}
+
+	wnd->end();
+
+	ShowWindowModal(wnd);
+
+	delete tbuf[TBUF_SERV];
+	delete tbuf[TBUF_LOG];
+	delete tedt[TEDT_SERV];
+	delete tedt[TEDT_LOG];
+	delete btn[SAVE];
+	delete btn[CANCEL];
+	delete grp0;
+	delete grp1;
+	delete tabs;
+	delete input;
+	delete wnd;
+
+	FillBrowserList();
 }
