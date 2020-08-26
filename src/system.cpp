@@ -198,7 +198,11 @@ void FileToExecutableMode(char const* const fileName)
 
 	errno = 0;
 
-	if (-1 == chmod(fileName, S_IXUSR | S_IXGRP | S_IXOTH))
+	mode_t const user = S_IRUSR | S_IWUSR |  S_IXUSR;
+	mode_t const group = S_IXGRP | S_IRGRP;
+	mode_t const other = S_IXOTH | S_IROTH;
+
+	if (-1 == chmod(fileName,  user | group | other))
 	{
 		fl_alert("File mode change failed: %s\nError:%s", fileName, strerror(errno));
 	}
