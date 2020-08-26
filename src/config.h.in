@@ -127,10 +127,12 @@ enum {
 /* Fl_Text_Buffer */
 	TBUF_SERV = 0,
 	TBUF_LOG,
+	TBUF_FINISH,
 	TBUF_MAX,
 /* Fl_Text_Editor */
 	TEDT_SERV = 0,
 	TEDT_LOG,
+	TEDT_FINISH,
 	TEDT_MAX,
 };
 

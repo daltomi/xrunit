@@ -30,6 +30,7 @@ void SetButtonAlign(int const start, int const end, int const align);
 void SetButtonFont(int const start, int const end);
 void SetFont(Fl_Widget* w);
 void SetFont(Fl_Hold_Browser* w);
+void SetFont(Fl_Text_Editor* w);
 void RemoveNewLine(std::string& str);
 bool AskIfContinue(char const* const service);
 void MakeServicePath(std::string const& service, std::string& path);
@@ -150,6 +151,14 @@ void SetFont(Fl_Widget* w)
 	ASSERT_DBG(w);
 	w->labelfont(FONT);
 	w->labelsize(FONT_SZ);
+}
+
+
+void SetFont(Fl_Text_Editor* w)
+{
+	ASSERT_DBG(w);
+	w->textfont(FL_COURIER);
+	w->textsize(FONT_SZ);
 }
 
 
@@ -642,6 +651,13 @@ static void MakeServiceRunPath(std::string const& service, std::string& path)
 }
 
 
+static void MakeFinishPath(std::string const& service, std::string& path)
+{
+	MakeServiceDirPath(service, path);
+	path += "finish";
+}
+
+
 static void MakeLogRunPath(std::string const& service, std::string& path)
 {
 	MakeLogDirPath(service, path);
@@ -669,10 +685,10 @@ static void EditLoad(void)
 	tbuf[TBUF_SERV]->loadfile(path.c_str());
 
 	MakeLogRunPath(service, path);
-
-	FileAccessOk(path.c_str(), not showError);
-
 	tbuf[TBUF_LOG]->loadfile(path.c_str());
+
+	MakeFinishPath(service, path);
+	tbuf[TBUF_FINISH]->loadfile(path.c_str());
 }
 
 
@@ -701,39 +717,45 @@ static void NewEditSaveCb(UNUSED Fl_Widget* w, void* data)
 
 	switch (id)
 	{
-		case NEW:
-			MakeServiceDirPath(service, dir);
+	case NEW:
+		MakeServiceDirPath(service, dir);
 
-			if (DirAccessOk(dir.c_str(), not showError))
-			{
-				fl_alert("The service '%s' already exists.", service);
-				return;
-			}
+		if (DirAccessOk(dir.c_str(), not showError))
+		{
+			fl_alert("The service '%s' already exists.", service);
+			return;
+		}
 
-			MakeDir(dir.c_str(), showError);
+		MakeDir(dir.c_str(), showError);
 
 		/* Fallthrough */
 
-		case EDIT:
+	case EDIT:
 
-			MakeServiceRunPath(service, path);
-			tbuf[TBUF_SERV]->savefile(path.c_str());
-			FileToExecutableMode(path.c_str());
+		MakeServiceRunPath(service, path);
+		tbuf[TBUF_SERV]->savefile(path.c_str());
+		FileToExecutableMode(path.c_str());
 
-			if (tbuf[TBUF_LOG]->length() > 0)
+		if (tbuf[TBUF_LOG]->length() > 0)
+		{
+			MakeLogRunPath(service, path);
+			MakeLogDirPath(service, dir);
+
+			if (!DirAccessOk(dir.c_str(), not showError))
 			{
-				MakeLogRunPath(service, path);
-				MakeLogDirPath(service, dir);
-
-				if (!DirAccessOk(dir.c_str(), not showError))
-				{
-					MakeDir(dir.c_str(), showError);
-				}
-
-				tbuf[TBUF_LOG]->savefile(path.c_str());
-				FileToExecutableMode(path.c_str());
+				MakeDir(dir.c_str(), showError);
 			}
-			break;
+
+			tbuf[TBUF_LOG]->savefile(path.c_str());
+			FileToExecutableMode(path.c_str());
+		}
+
+		if (tbuf[TBUF_FINISH]->length() > 0)
+		{
+			MakeFinishPath(service, path);
+			tbuf[TBUF_FINISH]->savefile(path.c_str());
+			FileToExecutableMode(path.c_str());
+		}
 	}
 
 	((Fl_Double_Window*)infoSave->data)->hide();
@@ -792,14 +814,13 @@ void EditNewCb(Fl_Widget* w, void* data)
 
 	tbuf[TBUF_SERV] = new Fl_Text_Buffer();
 	tbuf[TBUF_LOG] = new Fl_Text_Buffer();
+	tbuf[TBUF_FINISH] = new Fl_Text_Buffer();
 
 	Fl_Tabs* tabs = new Fl_Tabs(15, 50, 475, 265);
 
 		Fl_Group* grp0 = new Fl_Group(15, 75, 475, 300, "Service");
 			tedt[TEDT_SERV] = new Fl_Text_Editor(20, 80, 460, 230);
 			tedt[TEDT_SERV]->box(FL_FLAT_BOX);
-			tedt[TEDT_SERV]->textfont(FL_COURIER);
-			tedt[TEDT_SERV]->textsize(FONT_SZ);
 			tedt[TEDT_SERV]->buffer(tbuf[TBUF_SERV]);
 		grp0->end();
 
@@ -807,17 +828,23 @@ void EditNewCb(Fl_Widget* w, void* data)
 			grp1->hide();
 			tedt[TEDT_LOG] = new Fl_Text_Editor(20, 80, 460, 230);
 			tedt[TEDT_LOG]->box(FL_FLAT_BOX);
-			tedt[TEDT_LOG]->textfont(FL_COURIER);
-			tedt[TEDT_LOG]->textsize(FONT_SZ);
 			tedt[TEDT_LOG]->buffer(tbuf[TBUF_LOG]);
 		grp1->end();
 
+		Fl_Group* grp2 = new Fl_Group(15, 75, 475, 300, "Finish (optional)");
+			grp2->hide();
+			tedt[TEDT_FINISH] = new Fl_Text_Editor(20, 80, 460, 230);
+			tedt[TEDT_FINISH]->box(FL_FLAT_BOX);
+			tedt[TEDT_FINISH]->buffer(tbuf[TBUF_FINISH]);
+		grp2->end();
 	tabs->end();
 
 	SetFont(grp0);
 	SetFont(grp1);
-	SetFont(tedt[TEDT_LOG]);
+	SetFont(grp2);
 	SetFont(tedt[TEDT_SERV]);
+	SetFont(tedt[TEDT_LOG]);
+	SetFont(tedt[TEDT_FINISH]);
 
 	btn[SAVE] = new Fl_Button(480 - (BTN_W + BTN_PAD) * 2, 360 - BTN_H, BTN_W, BTN_H, "Save");
 	btn[CANCEL] = new Fl_Button(480 - (BTN_W + BTN_PAD), 360 - BTN_H, BTN_W, BTN_H, "Cancel");
@@ -842,12 +869,15 @@ void EditNewCb(Fl_Widget* w, void* data)
 
 	delete tbuf[TBUF_SERV];
 	delete tbuf[TBUF_LOG];
+	delete tbuf[TBUF_FINISH];
 	delete tedt[TEDT_SERV];
 	delete tedt[TEDT_LOG];
+	delete tedt[TEDT_FINISH];
 	delete btn[SAVE];
 	delete btn[CANCEL];
 	delete grp0;
 	delete grp1;
+	delete grp2;
 	delete tabs;
 	delete input;
 	delete wnd;
