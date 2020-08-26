@@ -34,14 +34,16 @@ void SetFont(Fl_Text_Editor* w);
 void RemoveNewLine(std::string& str);
 bool AskIfContinue(char const* const service);
 void MakeServicePath(std::string const& service, std::string& path);
+void MakeServiceRunDirPath(std::string const& service, std::string& path);
 
 void QuitCb(UNUSED Fl_Widget* w, UNUSED void* data);
 void SelectCb(Fl_Widget* w, UNUSED void* data);
 void CommandCb(Fl_Widget* w, UNUSED void* data);
-void IntallUninstallCb(Fl_Widget* w, UNUSED void* data);
+void LoadUnloadCb(Fl_Widget* w, UNUSED void* data);
 void AddServicesCb(UNUSED Fl_Widget* w, void* data);
 void TimerCb(UNUSED void* data);
 void EditNewCb(Fl_Widget* w, void* data);
+void DeleteServiceCb(UNUSED Fl_Widget* w, void* data);
 
 static int itemSelect[BROWSER_MAX] { [ENABLE] = SELECT_RESET, [LIST] = SELECT_RESET };
 
@@ -263,8 +265,8 @@ void FillBrowserList(void)
 
 	FILE* pipe = PipeOpen(LS_SV);
 
-	btn[INSTALL]->deactivate();
-	btn[UNINSTALL]->deactivate();
+	btn[LOAD]->deactivate();
+	btn[UNLOAD]->deactivate();
 
 	browser[LIST]->clear();
 
@@ -311,11 +313,11 @@ void FillBrowserList(void)
 
 			if (data == STR_LOAD)
 			{
-				btn[UNINSTALL]->activate();
+				btn[UNLOAD]->activate();
 			}
 			else if (data == STR_UNLOAD)
 			{
-				btn[INSTALL]->activate();
+				btn[LOAD]->activate();
 			}
 			else
 			{
@@ -469,52 +471,37 @@ void RemoveNewLine(std::string& str)
 }
 
 
-void IntallUninstallCb(Fl_Widget* w, UNUSED void* data)
+void LoadUnloadCb(Fl_Widget* w, UNUSED void* data)
 {
 	ASSERT_DBG(w);
-
-	char* argv[5];
 
 	Fl_Button* btnId = (Fl_Button*)w;
 
 	int const item = GetSelected(browser[LIST]);
-	char const* const itemText = browser[LIST]->text(item);
+	char const* const service = browser[LIST]->text(item);
 
-	if (btnId == btn[UNINSTALL])
+	if (btnId == btn[UNLOAD])
 	{
-		if (not AskIfContinue(itemText))
+		if (not AskIfContinue(service))
 		{
 			return;
 		}
 	}
 
-	std::string dest = SV_RUN_DIR;
-	dest += "/";
-	dest += itemText;
-
+	std::string dest;
+	MakeServiceRunDirPath(service, dest);
 	RemoveNewLine(dest);
 
-	if (btnId == btn[INSTALL])
+	if (btnId == btn[LOAD])
 	{
 		std::string src;
-
-		MakeServicePath(itemText, src);
-
+		MakeServicePath(service, src);
 		RemoveNewLine(src);
-
-		argv[0] = "ln";
-		argv[1] = "-s";
-		argv[2] = (char*)src.c_str();
-		argv[3] = (char*)dest.c_str();
-		argv[4] = (char*)NULL;
-		System("ln", argv);
+		RunLink(src.c_str(), dest.c_str());
 	}
-	else if (btnId == btn[UNINSTALL])
+	else if (btnId == btn[UNLOAD])
 	{
-		argv[0] = "unlink";
-		argv[1] = (char*)dest.c_str();
-		argv[2] = (char*)NULL;
-		System("unlink", argv);
+		RunUnlink(dest.c_str());
 	}
 	else
 	{
@@ -589,22 +576,22 @@ void AddServicesCb(UNUSED Fl_Widget* w, void* data)
 							TITLE_SERVICE);
 
 	btn[CLOSE] = new Fl_Button(BTN_X, BTN_Y, BTN_W, BTN_H, "Close");
-	btn[INSTALL] = new Fl_Button(BTN_W + BTN_PAD, BTN_Y, BTN_W, BTN_H, STR_LOAD);
-	btn[UNINSTALL] = new Fl_Button(BTN_W * 2 + BTN_PAD, BTN_Y, BTN_W, BTN_H, STR_UNLOAD);
+	btn[LOAD] = new Fl_Button(BTN_W + BTN_PAD, BTN_Y, BTN_W, BTN_H, STR_LOAD);
+	btn[UNLOAD] = new Fl_Button(BTN_W * 2 + BTN_PAD, BTN_Y, BTN_W, BTN_H, STR_UNLOAD);
 	btn[EDIT] = new Fl_Button(BTN_W * 3 + BTN_PAD, BTN_Y, BTN_W, BTN_H, STR_EDIT);
 	btn[NEW] = new Fl_Button(BTN_W * 4 + BTN_PAD, BTN_Y, BTN_W, BTN_H, STR_NEW);
 	browser[LIST] = new Fl_Hold_Browser(4, 40, wnd->w() - 8, wnd->h() - 48);
 
 	btn[CLOSE]->image(get_icon_quit());
-	btn[INSTALL]->image(get_icon_add());
-	btn[UNINSTALL]->image(get_icon_remove());
+	btn[LOAD]->image(get_icon_add());
+	btn[UNLOAD]->image(get_icon_remove());
 	btn[EDIT]->image(get_icon_edit());
 	btn[NEW]->image(get_icon_new());
 
 	browser[LIST]->callback(SelectCb);
 	btn[CLOSE]->callback(CloseWindowCb, (void*)wnd);
-	btn[INSTALL]->callback(IntallUninstallCb);
-	btn[UNINSTALL]->callback(IntallUninstallCb);
+	btn[LOAD]->callback(LoadUnloadCb);
+	btn[UNLOAD]->callback(LoadUnloadCb);
 	btn[EDIT]->callback(EditNewCb, (void*)wnd);
 	btn[NEW]->callback(EditNewCb, (void*)wnd);
 
@@ -624,6 +611,15 @@ void AddServicesCb(UNUSED Fl_Widget* w, void* data)
 	delete browser[LIST];
 	delete wnd;
 }
+
+
+void MakeServiceRunDirPath(std::string const& service, std::string& path)
+{
+	path = SV_RUN_DIR;
+	path += "/";
+	path += service;
+}
+
 
 void MakeServicePath(std::string const& service, std::string& path)
 {
@@ -761,6 +757,7 @@ static void NewEditSaveCb(UNUSED Fl_Widget* w, void* data)
 	((Fl_Double_Window*)infoSave->data)->hide();
 }
 
+
 void EditNewCb(Fl_Widget* w, void* data)
 {
 	ASSERT_DBG(data);
@@ -846,21 +843,28 @@ void EditNewCb(Fl_Widget* w, void* data)
 	SetFont(tedt[TEDT_LOG]);
 	SetFont(tedt[TEDT_FINISH]);
 
-	btn[SAVE] = new Fl_Button(480 - (BTN_W + BTN_PAD) * 2, 360 - BTN_H, BTN_W, BTN_H, "Save");
-	btn[CANCEL] = new Fl_Button(480 - (BTN_W + BTN_PAD), 360 - BTN_H, BTN_W, BTN_H, "Cancel");
+	btn[DELETE] = new Fl_Button(500 - (BTN_W + BTN_PAD), 355 - BTN_H, BTN_W, BTN_H, "Delete...");
+	btn[SAVE] = new Fl_Button(15, 355 - BTN_H, BTN_W, BTN_H, "Save");
+	btn[CANCEL] = new Fl_Button(15 + BTN_W + BTN_PAD, 355 - BTN_H, BTN_W, BTN_H, "Cancel");
 
 	btn[SAVE]->callback(NewEditSaveCb, (void*)&infoSave);
 	btn[CANCEL]->callback(CloseWindowCb, (void*)wnd);
 
+	btn[DELETE]->image(get_icon_warning());
 	btn[SAVE]->image(get_icon_save());
 	btn[CANCEL]->image(get_icon_quit());
 
-	SetButtonFont(SAVE, CANCEL);
-	SetButtonAlign(SAVE, CANCEL, 256);
+	SetButtonFont(SAVE, DELETE);
+	SetButtonAlign(SAVE, DELETE, 256);
 
 	if (id == EDIT)
 	{
+		btn[DELETE]->callback(DeleteServiceCb, (void*)&infoSave);
 		EditLoad();
+	}
+	else /* NEW */
+	{
+		btn[DELETE]->deactivate();
 	}
 
 	wnd->end();
@@ -873,6 +877,7 @@ void EditNewCb(Fl_Widget* w, void* data)
 	delete tedt[TEDT_SERV];
 	delete tedt[TEDT_LOG];
 	delete tedt[TEDT_FINISH];
+	delete btn[DELETE];
 	delete btn[SAVE];
 	delete btn[CANCEL];
 	delete grp0;
@@ -883,4 +888,42 @@ void EditNewCb(Fl_Widget* w, void* data)
 	delete wnd;
 
 	FillBrowserList();
+}
+
+
+void DeleteServiceCb(UNUSED Fl_Widget* w, void* data)
+{
+	ASSERT_DBG(data);
+
+	struct NewEditSave* infoSave = (struct NewEditSave*)data;
+	char const* const service = infoSave->service;
+
+	std::string path;
+	bool showError = true;
+
+	MakeServiceDirPath(service, path);
+
+	int const ret = fl_choice("Alert: This action cannot be undone.\nThe directory '%s' will be removed.\nAre you sure to continue?",
+							 "No", "Yes, delete", NULL, path.c_str());
+
+	if (ret == 0)
+	{
+		return;
+	}
+
+	MakeServiceRunDirPath(service, path);
+
+	if (FileAccessOk(path.c_str(), not showError))
+	{
+		RunUnlink(path.c_str());
+	}
+
+	MakeServiceDirPath(service, path);
+
+	if (DirAccessOk(path.c_str(), showError))
+	{
+		RunRemoveDir(path.c_str());
+	}
+
+	((Fl_Double_Window*)infoSave->data)->hide();
 }

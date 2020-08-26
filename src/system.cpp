@@ -225,3 +225,34 @@ bool MakeDir(char const* const dirName, bool showError)
 
 	return true;
 }
+
+void RunLink(char const* const src, char const* const dest)
+{
+	char* argv[5];
+	argv[0] = "ln";
+	argv[1] = "-s";
+	argv[2] = (char*)src;
+	argv[3] = (char*)dest;
+	argv[4] = (char*)NULL;
+	System("ln", argv);
+}
+
+
+void RunUnlink(char const* const dest)
+{
+	char* argv[3];
+	argv[0] = "unlink";
+	argv[1] = (char*)dest;
+	argv[2] = (char*)NULL;
+	System("unlink", argv);
+}
+
+void RunRemoveDir(char const* const dest)
+{
+	char* argv[4];
+	argv[0] = "rm";
+	argv[1] = "-rf";
+	argv[2] = (char*)dest;
+	argv[3] = (char*)NULL;
+	System("rm", argv);
+}
