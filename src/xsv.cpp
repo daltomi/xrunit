@@ -820,7 +820,7 @@ void EditNewCb(Fl_Widget* w, void* data)
 	SetFont(tedt[TEDT_SERV]);
 
 	btn[SAVE] = new Fl_Button(480 - (BTN_W + BTN_PAD) * 2, 360 - BTN_H, BTN_W, BTN_H, "Save");
-	btn[CANCEL] = new Fl_Button(480 - (BTN_W + BTN_PAD), 360 - BTN_H, BTN_W, BTN_H, "Close");
+	btn[CANCEL] = new Fl_Button(480 - (BTN_W + BTN_PAD), 360 - BTN_H, BTN_W, BTN_H, "Cancel");
 
 	btn[SAVE]->callback(NewEditSaveCb, (void*)&infoSave);
 	btn[CANCEL]->callback(CloseWindowCb, (void*)wnd);
