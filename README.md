@@ -43,7 +43,7 @@ make release
 | SV_RUN_DIR      |  services directory | /run/runit/service | string
 | TIME_UPDATE | seconds of updating the list of service | 5 | integer
 | FONT        | FLTK font name  | FL_HELVETICA | integer
-| FONT_SZ     | font size | 11 | integer
+| FONT_SZ     | font size | 11 (range 8..14)| integer
 | ASK_SERVICES | ask about these services before down/remove | tty,dbus,udev,elogind | string
 
 Example

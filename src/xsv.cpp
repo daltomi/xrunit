@@ -62,7 +62,7 @@ int main(int argc, char* argv[])
 {
 	ASSERT((TIME_UPDATE > 1) && (TIME_UPDATE < 100));
 	ASSERT((FONT >= 0) && (FONT < SSIZE_MAX));
-	ASSERT((FONT_SZ > 0) && (FONT_SZ < SSIZE_MAX));
+	ASSERT((FONT_SZ >= 8) && (FONT_SZ <= 14));
 	ASSERT((strlen(SV_DIR) > 0) && (strlen(SV_DIR) < STR_SZ));
 	ASSERT((strlen(SV_RUN_DIR) > 0) && (strlen(SV_RUN_DIR) < STR_SZ));
 	ASSERT((strlen(SV) > 0) && (strlen(SV) < STR_SZ));
