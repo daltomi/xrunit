@@ -226,6 +226,32 @@ bool MakeDir(char const* const dirName, bool showError)
 	return true;
 }
 
+
+bool MakeFile(char const* const fileName, bool showError)
+{
+	ASSERT_DBG(fileName);
+
+	int fd = -1;
+
+	mode_t const mode = S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH;
+
+	errno = 0;
+
+	fd = creat(fileName, mode);
+
+	if (fd == -1)
+	{
+		if (showError)
+		{
+			fl_alert("The file '%s' could not be created.\nError:%s", fileName, strerror(errno));
+			return false;
+		}
+	}
+	close(fd);
+	return true;
+}
+
+
 void RunLink(char const* const src, char const* const dest)
 {
 	char* argv[5];

@@ -36,6 +36,8 @@ void FileToExecutableMode(char const* const fileName);
 
 bool MakeDir(char const* const dirName, bool showError);
 
+bool MakeFile(char const* const fileName, bool showError);
+
 void RunLink(char const* const src, char const* const dest);
 
 void RunUnlink(char const* const dest);
