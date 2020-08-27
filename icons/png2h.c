@@ -22,35 +22,53 @@
 #include <FL/Fl.H>
 #include <FL/Fl_PNG_Image.H>
 
-static FILE * file = stdout;
-static char name_data [40];
-static char input [40];
-static Fl_Image * img = nullptr;
+static FILE* file = stdout;
+static char name_data[40];
+static char input[40];
+static Fl_Image* img = nullptr;
 
 
 // Basado en FLUID (FLTK)
-static void write_img_data ()
+static void write_img_data()
 {
-	size_t const size = (img->w() * img->d () + img->ld ()) * img->h ();
-	unsigned char const * w = (unsigned char const *)img->data ()[0];
-	unsigned char const * e = w + size;
+	size_t const size = (img->w() * img->d() + img->ld()) * img->h();
+	unsigned char const* w = (unsigned char const*)img->data()[0];
+	unsigned char const* e = w + size;
 	int line = 1;
 
-	for (; w < e; ) {
+	for (; w < e; )
+	{
 		unsigned char c = *w++;
-		if (c>99) line += 4;
-		else if (c>9) line += 3;
-		else line +=2;
-		if (line++ >= 77)  { fputs ("\n", file); line = 0; }
+		if (c > 99)
+		{
+			line += 4;
+		}
+		else if (c > 9)
+		{
+			line += 3;
+		}
+		else
+		{
+			line += 2;
+		}
 
-		fprintf (file, "%d", c);
-		if(w<e) putc (',',file);
+		if (line++ >= 77)
+		{
+			fputs("\n", file); line = 0;
+		}
+
+		fprintf(file, "%d", c);
+
+		if( w < e)
+		{
+			putc (',',file);
+		}
 	}
-	fputs ("};\n", file);
+	fputs("};\n", file);
 }
 
 
-static void write_img_property ()
+static void write_img_property()
 {
 	fprintf (file,"static Fl_Image * get_icon_%s () {\n"
 			"\tstatic Fl_Image * img = new Fl_RGB_Image"
@@ -60,12 +78,13 @@ static void write_img_property ()
 }
 
 
-Fl_Image * open_image ()
+Fl_Image* open_image()
 {
 	//TODO: soportar otros formatos.
-	Fl_PNG_Image * img = new Fl_PNG_Image (input);
+	Fl_PNG_Image* img = new Fl_PNG_Image(input);
 
-	if (img->fail ()) {
+	if (img->fail())
+	{
 		fprintf (stderr, "Error. no se pudo abrir la imagen %s.\n", input);
 		delete img;
 		exit (EXIT_FAILURE);
@@ -75,31 +94,31 @@ Fl_Image * open_image ()
 }
 
 
-void write_name_data ()
+void write_name_data()
 {
-	snprintf (name_data, 40, "icon_%s", input);
-	fprintf (file, "static unsigned char %s [] = {\n", name_data);
+	snprintf(name_data, 40, "icon_%s", input);
+	fprintf(file, "static unsigned char %s [] = {\n", name_data);
 }
 
 
-int main (int argc, char * argv [])
+int main(int argc, char* argv[])
 {
-	if (argc < 2) {
-		fprintf (stderr, "Error. faltan parametros.\n");
+	if (argc < 2)
+	{
+		fprintf(stderr, "Error. faltan parametros.\n");
 		return EXIT_FAILURE;
 	}
 
-	strncpy (input, argv [1], 40);
+	strncpy(input, argv[1], 40);
 
-	img = open_image ();
+	img = open_image();
 
 	// Quitar la extension de archivo.
-	*(char * )(strchr (input, '.')) = '\0';
+	*(char*)(strchr(input, '.')) = '\0';
 
-	fprintf(file, "#pragma once\n\n");
-	write_name_data ();
-	write_img_data ();
-	write_img_property ();
+	write_name_data();
+	write_img_data();
+	write_img_property();
 	delete img;
 
 	return EXIT_SUCCESS;

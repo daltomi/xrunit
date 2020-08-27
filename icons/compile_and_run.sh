@@ -28,6 +28,10 @@ echo "[*] Eliminando icons.h ..."
 rm icons.h
 
 echo "[*] Generando icons.h ..."
+echo "//Generate by png2c" > icons.h
+echo "//Author: daltomi@disroot.org" >> icons.h
+echo "//Project: xsv" >> icons.h
+echo "#pragma once" >> icons.h
 for i in *.png; do
 	./png2h $i >> icons.h
 done
