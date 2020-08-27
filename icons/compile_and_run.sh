@@ -1,5 +1,5 @@
 #
-#	Copyright (C) 2020 daltomi <daltomi@disroot.org>
+#	Copyright © 2020 daltomi <daltomi@disroot.org>
 #
 #	This file is part of xsv.
 #
