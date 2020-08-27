@@ -3,7 +3,9 @@
 Graphical interface for `sv (control and manage services monitored by runsv)`
 
 
-<img src="https://git.disroot.org/daltomi/xsv/raw/branch/master/screenshot.png"/>
+<img src="https://git.disroot.org/daltomi/xsv/raw/branch/master/screenshot_00.png"/>
+
+<img src="https://git.disroot.org/daltomi/xsv/raw/branch/master/screenshot_01.png"/>
 
 
 ### Support
