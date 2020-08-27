@@ -629,17 +629,20 @@ void MakeServicePath(std::string const& service, std::string& path)
 	path += service;
 }
 
+
 static void MakeLogDirPath(std::string const& service, std::string& path)
 {
 	MakeServicePath(service, path);
 	path += "/log/";
 }
 
+
 static void MakeServiceDirPath(std::string const& service, std::string& path)
 {
 	MakeServicePath(service, path);
 	path += "/";
 }
+
 
 static void MakeServiceRunPath(std::string const& service, std::string& path)
 {
@@ -654,11 +657,13 @@ static void MakeFinishPath(std::string const& service, std::string& path)
 	path += "finish";
 }
 
+
 static void MakeDownPath(std::string const& service, std::string& path)
 {
 	MakeServiceDirPath(service, path);
 	path += "down";
 }
+
 
 static void MakeLogRunPath(std::string const& service, std::string& path)
 {
@@ -861,7 +866,8 @@ void EditNewCb(Fl_Widget* w, void* data)
 			tedt[TEDT_FINISH]->box(FL_FLAT_BOX);
 			tedt[TEDT_FINISH]->buffer(tbuf[TBUF_FINISH]);
 		grp2->end();
-	Fl_Group* grp3 = new Fl_Group(15, 75, 475, 300, "Extras...");
+
+		Fl_Group* grp3 = new Fl_Group(15, 75, 475, 300, "Extras...");
 			grp3->hide();
 			btn[DELETE] = new Fl_Button(25, 90, BTN_W, BTN_H, "Delete...");
 			btn[DISABLED] = new Fl_Button(25, 90 + 60, BTN_W, BTN_H, "Disable...");
@@ -993,8 +999,6 @@ void EnabledDisabledServiceCb(Fl_Widget* w, void* data)
 
 	struct NewEditData* saveNewEditData = (struct NewEditData*)data;
 	char const* const service = saveNewEditData->service;
-
-
 	char const* msg = "Are you sure to disable the service?";
 	char const* msg_yes = "Yes, disable";
 
