@@ -62,11 +62,11 @@ void SanitizeEnv(void)
 {
 	char* display = getenv("DISPLAY");
 
-	ASSERT(display);
+	ASSERT_STRING(display);
 
 	char* xauthority = getenv("XAUTHORITY");
 
-	ASSERT(xauthority);
+	ASSERT_STRING(xauthority);
 
 	if (clearenv() != 0)
 	{
@@ -126,7 +126,7 @@ void SanitizeEnv(void)
 
 bool FileAccessOk(char const* const fileName, bool showError)
 {
-	ASSERT_DBG(fileName);
+	ASSERT_DBG_STRING(fileName);
 
 	if (-1 == access(fileName, F_OK | R_OK | W_OK))
 	{
@@ -144,7 +144,7 @@ bool FileAccessOk(char const* const fileName, bool showError)
 
 bool DirAccessOk(char const* const dirName, bool showError)
 {
-	ASSERT_DBG(dirName);
+	ASSERT_DBG_STRING(dirName);
 
 	struct stat st;
 
@@ -169,7 +169,7 @@ bool DirAccessOk(char const* const dirName, bool showError)
 
 FILE* PipeOpen(char const* const cmd)
 {
-	ASSERT_DBG(cmd);
+	ASSERT_DBG_STRING(cmd);
 
 	SanitizeEnv();
 
@@ -194,11 +194,11 @@ void PipeClose(FILE* pipe)
 
 void FileToExecutableMode(char const* const fileName)
 {
-	ASSERT_DBG(fileName);
+	ASSERT_DBG_STRING(fileName);
 
 	errno = 0;
 
-	mode_t const user = S_IRUSR | S_IWUSR |  S_IXUSR;
+	mode_t const user = S_IRUSR | S_IWUSR | S_IXUSR;
 	mode_t const group = S_IXGRP | S_IRGRP;
 	mode_t const other = S_IXOTH | S_IROTH;
 
@@ -210,7 +210,7 @@ void FileToExecutableMode(char const* const fileName)
 
 bool MakeDir(char const* const dirName, bool showError)
 {
-	ASSERT_DBG(dirName);
+	ASSERT_DBG_STRING(dirName);
 
 	errno = 0;
 
@@ -229,7 +229,7 @@ bool MakeDir(char const* const dirName, bool showError)
 
 bool MakeFile(char const* const fileName, bool showError)
 {
-	ASSERT_DBG(fileName);
+	ASSERT_DBG_STRING(fileName);
 
 	int fd = -1;
 
@@ -254,11 +254,8 @@ bool MakeFile(char const* const fileName, bool showError)
 
 bool Link(char const* const target, char const* const linkpath)
 {
-	ASSERT_DBG(target);
-	ASSERT_DBG(strlen(target));
-
-	ASSERT_DBG(linkpath);
-	ASSERT_DBG(strlen(linkpath));
+	ASSERT_DBG_STRING(target);
+	ASSERT_DBG_STRING(linkpath);
 
 	errno = 0;
 
@@ -274,8 +271,7 @@ bool Link(char const* const target, char const* const linkpath)
 
 bool Unlink(char const* const pathname)
 {
-	ASSERT_DBG(pathname);
-	ASSERT_DBG(strlen(pathname));
+	ASSERT_DBG_STRING(pathname);
 
 	errno = 0;
 
@@ -291,6 +287,8 @@ bool Unlink(char const* const pathname)
 
 void RunRemoveDir(char const* const dest)
 {
+	ASSERT_DBG_STRING(dest);
+
 	char* argv[4];
 	argv[0] = "rm";
 	argv[1] = "-rf";

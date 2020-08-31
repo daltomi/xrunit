@@ -28,11 +28,20 @@ do {                                                                         \
         }                                                                    \
 } while(0)
 
+#define ASSERT_STRING(Test)			\
+do {								\
+		ASSERT(Test);				\
+		ASSERT(strlen((Test)) > 0);	\
+} while(0)
+
 #ifdef DEBUG
-#define ASSERT_DBG(Test) \
-        ASSERT(Test)
+#define ASSERT_DBG(Test) ASSERT(Test)
+
+#define ASSERT_DBG_STRING(Test) ASSERT_STRING(Test)
+
 #else
 #define ASSERT_DBG(Test)
+#define ASSERT_DBG_STRING(Test)
 #endif
 
 #define SHOW_MESSAGE(Mesg, ...) (fprintf(stderr,"" Mesg "",##__VA_ARGS__))
