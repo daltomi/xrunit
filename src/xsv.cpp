@@ -498,11 +498,11 @@ void LoadUnloadCb(Fl_Widget* w, UNUSED void* data)
 		std::string src;
 		MakeServicePath(service, src);
 		RemoveNewLine(src);
-		RunLink(src.c_str(), dest.c_str());
+		Link(src.c_str(), dest.c_str());
 	}
 	else if (btnId == btn[UNLOAD])
 	{
-		RunUnlink(dest.c_str());
+		Unlink(dest.c_str());
 	}
 	else
 	{
@@ -976,7 +976,7 @@ void DeleteServiceCb(UNUSED Fl_Widget* w, void* data)
 
 	if (FileAccessOk(path.c_str(), not showError))
 	{
-		RunUnlink(path.c_str());
+		Unlink(path.c_str());
 	}
 
 	MakeServiceDirPath(service, path);
@@ -1026,7 +1026,7 @@ void EnabledDisabledServiceCb(Fl_Widget* w, void* data)
 	}
 	else
 	{
-		RunUnlink(fileDown.c_str());
+		Unlink(fileDown.c_str());
 	}
 
 	ChangeStateEnabledDisabledButtons(service);

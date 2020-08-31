@@ -38,9 +38,9 @@ bool MakeDir(char const* const dirName, bool showError);
 
 bool MakeFile(char const* const fileName, bool showError);
 
-void RunLink(char const* const src, char const* const dest);
+bool Link(char const* const target, char const* const linkpath);
 
-void RunUnlink(char const* const dest);
+bool Unlink(char const* const pathname);
 
 void RunRemoveDir(char const* const dest);
 

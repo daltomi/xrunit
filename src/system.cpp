@@ -252,26 +252,42 @@ bool MakeFile(char const* const fileName, bool showError)
 }
 
 
-void RunLink(char const* const src, char const* const dest)
+bool Link(char const* const target, char const* const linkpath)
 {
-	char* argv[5];
-	argv[0] = "ln";
-	argv[1] = "-s";
-	argv[2] = (char*)src;
-	argv[3] = (char*)dest;
-	argv[4] = (char*)NULL;
-	System("ln", argv);
+	ASSERT_DBG(target);
+	ASSERT_DBG(strlen(target));
+
+	ASSERT_DBG(linkpath);
+	ASSERT_DBG(strlen(linkpath));
+
+	errno = 0;
+
+	if (symlink(target, linkpath) == -1)
+	{
+		fl_alert("The link '%s' could not be created.\nError:%s", linkpath, strerror(errno));
+		return false;
+	}
+
+	return true;
 }
 
 
-void RunUnlink(char const* const dest)
+bool Unlink(char const* const pathname)
 {
-	char* argv[3];
-	argv[0] = "unlink";
-	argv[1] = (char*)dest;
-	argv[2] = (char*)NULL;
-	System("unlink", argv);
+	ASSERT_DBG(pathname);
+	ASSERT_DBG(strlen(pathname));
+
+	errno = 0;
+
+	if (unlink(pathname) == -1)
+	{
+		fl_alert("The unlink '%s' failed.\nError:%s", pathname, strerror(errno));
+		return false;
+	}
+
+	return true;
 }
+
 
 void RunRemoveDir(char const* const dest)
 {
