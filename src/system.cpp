@@ -244,8 +244,8 @@ bool MakeFile(char const* const fileName, bool showError)
 		if (showError)
 		{
 			fl_alert("The file '%s' could not be created.\nError:%s", fileName, strerror(errno));
-			return false;
 		}
+		return false;
 	}
 	close(fd);
 	return true;
