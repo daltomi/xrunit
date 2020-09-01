@@ -19,6 +19,7 @@
 
 #ifndef CONFIG_H_INCLUDE
 #define CONFIG_H_INCLUDE
+#define _XOPEN_SOURCE 500
 #include <FL/Fl.H>
 #include <FL/Fl_Double_Window.H>
 #include <FL/Fl_Hold_Browser.H>
@@ -40,6 +41,8 @@
 #include <stdio.h>
 #include <limits.h>
 #include <string>
+#include <ftw.h>
+
 #include "debug.h"
 
 #define VERSION @APP_VER@

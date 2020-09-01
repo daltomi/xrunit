@@ -252,6 +252,36 @@ bool MakeFile(char const* const fileName, bool showError)
 }
 
 
+static int RemoveRecursiveCb(char const* path, UNUSED const struct stat* sb, int flag, UNUSED struct FTW* ftw)
+{
+	if (flag != FTW_NS || flag != FTW_DNR)
+	{
+		errno = 0;
+
+		if (remove(path) == -1)
+		{
+			MESSAGE("Failed remove:'%s'\nError:%s", path, strerror(errno));
+		}
+	}
+
+	return 0;
+}
+
+
+void RemoveRecursive(char const* const path)
+{
+	ASSERT_DBG_STRING(path);
+
+	errno = 0;
+
+	if (nftw(path, RemoveRecursiveCb, 20, FTW_DEPTH) == -1)
+	{
+		fl_alert("There was a failure to recursively\n"
+				"delete the directory '%s'\nError:%s", path, strerror(errno));
+	}
+}
+
+
 bool Link(char const* const target, char const* const linkpath)
 {
 	ASSERT_DBG_STRING(target);
@@ -282,17 +312,4 @@ bool Unlink(char const* const pathname)
 	}
 
 	return true;
-}
-
-
-void RunRemoveDir(char const* const dest)
-{
-	ASSERT_DBG_STRING(dest);
-
-	char* argv[4];
-	argv[0] = "rm";
-	argv[1] = "-rf";
-	argv[2] = (char*)dest;
-	argv[3] = (char*)NULL;
-	System("rm", argv);
 }

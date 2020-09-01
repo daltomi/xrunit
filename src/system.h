@@ -38,10 +38,10 @@ bool MakeDir(char const* const dirName, bool showError);
 
 bool MakeFile(char const* const fileName, bool showError);
 
+void RemoveRecursive(char const* const path);
+
 bool Link(char const* const target, char const* const linkpath);
 
 bool Unlink(char const* const pathname);
-
-void RunRemoveDir(char const* const dest);
 
 #endif

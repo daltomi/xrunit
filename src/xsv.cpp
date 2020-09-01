@@ -983,7 +983,7 @@ void DeleteServiceCb(UNUSED Fl_Widget* w, void* data)
 
 	if (DirAccessOk(path.c_str(), showError))
 	{
-		RunRemoveDir(path.c_str());
+		RemoveRecursive(path.c_str());
 	}
 
 	((Fl_Double_Window*)saveNewEditData->data)->hide();
