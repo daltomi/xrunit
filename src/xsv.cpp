@@ -1015,12 +1015,12 @@ void EnabledDisabledServiceCb(Fl_Widget* w, void* data)
 	}
 
 	std::string fileDown;
-	bool showError = true;
 
 	MakeDownPath(service, fileDown);
 
 	if (btnId == btn[DISABLED])
 	{
+		bool showError = true;
 		MakeFile(fileDown.c_str(), showError);
 	}
 	else
