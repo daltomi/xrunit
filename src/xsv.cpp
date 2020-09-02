@@ -58,8 +58,6 @@ static char const* STR_UNLOAD = "Unload";
 static char const* STR_EDIT = "Edit...";
 static char const* STR_NEW = "New...";
 
-ListDirectoriesCallback ListDirectoriesCb = NULL;
-
 
 int main(int argc, char* argv[])
 {
@@ -263,14 +261,14 @@ void FillBrowserEnable(void)
 }
 
 
-static void FillBrowserListAllServicesCb(char const* path)
+static void FillBrowserList_All(char const* path)
 {
 	browser[LIST]->add(path, (void*)STR_UNLOAD);
 	browser[LIST]->icon(browser[LIST]->size(), get_icon_disable());
 }
 
 
-static void FillBrowserListLoadServicesCb(char const* path)
+static void FillBrowserList_Load(char const* path)
 {
 	for (int item = 1; item <= browser[LIST]->size(); ++item)
 	{
@@ -295,11 +293,9 @@ void FillBrowserList(void)
 
 	browser[LIST]->clear();
 
-	ListDirectoriesCb = FillBrowserListAllServicesCb;
-	ListDirectories(SV_DIR);
+	ListDirectories(SV_DIR, FillBrowserList_All);
 
-	ListDirectoriesCb = FillBrowserListLoadServicesCb;
-	ListDirectories(SV_RUN_DIR);
+	ListDirectories(SV_RUN_DIR, FillBrowserList_Load);
 
 	for (int item = 1; item <= browser[LIST]->size(); ++item)
 	{

@@ -44,9 +44,6 @@ bool Link(char const* const target, char const* const linkpath);
 
 bool Unlink(char const* const pathname);
 
-void ListDirectories(char const* const path);
+void ListDirectories(char const* const path, void(*ListDirectoriesCb)(char const* path));
 
-typedef void (*ListDirectoriesCallback)(char const* dirName);
-
-extern ListDirectoriesCallback ListDirectoriesCb;
 #endif

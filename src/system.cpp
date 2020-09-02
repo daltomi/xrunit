@@ -282,7 +282,7 @@ void RemoveRecursive(char const* const path)
 }
 
 
-void ListDirectories(char const* const path)
+void ListDirectories(char const* const path, void(*ListDirectoriesCb)(char const* path))
 {
 	ASSERT_DBG_STRING(path);
 	ASSERT_DBG(ListDirectoriesCb);
