@@ -512,6 +512,9 @@ void LoadUnloadCb(Fl_Widget* w, UNUSED void* data)
 
 void RunSv(char const* const service, char const* const action)
 {
+	ASSERT_DBG_STRING(service);
+	ASSERT_DBG_STRING(action);
+
 	char* argv[4];
 	argv[0] = SV;
 	argv[1] = (char*)action;
