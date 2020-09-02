@@ -282,6 +282,38 @@ void RemoveRecursive(char const* const path)
 }
 
 
+void ListDirectories(char const* const path)
+{
+	ASSERT_DBG_STRING(path);
+	ASSERT_DBG(ListDirectoriesCb);
+
+	struct dirent** dirList = NULL;
+
+	errno = 0;
+
+	int n = scandir(path, &dirList, NULL, alphasort);
+
+	if (n == -1)
+	{
+		fl_alert("There was a failure to list directories: '%s'\nError:%s", path, strerror(errno));
+		return;
+	}
+
+	while (n--)
+	{
+		char const* const dir = dirList[n]->d_name;
+
+		if (!strpbrk(dir, "."))
+		{
+			ListDirectoriesCb(dir);
+		}
+		free(dirList[n]);
+	}
+
+	free(dirList);
+}
+
+
 bool Link(char const* const target, char const* const linkpath)
 {
 	ASSERT_DBG_STRING(target);

@@ -42,6 +42,7 @@
 #include <limits.h>
 #include <string>
 #include <ftw.h>
+#include <dirent.h>
 
 #include "debug.h"
 
@@ -82,8 +83,6 @@
 
 // popen cmds
 #define SV_LIST SV " status " SV_RUN_DIR"/*"
-#define LS_SV "ls -1 " SV_DIR
-#define LS_SV_RUN "ls -1 " SV_RUN_DIR
 
 #define UNUSED __attribute__((unused))
 

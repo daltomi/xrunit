@@ -58,6 +58,9 @@ static char const* STR_UNLOAD = "Unload";
 static char const* STR_EDIT = "Edit...";
 static char const* STR_NEW = "New...";
 
+ListDirectoriesCallback ListDirectoriesCb = NULL;
+
+
 int main(int argc, char* argv[])
 {
 	ASSERT((TIME_UPDATE > 1) && (TIME_UPDATE < 100));
@@ -260,51 +263,43 @@ void FillBrowserEnable(void)
 }
 
 
+static void FillBrowserListAllServicesCb(char const* path)
+{
+	browser[LIST]->add(path, (void*)STR_UNLOAD);
+	browser[LIST]->icon(browser[LIST]->size(), get_icon_disable());
+}
+
+
+static void FillBrowserListLoadServicesCb(char const* path)
+{
+	for (int item = 1; item <= browser[LIST]->size(); ++item)
+	{
+		char const* const find = browser[LIST]->text(item);
+
+		if (strstr(path, find))
+		{
+			browser[LIST]->icon(item, get_icon_enable());
+			browser[LIST]->data(item, (void*)STR_LOAD);
+			break;
+		}
+	}
+}
+
+
 void FillBrowserList(void)
 {
-	char buffer[STR_SZ];
-
-	FILE* pipe = PipeOpen(LS_SV);
+	int iselect_count = SELECT_RESET;
 
 	btn[LOAD]->deactivate();
 	btn[UNLOAD]->deactivate();
 
 	browser[LIST]->clear();
 
-	int iselect_count = SELECT_RESET;
-	int item = 1;
+	ListDirectoriesCb = FillBrowserListAllServicesCb;
+	ListDirectories(SV_DIR);
 
-	while (fgets(buffer, STR_SZ, pipe))
-	{
-		buffer[STR_SZ - 1] = '\0';
-
-		browser[LIST]->add(buffer, (void*)STR_UNLOAD);
-		browser[LIST]->icon(item++, get_icon_disable());
-	}
-
-	PipeClose(pipe);
-
-	pipe = PipeOpen(LS_SV_RUN);
-
-	while (fgets(buffer, STR_SZ, pipe))
-	{
-		buffer[STR_SZ - 1] = '\0';
-
-		for (int item = 1; item <= browser[LIST]->size(); ++item)
-		{
-			char const* const find = browser[LIST]->text(item);
-
-			if (strstr(buffer, find))
-			{
-				browser[LIST]->icon(item, get_icon_enable());
-				browser[LIST]->data(item, (void*)STR_LOAD);
-				break;
-			}
-
-		}
-	}
-
-	PipeClose(pipe);
+	ListDirectoriesCb = FillBrowserListLoadServicesCb;
+	ListDirectories(SV_RUN_DIR);
 
 	for (int item = 1; item <= browser[LIST]->size(); ++item)
 	{
@@ -468,7 +463,12 @@ void CommandCb(Fl_Widget* w, UNUSED void* data)
 
 void RemoveNewLine(std::string& str)
 {
-	str.erase(str.find('\n'));
+	size_t const pos = str.find('\n');
+
+	if (pos != std::string::npos)
+	{
+		str.erase(pos);
+	}
 }
 
 
