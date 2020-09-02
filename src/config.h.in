@@ -81,6 +81,11 @@
 
 #define ASK_SERVICES_DELIM ","
 
+#define NOTIFY_STR_SUMMARY TITLE "\n"
+#define NOTIFY_STR_DOWN "Down service: %s"
+#define NOTIFY_STR_UP  "Up service: %s"
+#define NOTIFY_STR_RESTART "Restart service: %s"
+
 // popen cmds
 #define SV_LIST SV " status " SV_RUN_DIR"/*"
 
@@ -136,6 +141,11 @@ enum {
 	TEDT_LOG,
 	TEDT_FINISH,
 	TEDT_MAX,
+/* notify ids */
+	NOTIFY_DOWN = 0,
+	NOTIFY_UP,
+	NOTIFY_RESTART,
+	NOTIFY_MAX,
 };
 
 

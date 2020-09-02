@@ -2,9 +2,17 @@ ifeq ("$(shell which fltk-config  2> /dev/null)","")
 $(error 'fltk-config' NOT FOUND)
 endif
 
+ifeq ("$(shell which pkg-config  2> /dev/null)","")
+$(error 'pkg-config' NOT FOUND)
+endif
+
+ifeq ("$(shell pkg-config --libs libnotify  2> /dev/null)","")
+$(error 'libnotify' NOT FOUND)
+endif
+
 APP := xsv
 
-APP_VER := "3.4"
+APP_VER := "3.5"
 
 PKG_REV := "1"
 
@@ -14,13 +22,13 @@ CXX ?= g++
 
 FLTK_EXTRA := "--use-images"
 
-CXXLIBS := $(shell fltk-config --ldflags ${FLTK_EXTRA})
+CXXLIBS := $(shell fltk-config --ldflags ${FLTK_EXTRA}) $(shell pkg-config --libs libnotify)
 
 ifeq ("$(CXX)", "g++")
 CXXLIBS_RELEASE :=-Wl,-s
 endif
 
-CXXFLAGS += -Wall $(shell fltk-config --cxxflags) -Iicons
+CXXFLAGS += -Wall $(shell fltk-config --cxxflags) -Iicons $(shell pkg-config --cflags libnotify)
 CXXFLAGS_RELEASE:= -O3 -DNDEBUG -Wno-write-strings
 CXXFLAGS_DEBUG:= -O2 -g -DDEBUG -Wextra -Wimplicit-fallthrough
 

@@ -18,6 +18,7 @@
 */
 
 #include "config.h"
+#include "notify.h"
 #include "system.h"
 #include "icons.h"
 
@@ -35,6 +36,9 @@ void RemoveNewLine(std::string& str);
 bool AskIfContinue(char const* const service);
 void MakeServicePath(std::string const& service, std::string& path);
 void MakeServiceRunDirPath(std::string const& service, std::string& path);
+void ShowNotify(int const id, char const* const service);
+char const* ExtractServiceNameFromPath(char const* const service);
+char* ExtractServiceNameFromSV(char const* const service);
 
 void QuitCb(UNUSED Fl_Widget* w, UNUSED void* data);
 void SelectCb(Fl_Widget* w, UNUSED void* data);
@@ -58,6 +62,11 @@ static char const* STR_UNLOAD = "Unload";
 static char const* STR_EDIT = "Edit...";
 static char const* STR_NEW = "New...";
 
+
+static void Exit(void)
+{
+	NotifyEnd();
+}
 
 int main(int argc, char* argv[])
 {
@@ -144,9 +153,40 @@ int main(int argc, char* argv[])
 	wnd->end();
 	wnd->show();
 
+	atexit(Exit);
+
 	Fl::add_timeout(TIME_UPDATE, TimerCb);
 
 	return Fl::run();
+}
+
+
+void ShowNotify(int const id, char const* const service)
+{
+	ASSERT_DBG_STRING(service);
+	char str[256];
+	char* body = NULL;
+	char* name = ExtractServiceNameFromSV(service);
+
+	switch (id)
+	{
+		case NOTIFY_DOWN:
+			body = NOTIFY_STR_DOWN;
+			break;
+		case NOTIFY_UP:
+			body = NOTIFY_STR_UP;
+			break;
+		case NOTIFY_RESTART:
+			body = NOTIFY_STR_RESTART;
+			break;
+		default:
+			STOP_DBG("Notify identifier not covered: %d", id);
+	}
+
+	snprintf(str, 255, body, name);
+	str[255] = '\0';
+	NotifyShow(NOTIFY_STR_SUMMARY, str);
+	free(name);
 }
 
 
@@ -407,37 +447,62 @@ bool AskIfContinue(char const* const service)
 }
 
 
-void CommandCb(Fl_Widget* w, UNUSED void* data)
+char* ExtractServiceNameFromSV(char const* const service)
 {
-	Fl_Button* btnId = (Fl_Button*)w;
+	ASSERT_DBG_STRING(service);
 
-	char const* buffer = browser[ENABLE]->text(itemSelect[ENABLE]);
+	char* name = strdup(service);
+	ASSERT_DBG(name);
 
-	char* service = strdup(buffer);
+	char* b = strchr(name, '/');
 
-	ASSERT_DBG(service);
-
-	char* b = strchr(service, '/');
-	ASSERT_DBG(b);
+	/* algunos nombre de servicios no tienen ruta absoluta */
+	if (b == NULL)
+	{
+		return name;
+	}
 
 	char* e = strchr(b, ':');
 	ASSERT_DBG(e);
 
 	std::ptrdiff_t const len = e - b;
 
-	memmove(service, b, len);
+	memmove(name, b, len);
 
-	service[len] = '\0';
+	name[len] = '\0';
+
+	return name;
+}
+
+
+char const* ExtractServiceNameFromPath(char const* const service)
+{
+	char* servicePath = ExtractServiceNameFromSV(service);
+	char const* const name = basename(servicePath);
+	free(servicePath);
+	return name;
+}
+
+
+void CommandCb(Fl_Widget* w, UNUSED void* data)
+{
+	Fl_Button* btnId = (Fl_Button*)w;
+
+	char const* itemText = browser[ENABLE]->text(itemSelect[ENABLE]);
+
+	char const* const service = ExtractServiceNameFromPath(itemText);
 
 	if (btnId == btn[RUN])
 	{
 		RunSv(service, "up");
+		ShowNotify(NOTIFY_UP, service);
 	}
 	else if (btnId == btn[RESTART])
 	{
 		if (AskIfContinue(service))
 		{
 			RunSv(service, "restart");
+			ShowNotify(NOTIFY_RESTART, service);
 		}
 	}
 	else if (btnId == btn[DOWN])
@@ -445,15 +510,13 @@ void CommandCb(Fl_Widget* w, UNUSED void* data)
 		if (AskIfContinue(service))
 		{
 			RunSv(service, "down");
+			ShowNotify(NOTIFY_DOWN, service);
 		}
 	}
 	else
 	{
 		STOP_DBG("Button identifier not covered: %p", btnId);
 	}
-
-	free(service);
-	service = (char*)NULL;
 }
 
 
@@ -495,10 +558,12 @@ void LoadUnloadCb(Fl_Widget* w, UNUSED void* data)
 		MakeServicePath(service, src);
 		RemoveNewLine(src);
 		Link(src.c_str(), dest.c_str());
+		ShowNotify(NOTIFY_UP, service);
 	}
 	else if (btnId == btn[UNLOAD])
 	{
 		Unlink(dest.c_str());
+		ShowNotify(NOTIFY_DOWN, service);
 	}
 	else
 	{
