@@ -24,7 +24,6 @@ CXXFLAGS += -Wall $(shell fltk-config --cxxflags) -Iicons
 CXXFLAGS_RELEASE:= -O3 -DNDEBUG -Wno-write-strings
 CXXFLAGS_DEBUG:= -O2 -g -DDEBUG -Wextra -Wimplicit-fallthrough
 
-
 SOURCE := $(wildcard src/*.cpp)
 
 OBJ := $(patsubst %.cpp,%.o,$(SOURCE))
@@ -44,13 +43,11 @@ release: version icons $(APP)
 debug: CXXFLAGS+=$(CXXFLAGS_DEBUG)
 debug: version icons $(APP)
 
-
 $(APP): $(OBJ)
 	$(CXX) $(OBJ) $(CXXLIBS) -o $(APP)
 
 .o:
 	$(CXX) -c $<
-
 
 dist:
 	zip $(ZIP) Makefile src/*.cpp src/*.h  src/*.in README.md icons/* -x icons/icons.h -x src/config.h
