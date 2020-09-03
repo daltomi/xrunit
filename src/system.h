@@ -44,6 +44,8 @@ bool Link(char const* const target, char const* const linkpath);
 
 bool Unlink(char const* const pathname);
 
+char* GetModifyFileTime(char const* const fileName);
+
 void ListDirectories(char const* const path, void(*ListDirectoriesCb)(char const* path));
 
 #endif

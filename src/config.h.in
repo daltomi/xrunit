@@ -142,6 +142,11 @@ enum {
 	TEDT_LOG,
 	TEDT_FINISH,
 	TEDT_MAX,
+/* Fl_Box */
+	BOX_TIME_SERV = 0,
+	BOX_TIME_LOG,
+	BOX_TIME_FINISH,
+	BOX_TIME_MAX,
 /* notify ids */
 	NOTIFY_DOWN = 0,
 	NOTIFY_UP,
@@ -153,6 +158,7 @@ enum {
 
 struct NewEditData
 {
+	Fl_Box* box[BOX_TIME_MAX];
 	char const* service;
 	void* data;
 	int id;

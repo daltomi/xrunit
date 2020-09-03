@@ -165,6 +165,21 @@ bool DirAccessOk(char const* const dirName, bool showError)
 }
 
 
+char* GetModifyFileTime(char const* const fileName)
+{
+	ASSERT_DBG_STRING(fileName);
+
+	struct stat st;
+
+	if (lstat(fileName, &st) == -1)
+	{
+		return NULL;
+	}
+
+	return ctime(&st.st_mtime);
+}
+
+
 FILE* PipeOpen(char const* const cmd)
 {
 	ASSERT_DBG_STRING(cmd);

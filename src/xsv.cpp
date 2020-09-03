@@ -741,7 +741,7 @@ static void MakeLogRunPath(std::string const& service, std::string& path)
 }
 
 
-static void EditLoad(void)
+static void EditLoad(struct NewEditData* saveNewEditData)
 {
 	bool const showError = true;
 	int const item = GetSelected(browser[LIST]);
@@ -759,12 +759,15 @@ static void EditLoad(void)
 	}
 
 	tbuf[TBUF_SERV]->loadfile(path.c_str());
+	saveNewEditData->box[BOX_TIME_SERV]->copy_label(GetModifyFileTime(path.c_str()));
 
 	MakeLogRunPath(service, path);
 	tbuf[TBUF_LOG]->loadfile(path.c_str());
+	saveNewEditData->box[BOX_TIME_LOG]->copy_label(GetModifyFileTime(path.c_str()));
 
 	MakeFinishPath(service, path);
 	tbuf[TBUF_FINISH]->loadfile(path.c_str());
+	saveNewEditData->box[BOX_TIME_FINISH]->copy_label(GetModifyFileTime(path.c_str()));
 }
 
 
@@ -920,6 +923,8 @@ void EditNewCb(Fl_Widget* w, void* data)
 			tedt[TEDT_SERV] = new Fl_Text_Editor(20, 80, 460, 230);
 			tedt[TEDT_SERV]->box(FL_FLAT_BOX);
 			tedt[TEDT_SERV]->buffer(tbuf[TBUF_SERV]);
+			Fl_Box* boxTimeServ = new Fl_Box(15, 500 - 80 - 90, 460, 10, NULL);
+			boxTimeServ->align(Fl_Align(133 | FL_ALIGN_INSIDE));
 		grp0->end();
 
 		Fl_Group* grp1 = new Fl_Group(15, 75, 475, 300, "Log (optional)");
@@ -927,6 +932,8 @@ void EditNewCb(Fl_Widget* w, void* data)
 			tedt[TEDT_LOG] = new Fl_Text_Editor(20, 80, 460, 230);
 			tedt[TEDT_LOG]->box(FL_FLAT_BOX);
 			tedt[TEDT_LOG]->buffer(tbuf[TBUF_LOG]);
+			Fl_Box* boxTimeLog = new Fl_Box(15, 500 - 80 - 90, 460, 10, NULL);
+			boxTimeLog->align(Fl_Align(133 | FL_ALIGN_INSIDE));
 		grp1->end();
 
 		Fl_Group* grp2 = new Fl_Group(15, 75, 475, 300, "Finish (optional)");
@@ -934,6 +941,8 @@ void EditNewCb(Fl_Widget* w, void* data)
 			tedt[TEDT_FINISH] = new Fl_Text_Editor(20, 80, 460, 230);
 			tedt[TEDT_FINISH]->box(FL_FLAT_BOX);
 			tedt[TEDT_FINISH]->buffer(tbuf[TBUF_FINISH]);
+			Fl_Box* boxTimeFinish = new Fl_Box(15, 500 - 80 - 90, 460, 10, NULL);
+			boxTimeFinish->align(Fl_Align(133 | FL_ALIGN_INSIDE));
 		grp2->end();
 
 		Fl_Group* grp3 = new Fl_Group(15, 75, 475, 300, "Extras...");
@@ -950,6 +959,10 @@ void EditNewCb(Fl_Widget* w, void* data)
 		grp3->end();
 	tabs->end();
 
+
+	SetFont(boxTimeLog);
+	SetFont(boxTimeFinish);
+	SetFont(boxTimeServ);
 	SetFont(grp0);
 	SetFont(grp1);
 	SetFont(grp2);
@@ -984,7 +997,10 @@ void EditNewCb(Fl_Widget* w, void* data)
 		btn[ENABLED]->callback(EnabledDisabledServiceCb, (void*)&saveNewEditData);
 		btn[DISABLED]->callback(EnabledDisabledServiceCb, (void*)&saveNewEditData);
 
-		EditLoad();
+		saveNewEditData.box[BOX_TIME_SERV] = boxTimeServ;
+		saveNewEditData.box[BOX_TIME_LOG] = boxTimeLog;
+		saveNewEditData.box[BOX_TIME_FINISH] = boxTimeFinish;
+		EditLoad(&saveNewEditData);
 	}
 	else /* NEW */
 	{
@@ -1009,6 +1025,9 @@ void EditNewCb(Fl_Widget* w, void* data)
 	delete box0;
 	delete box1;
 	delete box2;
+	delete boxTimeServ;
+	delete boxTimeLog;
+	delete boxTimeFinish;
 	delete grp0;
 	delete grp1;
 	delete grp2;
