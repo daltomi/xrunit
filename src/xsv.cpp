@@ -179,6 +179,9 @@ void ShowNotify(int const id, char const* const service)
 		case NOTIFY_RESTART:
 			body = NOTIFY_STR_RESTART;
 			break;
+		case NOTIFY_DELETE:
+			body = NOTIFY_STR_DELETE;
+			break;
 		default:
 			STOP_DBG("Notify identifier not covered: %d", id);
 	}
@@ -1049,6 +1052,8 @@ void DeleteServiceCb(UNUSED Fl_Widget* w, void* data)
 	{
 		RemoveRecursive(path.c_str());
 	}
+
+	ShowNotify(NOTIFY_DELETE, service);
 
 	((Fl_Double_Window*)saveNewEditData->data)->hide();
 }
