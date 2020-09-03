@@ -38,16 +38,14 @@ void System(char const* const exec, char* const* argv)
 
 		if (127 == WEXITSTATUS(ret))
 		{
-			fl_alert("The command could not be executed:\n%s", exec);
-			exit(EXIT_FAILURE);
+			STOP("The command could not be executed:\n%s", exec);
 		}
 
 		if (WIFEXITED(ret))
 		{
 			if (WEXITSTATUS(ret) != 0)
 			{
-				fl_alert("The command was executed but ended with error.\n%s", exec);
-				exit(EXIT_FAILURE);
+				STOP("The command was executed but ended with error.\n%s", exec);
 			}
 		}
 
