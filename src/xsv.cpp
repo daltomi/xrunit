@@ -37,7 +37,7 @@ bool AskIfContinue(char const* const service);
 void MakeServicePath(std::string const& service, std::string& path);
 void MakeServiceRunDirPath(std::string const& service, std::string& path);
 void ShowNotify(int const id, char const* const service);
-char const* ExtractServiceNameFromPath(char const* const service);
+char* ExtractServiceNameFromPath(char const* const service);
 char* ExtractServiceNameFromSV(char const* const service);
 
 void QuitCb(UNUSED Fl_Widget* w, UNUSED void* data);
@@ -478,10 +478,10 @@ char* ExtractServiceNameFromSV(char const* const service)
 }
 
 
-char const* ExtractServiceNameFromPath(char const* const service)
+char* ExtractServiceNameFromPath(char const* const service)
 {
 	char* servicePath = ExtractServiceNameFromSV(service);
-	char const* const name = basename(servicePath);
+	char* name = strdup(basename(servicePath));
 	free(servicePath);
 	return name;
 }
@@ -493,7 +493,7 @@ void CommandCb(Fl_Widget* w, UNUSED void* data)
 
 	char const* itemText = browser[ENABLE]->text(itemSelect[ENABLE]);
 
-	char const* const service = ExtractServiceNameFromPath(itemText);
+	char* service = ExtractServiceNameFromPath(itemText);
 
 	if (btnId == btn[RUN])
 	{
@@ -520,6 +520,8 @@ void CommandCb(Fl_Widget* w, UNUSED void* data)
 	{
 		STOP_DBG("Button identifier not covered: %p", btnId);
 	}
+
+	free(service);
 }
 
 
