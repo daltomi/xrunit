@@ -46,7 +46,7 @@ bool Unlink(char const* const pathname);
 
 char* GetModifyFileTime(char const* const fileName);
 
-unsigned long Hash(unsigned char* str);
+unsigned long Hash(char* str);
 
 void ListDirectories(char const* const path, void(*ListDirectoriesCb)(char const* path));
 

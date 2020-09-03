@@ -365,15 +365,13 @@ unsigned long Hash(char* str)
 {
 	ASSERT_DBG_STRING(str);
 
-	unsigned long hash = 5381;
+	unsigned long hash = 5381UL;
 	int c;
 
 	while ((c = *str++))
 	{
 		hash = ((hash << 5) + hash) + c; /* hash * 33 + c */
 	}
-
-	MESSAGE_DBG("hash: %lu", hash);
 
 	return hash;
 }
