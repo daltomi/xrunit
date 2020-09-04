@@ -1,6 +1,6 @@
 # xsv
 
-Graphical interface for `sv (control and manage services monitored by runsv)`
+Graphical interface for sv - runit
 
 
 <img src="https://git.disroot.org/daltomi/xsv/raw/branch/master/screenshot_00.png"/>
