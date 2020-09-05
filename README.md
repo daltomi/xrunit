@@ -37,18 +37,23 @@ make release
 ### Preprocessor directives (only if you don't use Artix Linux)
 
 * sv program
+
 | Directive | Description | Default | Type |
 |-------------------------------|---------|---------|---------
 | SV |  sv binary | /usr/bin/sv | string
 
+
 * Directories:
+
 | Directive | Description | Default | Type |
 |-------------------------------|---------|---------|---------
 | SV_DIR      |  available services directory | /etc/runit/sv | string
 | SV_RUN_DIR      |  services directory | /run/runit/service | string
 | SYS_LOG_DIR | system log directory | /var/log | string
 
+
 * Properties:
+
 | Directive | Description | Default | Type |
 |-------------------------------|---------|---------|---------
 | TIME_UPDATE | seconds of updating the list of service | 5 | integer
