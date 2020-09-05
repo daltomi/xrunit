@@ -15,9 +15,14 @@ I use Artix Linux, and the project is designed for it.
 If you use another distribution you can experiment with the
 preprocessor directives, always compile in debug mode.
 
+### Releases
 
+This is a *rolling release project*, therefore, there will always be only **one release**, the last one, the previous one is eliminated.
+___
 
-### Dependencies
+### Build
+
+#### Dependencies
 
 * C++ standard: >= c++11
 
@@ -25,16 +30,33 @@ preprocessor directives, always compile in debug mode.
 
 * Build:  **g++**, **make**, **fltk-config**
 
-### Build
+#### Make
+
 ```bash
 make debug
 -- or --
 make release
 ```
+##### Makefile targets:
+
+| Target | Description |
+|--------|--------------|
+| clean  |  Clean the project directory |
+| debug  | Build the executable with debug symbols |
+| release | Build the executable for performance |
+| dist   | Create a compressed file with the project files |
+
+___
+
+### Notes:
 
 * This program needs to be run with administrator permissions.
 
-### Preprocessor directives (only if you don't use Artix Linux)
+___
+
+### Preprocessor directives
+
+*(only if you don't use Artix Linux)*
 
 * sv program
 
@@ -76,13 +98,3 @@ Then run make in your terminal:
 ```
 CXXFLAGS="-include my_define.h" make debug
 ```
-
-### Makefile targets:
-
-| Target | Description |
-|--------|--------------|
-| clean  |  Clean the project directory |
-| debug  | Build the executable with debug symbols |
-| release | Build the executable for performance |
-| dist   | Create a compressed file with the project files |
-
