@@ -34,19 +34,30 @@ make release
 
 * This program needs to be run with administrator permissions.
 
-### Preprocessor directives
+### Preprocessor directives (only if you don't use Artix Linux)
 
+* sv program
 | Directive | Description | Default | Type |
 |-------------------------------|---------|---------|---------
 | SV |  sv binary | /usr/bin/sv | string
+
+* Directories:
+| Directive | Description | Default | Type |
+|-------------------------------|---------|---------|---------
 | SV_DIR      |  available services directory | /etc/runit/sv | string
 | SV_RUN_DIR      |  services directory | /run/runit/service | string
+| SYS_LOG_DIR | system log directory | /var/log | string
+
+* Properties:
+| Directive | Description | Default | Type |
+|-------------------------------|---------|---------|---------
 | TIME_UPDATE | seconds of updating the list of service | 5 | integer
 | FONT        | FLTK font name  | FL_HELVETICA | integer
 | FONT_SZ     | font size | 11 (range 8..14)| integer
 | ASK_SERVICES | ask about these services before down/remove | tty,dbus,udev,elogind | string
 
-Example
+
+Example:
 
 File `my_define.h`
 

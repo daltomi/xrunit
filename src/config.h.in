@@ -74,6 +74,10 @@
 #define SV_DIR "/etc/runit/sv"
 #endif
 
+#ifndef SYS_LOG_DIR
+#define SYS_LOG_DIR "/var/log/"
+#endif
+
 #ifndef ASK_SERVICES
 // It doesn't have to be the exact name
 #define ASK_SERVICES "tty,dbus,udev,elogind"

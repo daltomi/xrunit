@@ -76,7 +76,8 @@ int main(int argc, char* argv[])
 	ASSERT((strlen(SV_DIR) > 0) && (strlen(SV_DIR) < STR_SZ));
 	ASSERT((strlen(SV_RUN_DIR) > 0) && (strlen(SV_RUN_DIR) < STR_SZ));
 	ASSERT((strlen(SV) > 0) && (strlen(SV) < STR_SZ));
-	ASSERT(strlen(ASK_SERVICES) > 0);
+	ASSERT((strlen(ASK_SERVICES) > 0) && (strlen(ASK_SERVICES) < STR_SZ));
+	ASSERT((strlen(SYS_LOG_DIR) > 0) && (strlen(SYS_LOG_DIR) < STR_SZ));
 
 	MESSAGE_DBG("TITLE: %s", TITLE);
 	MESSAGE_DBG("TIME_UPDATE: %d", TIME_UPDATE);
@@ -243,6 +244,12 @@ void FillBrowserEnable(void)
 	while (fgets(buffer, STR_SZ, pipe))
 	{
 		buffer[STR_SZ - 1] = '\0';
+
+		if (!strchr(buffer, '/'))
+		{
+			// Only list services names that are in directory format.
+			continue;
+		}
 
 		char* pb = buffer;
 
@@ -706,6 +713,13 @@ static void MakeLogDirPath(std::string const& service, std::string& path)
 }
 
 
+static void MakeSysLogDirPath(std::string const& service, std::string& path)
+{
+	path = SYS_LOG_DIR;
+	path += service;
+}
+
+
 static void MakeServiceDirPath(std::string const& service, std::string& path)
 {
 	MakeServicePath(service, path);
@@ -853,6 +867,17 @@ static void NewEditSaveCb(UNUSED Fl_Widget* w, void* data)
 
 		if (tbuf[TBUF_LOG]->length() > 0 && IfNotEqualHash(tbuf[TBUF_LOG], saveNewEditData->hash[TBUF_LOG]))
 		{
+			MakeSysLogDirPath(service, dir);
+
+			if (!DirAccessOk(dir.c_str(), not showError))
+			{
+				if (1 == fl_choice("Warning: There is not '%s' directory, required for svlogd.\n"
+							"Do you want to create the directory?", "No", "Yes, create it", 0, dir.c_str()))
+				{
+					MakeDir(dir.c_str(), showError);
+				}
+			}
+
 			MakeLogRunPath(service, path);
 			MakeLogDirPath(service, dir);
 
