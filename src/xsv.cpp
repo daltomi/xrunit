@@ -311,6 +311,28 @@ void FillBrowserEnable(void)
 }
 
 
+static void BrowserListSelection_EqualToBrowserEnable(void)
+{
+	char const* const brwEnableSelectItem = browser[ENABLE]->text(itemSelect[ENABLE]);
+
+	ASSERT_DBG_STRING(brwEnableSelectItem);
+
+	int const size = browser[LIST]->size();
+
+	for (int item = 1; item <= size; ++item)
+	{
+		char const* const find = browser[LIST]->text(item);
+
+		if (strstr(brwEnableSelectItem, find))
+		{
+			itemSelect[LIST] = item;
+			browser[LIST]->select(itemSelect[LIST]);
+			break;
+		}
+	}
+}
+
+
 static void FillBrowserList_All(char const* path)
 {
 	browser[LIST]->add(path, (void*)STR_UNLOAD);
@@ -320,7 +342,9 @@ static void FillBrowserList_All(char const* path)
 
 static void FillBrowserList_Load(char const* path)
 {
-	for (int item = 1; item <= browser[LIST]->size(); ++item)
+	int const size = browser[LIST]->size();
+
+	for (int item = 1; item <= size; ++item)
 	{
 		char const* const find = browser[LIST]->text(item);
 
@@ -677,6 +701,7 @@ void AddServicesCb(UNUSED Fl_Widget* w, void* data)
 	SetButtonAlign(CLOSE, NEW, 256);
 
 	FillBrowserList();
+	BrowserListSelection_EqualToBrowserEnable();
 
 	ShowWindowModal(wnd);
 
