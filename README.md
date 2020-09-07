@@ -26,7 +26,7 @@ ___
 
 * C++ standard: >= c++11
 
-* Libraries : **fltk** (>= 1.3.4rc1), **libnotify**
+* Libraries : **fltk** (>= 1.3.4rc1), **libnotify** (*optional)
 
 * Build:  **g++**, **make**, **fltk-config**
 
@@ -45,6 +45,9 @@ make release
 | debug  | Build the executable with debug symbols |
 | release | Build the executable for performance |
 | dist   | Create a compressed file with the project files |
+
+
+(*) `libnotify`: Optional compilation option. By default it is no. Use `LIB_NOTIFY=1 make` to activate.
 
 ___
 

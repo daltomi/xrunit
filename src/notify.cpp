@@ -19,6 +19,7 @@
 #include "config.h"
 #include "notify.h"
 
+#ifdef LIB_NOTIFY
 static NotifyNotification *notify = NULL;
 
 static int NotifyInit();
@@ -90,3 +91,12 @@ void NotifyEnd()
 		notify = NULL;
 	}
 }
+#else
+
+void NotifyShow(UNUSED char const* summary, UNUSED char const* body)
+{ }
+
+void NotifyEnd()
+{ }
+
+#endif // LIB_NOTIFY

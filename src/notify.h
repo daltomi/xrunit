@@ -20,10 +20,17 @@
 #ifndef NOTIFY_H_INCLUDE
 #define NOTIFY_H_INCLUDE
 
+#ifdef LIB_NOTIFY
 #include <libnotify/notify.h>
 
 void NotifyShow(gchar const* summary, gchar const* body);
-
 void NotifyEnd();
+
+#else
+
+void NotifyShow(UNUSED char const* summary, UNUSED char const* body);
+void NotifyEnd();
+
+#endif // LIB_NOTIFY
 
 #endif
