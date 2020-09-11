@@ -112,6 +112,9 @@
 #define FONT_SZ 11
 #endif
 
+#define LBL_COLOR 149
+#define LBL_TAB_COLOR 151
+
 enum {
 /* Not move */
 
@@ -148,12 +151,18 @@ enum {
 	TEDT_FINISH,
 	TEDT_CHECK,
 	TEDT_MAX,
-/* Fl_Box */
-	BOX_TIME_SERV = 0,
-	BOX_TIME_LOG,
-	BOX_TIME_FINISH,
-	BOX_TIME_CHECK,
-	BOX_TIME_MAX,
+/* Fl_Box - time*/
+	LBL_TIME_SERV = 0,
+	LBL_TIME_LOG,
+	LBL_TIME_FINISH,
+	LBL_TIME_CHECK,
+	LBL_TIME_MAX,
+/* Fl_Group - label*/
+	LBL_SERV = 0,
+	LBL_LOG,
+	LBL_FINISH,
+	LBL_CHECK,
+	LBL_MAX,
 /* notify ids */
 	NOTIFY_DOWN = 0,
 	NOTIFY_UP,
@@ -166,7 +175,8 @@ enum {
 struct NewEditData
 {
 	unsigned long hash[TBUF_MAX];
-	Fl_Box* box[BOX_TIME_MAX];
+	Fl_Box* time[LBL_TIME_MAX];
+	Fl_Group* label[LBL_MAX];
 	char const* service;
 	void* data;
 	int id;

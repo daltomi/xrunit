@@ -858,22 +858,39 @@ static void EditLoad(struct NewEditData* saveNewEditData)
 
 	tbuf[TBUF_SERV]->loadfile(path.c_str());
 	saveNewEditData->hash[TBUF_SERV] = CalculateHash(tbuf[TBUF_SERV]);
-	saveNewEditData->box[BOX_TIME_SERV]->copy_label(GetModifyFileTime(path.c_str()));
+	saveNewEditData->time[LBL_TIME_SERV]->copy_label(GetModifyFileTime(path.c_str()));
 
 	MakeLogRunPath(service, path);
 	tbuf[TBUF_LOG]->loadfile(path.c_str());
 	saveNewEditData->hash[TBUF_LOG] = CalculateHash(tbuf[TBUF_LOG]);
-	saveNewEditData->box[BOX_TIME_LOG]->copy_label(GetModifyFileTime(path.c_str()));
+	saveNewEditData->time[LBL_TIME_LOG]->copy_label(GetModifyFileTime(path.c_str()));
 
 	MakeFinishPath(service, path);
 	tbuf[TBUF_FINISH]->loadfile(path.c_str());
 	saveNewEditData->hash[TBUF_FINISH] = CalculateHash(tbuf[TBUF_FINISH]);
-	saveNewEditData->box[BOX_TIME_FINISH]->copy_label(GetModifyFileTime(path.c_str()));
+	saveNewEditData->time[LBL_TIME_FINISH]->copy_label(GetModifyFileTime(path.c_str()));
 
 	MakeCheckPath(service, path);
 	tbuf[TBUF_CHECK]->loadfile(path.c_str());
 	saveNewEditData->hash[TBUF_CHECK] = CalculateHash(tbuf[TBUF_CHECK]);
-	saveNewEditData->box[BOX_TIME_CHECK]->copy_label(GetModifyFileTime(path.c_str()));
+	saveNewEditData->time[LBL_TIME_CHECK]->copy_label(GetModifyFileTime(path.c_str()));
+
+	if (tbuf[TBUF_SERV]->length() > 0)
+	{
+		saveNewEditData->label[LBL_SERV]->selection_color((Fl_Color)LBL_COLOR);
+	}
+	if (tbuf[TBUF_LOG]->length() > 0)
+	{
+		saveNewEditData->label[LBL_LOG]->selection_color((Fl_Color)LBL_COLOR);
+	}
+	if (tbuf[TBUF_FINISH]->length() > 0)
+	{
+		saveNewEditData->label[LBL_FINISH]->selection_color((Fl_Color)LBL_COLOR);
+	}
+	if (tbuf[TBUF_CHECK]->length() > 0)
+	{
+		saveNewEditData->label[LBL_CHECK]->selection_color((Fl_Color)LBL_COLOR);
+	}
 }
 
 
@@ -1073,44 +1090,45 @@ void EditNewCb(Fl_Widget* w, void* data)
 	saveNewEditData.hash[TBUF_FINISH] = 0;
 
 	Fl_Tabs* tabs = new Fl_Tabs(15, 50, 475, 265);
+	tabs->selection_color((Fl_Color)LBL_TAB_COLOR);
 
-		Fl_Group* grp0 = new Fl_Group(15, 75, 475, 300, "Service");
+		Fl_Group* lblService = new Fl_Group(15, 75, 475, 300, "Service");
 			tedt[TEDT_SERV] = new Fl_Text_Editor(20, 80, 460, 230);
 			tedt[TEDT_SERV]->box(FL_FLAT_BOX);
 			tedt[TEDT_SERV]->buffer(tbuf[TBUF_SERV]);
-			Fl_Box* boxTimeServ = new Fl_Box(15, 500 - 80 - 90, 460, 10, NULL);
-			boxTimeServ->align(Fl_Align(133 | FL_ALIGN_INSIDE));
-		grp0->end();
+			Fl_Box* lblTimeServ = new Fl_Box(15, 500 - 80 - 90, 460, 10, NULL);
+			lblTimeServ->align(Fl_Align(133 | FL_ALIGN_INSIDE));
+		lblService->end();
 
-		Fl_Group* grp1 = new Fl_Group(15, 75, 475, 300, "Log (optional)");
-			grp1->hide();
+		Fl_Group* lblLog = new Fl_Group(15, 75, 475, 300, "Log");
+			lblLog->hide();
 			tedt[TEDT_LOG] = new Fl_Text_Editor(20, 80, 460, 230);
 			tedt[TEDT_LOG]->box(FL_FLAT_BOX);
 			tedt[TEDT_LOG]->buffer(tbuf[TBUF_LOG]);
-			Fl_Box* boxTimeLog = new Fl_Box(15, 500 - 80 - 90, 460, 10, NULL);
-			boxTimeLog->align(Fl_Align(133 | FL_ALIGN_INSIDE));
-		grp1->end();
+			Fl_Box* lblTimeLog = new Fl_Box(15, 500 - 80 - 90, 460, 10, NULL);
+			lblTimeLog->align(Fl_Align(133 | FL_ALIGN_INSIDE));
+		lblLog->end();
 
-		Fl_Group* grp2 = new Fl_Group(15, 75, 475, 300, "Finish (optional)");
-			grp2->hide();
+		Fl_Group* lblFinish = new Fl_Group(15, 75, 475, 300, "Finish");
+			lblFinish->hide();
 			tedt[TEDT_FINISH] = new Fl_Text_Editor(20, 80, 460, 230);
 			tedt[TEDT_FINISH]->box(FL_FLAT_BOX);
 			tedt[TEDT_FINISH]->buffer(tbuf[TBUF_FINISH]);
-			Fl_Box* boxTimeFinish = new Fl_Box(15, 500 - 80 - 90, 460, 10, NULL);
-			boxTimeFinish->align(Fl_Align(133 | FL_ALIGN_INSIDE));
-		grp2->end();
+			Fl_Box* lblTimeFinish = new Fl_Box(15, 500 - 80 - 90, 460, 10, NULL);
+			lblTimeFinish->align(Fl_Align(133 | FL_ALIGN_INSIDE));
+		lblFinish->end();
 
-		Fl_Group* grp3 = new Fl_Group(15, 75, 475, 300, "Check (optional)");
-			grp3->hide();
+		Fl_Group* lblCheck = new Fl_Group(15, 75, 475, 300, "Check");
+			lblCheck->hide();
 			tedt[TEDT_CHECK] = new Fl_Text_Editor(20, 80, 460, 230);
 			tedt[TEDT_CHECK]->box(FL_FLAT_BOX);
 			tedt[TEDT_CHECK]->buffer(tbuf[TBUF_CHECK]);
-			Fl_Box* boxTimeCheck = new Fl_Box(15, 500 - 80 - 90, 460, 10, NULL);
-			boxTimeCheck->align(Fl_Align(133 | FL_ALIGN_INSIDE));
-		grp3->end();
+			Fl_Box* lblTimeCheck = new Fl_Box(15, 500 - 80 - 90, 460, 10, NULL);
+			lblTimeCheck->align(Fl_Align(133 | FL_ALIGN_INSIDE));
+		lblCheck->end();
 
-		Fl_Group* grp4 = new Fl_Group(15, 75, 475, 300, "Extras...");
-			grp4->hide();
+		Fl_Group* lblExtra = new Fl_Group(15, 75, 475, 300, "Extra...");
+			lblExtra->hide();
 			btn[DELETE] = new Fl_Button(25, 90, BTN_W, BTN_H, "Delete...");
 			btn[DISABLED] = new Fl_Button(25, 90 + 60, BTN_W, BTN_H, "Disable...");
 			btn[ENABLED] = new Fl_Button(25, 90 + 60 * 2, BTN_W, BTN_H, "Enable...");
@@ -1120,19 +1138,19 @@ void EditNewCb(Fl_Widget* w, void* data)
 			box0->align(Fl_Align(133 | FL_ALIGN_INSIDE));
 			box1->align(Fl_Align(133 | FL_ALIGN_INSIDE));
 			box2->align(Fl_Align(133 | FL_ALIGN_INSIDE));
-		grp4->end();
+		lblExtra->end();
 	tabs->end();
 
 
-	SetFont(boxTimeServ);
-	SetFont(boxTimeLog);
-	SetFont(boxTimeFinish);
-	SetFont(boxTimeCheck);
-	SetFont(grp0);
-	SetFont(grp1);
-	SetFont(grp2);
-	SetFont(grp3);
-	SetFont(grp4);
+	SetFont(lblTimeServ);
+	SetFont(lblTimeLog);
+	SetFont(lblTimeFinish);
+	SetFont(lblTimeCheck);
+	SetFont(lblService);
+	SetFont(lblLog);
+	SetFont(lblFinish);
+	SetFont(lblCheck);
+	SetFont(lblExtra);
 	SetFont(box0);
 	SetFont(box1);
 	SetFont(box2);
@@ -1164,15 +1182,21 @@ void EditNewCb(Fl_Widget* w, void* data)
 		btn[ENABLED]->callback(EnabledDisabledServiceCb, (void*)&saveNewEditData);
 		btn[DISABLED]->callback(EnabledDisabledServiceCb, (void*)&saveNewEditData);
 
-		saveNewEditData.box[BOX_TIME_SERV] = boxTimeServ;
-		saveNewEditData.box[BOX_TIME_LOG] = boxTimeLog;
-		saveNewEditData.box[BOX_TIME_FINISH] = boxTimeFinish;
-		saveNewEditData.box[BOX_TIME_CHECK] = boxTimeCheck;
+		saveNewEditData.time[LBL_TIME_SERV] = lblTimeServ;
+		saveNewEditData.time[LBL_TIME_LOG] = lblTimeLog;
+		saveNewEditData.time[LBL_TIME_FINISH] = lblTimeFinish;
+		saveNewEditData.time[LBL_TIME_CHECK] = lblTimeCheck;
+
+		saveNewEditData.label[LBL_SERV] = lblService;
+		saveNewEditData.label[LBL_LOG] = lblLog;
+		saveNewEditData.label[LBL_FINISH] = lblFinish;
+		saveNewEditData.label[LBL_CHECK] = lblCheck;
+
 		EditLoad(&saveNewEditData);
 	}
 	else /* NEW */
 	{
-		grp4->deactivate();
+		lblExtra->deactivate();
 	}
 
 	wnd->end();
@@ -1195,15 +1219,15 @@ void EditNewCb(Fl_Widget* w, void* data)
 	delete box0;
 	delete box1;
 	delete box2;
-	delete boxTimeServ;
-	delete boxTimeLog;
-	delete boxTimeFinish;
-	delete boxTimeCheck;
-	delete grp0;
-	delete grp1;
-	delete grp2;
-	delete grp3;
-	delete grp4;
+	delete lblTimeServ;
+	delete lblTimeLog;
+	delete lblTimeFinish;
+	delete lblTimeCheck;
+	delete lblService;
+	delete lblLog;
+	delete lblFinish;
+	delete lblCheck;
+	delete lblExtra;
 	delete tabs;
 	delete input;
 	delete wnd;
