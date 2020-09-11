@@ -15,13 +15,20 @@ CXXFLAGS += -DLIB_NOTIFY $(shell pkg-config --cflags libnotify)
 CXXLIBS +=  $(shell pkg-config --libs libnotify)
 endif
 
+ifeq ("$(shell which install 2> /dev/null)","")
+$(error 'install (coreutils)' NOT FOUND)
+endif
+
+
 APP := xsv
 
-APP_VER := "3.15"
+APP_VER := "3.16"
 
 PKG_REV := "1"
 
 ZIP := $(APP)-$(APP_VER)-$(PKG_REV).zip
+
+PREFIX ?= /usr
 
 CXX ?= g++
 
@@ -65,5 +72,9 @@ $(APP): $(OBJ)
 dist:
 	zip $(ZIP) Makefile src/*.cpp src/*.h  src/*.in README.md icons/* -x icons/icons.h -x src/config.h
 
+install:
+	-@install -Dt $(PREFIX)/bin/ -m755 $(APP)
+
+
 clean:
-	rm  -v src/*.o $(APP) src/config.h $(ZIP)
+	-@rm  -v src/*.o $(APP) src/config.h $(ZIP)

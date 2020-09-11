@@ -28,7 +28,7 @@ ___
 
 * Libraries : **fltk** (>= 1.3.4rc1), **libnotify** (*optional)
 
-* Build:  **g++**, **make**, **fltk-config**
+* Build:  **g++**, **make**, **fltk-config** **install**(coreutils)
 
 #### Make
 
@@ -36,6 +36,12 @@ ___
 make debug
 -- or --
 make release
+
+----------------
+
+make install (default PREFIX=/usr)
+-- or --
+PREFIX=/usr/local make install
 ```
 ##### Makefile targets:
 
@@ -44,6 +50,7 @@ make release
 | clean  |  Clean the project directory |
 | debug  | Build the executable with debug symbols |
 | release | Build the executable for performance |
+| install | Copy the executable to $PREFIX/bin |
 | dist   | Create a compressed file with the project files |
 
 

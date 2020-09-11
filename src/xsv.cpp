@@ -94,6 +94,8 @@ int main(int argc, char* argv[])
 		}
 	}
 
+	fl_message_title_default(TITLE);
+
 	if (geteuid() != 0)
 	{
 		fl_alert("Administrator permissions are required");
@@ -101,7 +103,6 @@ int main(int argc, char* argv[])
 	}
 
 	fl_register_images();
-	fl_message_title_default(TITLE);
 
 	Fl_Double_Window* wnd = new Fl_Double_Window(600, 400);
 	Fl_Group* grp = new Fl_Group(0, 0, wnd->w(), 30);
