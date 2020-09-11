@@ -1141,7 +1141,6 @@ void EditNewCb(Fl_Widget* w, void* data)
 		lblExtra->end();
 	tabs->end();
 
-
 	SetFont(lblTimeServ);
 	SetFont(lblTimeLog);
 	SetFont(lblTimeFinish);
