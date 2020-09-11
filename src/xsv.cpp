@@ -815,6 +815,30 @@ static bool IfNotEqualHash(Fl_Text_Buffer const* const txtBuff, unsigned long co
 }
 
 
+static void AskAndDeleteFile(std::string const& path)
+{
+	if( fl_choice("Question about deleting file.\nThe file exists but is empty.\n\n"
+				"Do you want to delete it?\n"
+				"File:'%s'", "No", "Yes, delete", 0, path.c_str()))
+	{
+		MESSAGE_DBG("DELETE FILE:%s", path.c_str());
+		Unlink(path.c_str());
+	}
+}
+
+
+static void AskAndDeleteDir(std::string const& dir, std::string const& path)
+{
+	if( fl_choice("Question about deleting directory.\nThe file '%s' is empty.'\n\n"
+				"Do you want to delete the directory with all its contents?\n"
+				"Dir:'%s'", "No", "Yes, delete all", 0, path.c_str(), dir.c_str()))
+	{
+		MESSAGE_DBG("DELETE RECURSIVE:%s", dir.c_str());
+		RemoveRecursive(dir.c_str());
+	}
+}
+
+
 static void EditLoad(struct NewEditData* saveNewEditData)
 {
 	bool const showError = true;
@@ -897,10 +921,12 @@ static void NewEditSaveCb(UNUSED Fl_Widget* w, void* data)
 
 		if (IfNotEqualHash(tbuf[TBUF_SERV], saveNewEditData->hash[TBUF_SERV]))
 		{
-			MESSAGE_DBG("Save run, service: %s", service);	
+			MESSAGE_DBG("SAVE RUN, SERVICE: %s", service);
 			tbuf[TBUF_SERV]->savefile(path.c_str());
 			FileToExecutableMode(path.c_str());
 		}
+
+		MakeLogDirPath(service, dir);
 
 		if (tbuf[TBUF_LOG]->length() > 0 && IfNotEqualHash(tbuf[TBUF_LOG], saveNewEditData->hash[TBUF_LOG]))
 		{
@@ -923,25 +949,41 @@ static void NewEditSaveCb(UNUSED Fl_Widget* w, void* data)
 				MakeDir(dir.c_str(), showError);
 			}
 
-			MESSAGE_DBG("Save log, service: %s", service);	
+			MESSAGE_DBG("SAVE LOG, SERVICE: %s", service);
 			tbuf[TBUF_LOG]->savefile(path.c_str());
 			FileToExecutableMode(path.c_str());
 		}
+		else if (DirAccessOk(dir.c_str(), not showError) && tbuf[TBUF_LOG]->length() == 0)
+		{
+			MakeLogRunPath(service, path);
+			tbuf[TBUF_LOG]->savefile(path.c_str());
+			AskAndDeleteDir(dir, path);
+		}
+
+		MakeFinishPath(service, path);
 
 		if (tbuf[TBUF_FINISH]->length() > 0 && IfNotEqualHash(tbuf[TBUF_FINISH], saveNewEditData->hash[TBUF_FINISH]))
 		{
-			MESSAGE_DBG("Save finish, service: %s", service);	
-			MakeFinishPath(service, path);
+			MESSAGE_DBG("SAVE FINISH, SERVICE: %s", service);
 			tbuf[TBUF_FINISH]->savefile(path.c_str());
 			FileToExecutableMode(path.c_str());
 		}
+		else if (FileAccessOk(path.c_str(), not showError) && tbuf[TBUF_FINISH]->length() == 0)
+		{
+			AskAndDeleteFile(path);
+		}
+
+		MakeCheckPath(service, path);
 
 		if (tbuf[TBUF_CHECK]->length() > 0 && IfNotEqualHash(tbuf[TBUF_CHECK], saveNewEditData->hash[TBUF_CHECK]))
 		{
-			MESSAGE_DBG("Save check, service: %s", service);
-			MakeCheckPath(service, path);
+			MESSAGE_DBG("SAVE CHECK, SERVICE: %s", service);
 			tbuf[TBUF_CHECK]->savefile(path.c_str());
 			FileToExecutableMode(path.c_str());
+		}
+		else if (FileAccessOk(path.c_str(), not showError) && tbuf[TBUF_CHECK]->length() == 0)
+		{
+			AskAndDeleteFile(path);
 		}
 	}
 
