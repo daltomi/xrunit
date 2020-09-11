@@ -28,7 +28,7 @@ ___
 
 * Libraries : **fltk** (>= 1.3.4rc1), **libnotify** (*optional)
 
-* Build:  **g++**, **make**, **fltk-config** **install**(coreutils)
+* Build:  **g++**, **make**, **fltk-config**, **install**(coreutils)
 
 #### Make
 
