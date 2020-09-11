@@ -766,6 +766,13 @@ static void MakeFinishPath(std::string const& service, std::string& path)
 }
 
 
+static void MakeCheckPath(std::string const& service, std::string& path)
+{
+	MakeServiceDirPath(service, path);
+	path += "check";
+}
+
+
 static void MakeDownPath(std::string const& service, std::string& path)
 {
 	MakeServiceDirPath(service, path);
@@ -838,6 +845,11 @@ static void EditLoad(struct NewEditData* saveNewEditData)
 	tbuf[TBUF_FINISH]->loadfile(path.c_str());
 	saveNewEditData->hash[TBUF_FINISH] = CalculateHash(tbuf[TBUF_FINISH]);
 	saveNewEditData->box[BOX_TIME_FINISH]->copy_label(GetModifyFileTime(path.c_str()));
+
+	MakeCheckPath(service, path);
+	tbuf[TBUF_CHECK]->loadfile(path.c_str());
+	saveNewEditData->hash[TBUF_CHECK] = CalculateHash(tbuf[TBUF_CHECK]);
+	saveNewEditData->box[BOX_TIME_CHECK]->copy_label(GetModifyFileTime(path.c_str()));
 }
 
 
@@ -923,6 +935,14 @@ static void NewEditSaveCb(UNUSED Fl_Widget* w, void* data)
 			tbuf[TBUF_FINISH]->savefile(path.c_str());
 			FileToExecutableMode(path.c_str());
 		}
+
+		if (tbuf[TBUF_CHECK]->length() > 0 && IfNotEqualHash(tbuf[TBUF_CHECK], saveNewEditData->hash[TBUF_CHECK]))
+		{
+			MESSAGE_DBG("Save check, service: %s", service);
+			MakeCheckPath(service, path);
+			tbuf[TBUF_CHECK]->savefile(path.c_str());
+			FileToExecutableMode(path.c_str());
+		}
 	}
 
 	((Fl_Double_Window*)saveNewEditData->data)->hide();
@@ -1004,6 +1024,7 @@ void EditNewCb(Fl_Widget* w, void* data)
 	tbuf[TBUF_SERV] = new Fl_Text_Buffer();
 	tbuf[TBUF_LOG] = new Fl_Text_Buffer();
 	tbuf[TBUF_FINISH] = new Fl_Text_Buffer();
+	tbuf[TBUF_CHECK] = new Fl_Text_Buffer();
 
 	saveNewEditData.hash[TBUF_SERV] = 0;
 	saveNewEditData.hash[TBUF_LOG] = 0;
@@ -1037,8 +1058,17 @@ void EditNewCb(Fl_Widget* w, void* data)
 			boxTimeFinish->align(Fl_Align(133 | FL_ALIGN_INSIDE));
 		grp2->end();
 
-		Fl_Group* grp3 = new Fl_Group(15, 75, 475, 300, "Extras...");
+		Fl_Group* grp3 = new Fl_Group(15, 75, 475, 300, "Check (optional)");
 			grp3->hide();
+			tedt[TEDT_CHECK] = new Fl_Text_Editor(20, 80, 460, 230);
+			tedt[TEDT_CHECK]->box(FL_FLAT_BOX);
+			tedt[TEDT_CHECK]->buffer(tbuf[TBUF_CHECK]);
+			Fl_Box* boxTimeCheck = new Fl_Box(15, 500 - 80 - 90, 460, 10, NULL);
+			boxTimeCheck->align(Fl_Align(133 | FL_ALIGN_INSIDE));
+		grp3->end();
+
+		Fl_Group* grp4 = new Fl_Group(15, 75, 475, 300, "Extras...");
+			grp4->hide();
 			btn[DELETE] = new Fl_Button(25, 90, BTN_W, BTN_H, "Delete...");
 			btn[DISABLED] = new Fl_Button(25, 90 + 60, BTN_W, BTN_H, "Disable...");
 			btn[ENABLED] = new Fl_Button(25, 90 + 60 * 2, BTN_W, BTN_H, "Enable...");
@@ -1048,23 +1078,26 @@ void EditNewCb(Fl_Widget* w, void* data)
 			box0->align(Fl_Align(133 | FL_ALIGN_INSIDE));
 			box1->align(Fl_Align(133 | FL_ALIGN_INSIDE));
 			box2->align(Fl_Align(133 | FL_ALIGN_INSIDE));
-		grp3->end();
+		grp4->end();
 	tabs->end();
 
 
+	SetFont(boxTimeServ);
 	SetFont(boxTimeLog);
 	SetFont(boxTimeFinish);
-	SetFont(boxTimeServ);
+	SetFont(boxTimeCheck);
 	SetFont(grp0);
 	SetFont(grp1);
 	SetFont(grp2);
 	SetFont(grp3);
+	SetFont(grp4);
 	SetFont(box0);
 	SetFont(box1);
 	SetFont(box2);
 	SetFont(tedt[TEDT_SERV]);
 	SetFont(tedt[TEDT_LOG]);
 	SetFont(tedt[TEDT_FINISH]);
+	SetFont(tedt[TEDT_CHECK]);
 
 	btn[SAVE] = new Fl_Button(310, 355 - BTN_H, BTN_W, BTN_H, "Save files");
 	btn[CANCEL] = new Fl_Button(310 + BTN_W + 2, 355 - BTN_H, BTN_W, BTN_H, "Close");
@@ -1092,11 +1125,12 @@ void EditNewCb(Fl_Widget* w, void* data)
 		saveNewEditData.box[BOX_TIME_SERV] = boxTimeServ;
 		saveNewEditData.box[BOX_TIME_LOG] = boxTimeLog;
 		saveNewEditData.box[BOX_TIME_FINISH] = boxTimeFinish;
+		saveNewEditData.box[BOX_TIME_CHECK] = boxTimeCheck;
 		EditLoad(&saveNewEditData);
 	}
 	else /* NEW */
 	{
-		grp3->deactivate();
+		grp4->deactivate();
 	}
 
 	wnd->end();
@@ -1106,9 +1140,11 @@ void EditNewCb(Fl_Widget* w, void* data)
 	delete tbuf[TBUF_SERV];
 	delete tbuf[TBUF_LOG];
 	delete tbuf[TBUF_FINISH];
+	delete tbuf[TBUF_CHECK];
 	delete tedt[TEDT_SERV];
 	delete tedt[TEDT_LOG];
 	delete tedt[TEDT_FINISH];
+	delete tedt[TEDT_CHECK];
 	delete btn[DELETE];
 	delete btn[SAVE];
 	delete btn[CANCEL];
@@ -1120,10 +1156,12 @@ void EditNewCb(Fl_Widget* w, void* data)
 	delete boxTimeServ;
 	delete boxTimeLog;
 	delete boxTimeFinish;
+	delete boxTimeCheck;
 	delete grp0;
 	delete grp1;
 	delete grp2;
 	delete grp3;
+	delete grp4;
 	delete tabs;
 	delete input;
 	delete wnd;
