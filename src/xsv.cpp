@@ -932,13 +932,23 @@ static void NewEditSaveCb(UNUSED Fl_Widget* w, void* data)
 		return;
 	}
 
+	int const id = saveNewEditData->id;
+
 	if (tbuf[TBUF_SERV]->length() == 0)
 	{
-		fl_alert("Nothing to save.");
+		if (NEW == id)
+		{
+			fl_alert("Empty service.\nNothing to save.");
+		}
+		else if (EDIT == id)
+		{
+			fl_alert("Empty service. Nothing to save.\n"
+					"If you want to delete the service use the 'Extra...' tab.");
+		}
+
 		return;
 	}
 
-	int const id = saveNewEditData->id;
 	bool showError = true;
 	std::string path;
 	std::string dir;
