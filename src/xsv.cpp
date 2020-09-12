@@ -788,6 +788,13 @@ static void MakeLogRunPath(std::string const& service, std::string& path)
 }
 
 
+static void MakeLogConfPath(std::string const& service, std::string& path)
+{
+	MakeLogDirPath(service, path);
+	path += "config";
+}
+
+
 static unsigned long CalculateHash(Fl_Text_Buffer const* const txtBuff)
 {
 	char* text = txtBuff->text();
@@ -828,7 +835,7 @@ static void AskAndDeleteFile(std::string const& path)
 }
 
 
-static void AskAndDeleteDir(std::string const& dir, std::string const& path)
+static bool AskAndDeleteDir(std::string const& dir, std::string const& path)
 {
 	if( fl_choice("Question about deleting directory.\nThe file '%s' is empty.'\n\n"
 				"Do you want to delete the directory with all its contents?\n"
@@ -836,7 +843,10 @@ static void AskAndDeleteDir(std::string const& dir, std::string const& path)
 	{
 		MESSAGE_DBG("DELETE RECURSIVE:%s", dir.c_str());
 		RemoveRecursive(dir.c_str());
+		return true;
 	}
+
+	return false;
 }
 
 
@@ -866,6 +876,11 @@ static void EditLoad(struct NewEditData* saveNewEditData)
 	saveNewEditData->hash[TBUF_LOG] = CalculateHash(tbuf[TBUF_LOG]);
 	saveNewEditData->time[LBL_TIME_LOG]->copy_label(GetModifyFileTime(path.c_str()));
 
+	MakeLogConfPath(service, path);
+	tbuf[TBUF_LOG_CONF]->loadfile(path.c_str());
+	saveNewEditData->hash[TBUF_LOG_CONF] = CalculateHash(tbuf[TBUF_LOG]);
+	saveNewEditData->time[LBL_TIME_LOG_CONF]->copy_label(GetModifyFileTime(path.c_str()));
+
 	MakeFinishPath(service, path);
 	tbuf[TBUF_FINISH]->loadfile(path.c_str());
 	saveNewEditData->hash[TBUF_FINISH] = CalculateHash(tbuf[TBUF_FINISH]);
@@ -880,9 +895,19 @@ static void EditLoad(struct NewEditData* saveNewEditData)
 	{
 		saveNewEditData->label[LBL_SERV]->selection_color((Fl_Color)LBL_COLOR);
 	}
-	if (tbuf[TBUF_LOG]->length() > 0)
+	if (tbuf[TBUF_LOG]->length() > 0 || tbuf[TBUF_LOG_CONF]->length() > 0)
 	{
 		saveNewEditData->label[LBL_LOG]->selection_color((Fl_Color)LBL_COLOR);
+
+		if (tbuf[TBUF_LOG]->length() > 0)
+		{
+			saveNewEditData->label[LBL_LOG_RUN]->selection_color((Fl_Color)LBL_COLOR);
+		}
+
+		if (tbuf[TBUF_LOG_CONF]->length() > 0)
+		{
+			saveNewEditData->label[LBL_LOG_CONF]->selection_color((Fl_Color)LBL_COLOR);
+		}
 	}
 	if (tbuf[TBUF_FINISH]->length() > 0)
 	{
@@ -917,6 +942,7 @@ static void NewEditSaveCb(UNUSED Fl_Widget* w, void* data)
 	bool showError = true;
 	std::string path;
 	std::string dir;
+	bool recentlyDeletedLogDir = false;
 
 	switch (id)
 	{
@@ -975,7 +1001,36 @@ static void NewEditSaveCb(UNUSED Fl_Widget* w, void* data)
 		{
 			MakeLogRunPath(service, path);
 			tbuf[TBUF_LOG]->savefile(path.c_str());
-			AskAndDeleteDir(dir, path);
+			recentlyDeletedLogDir = AskAndDeleteDir(dir, path);
+		}
+
+		MakeLogConfPath(service, path);
+
+		if (tbuf[TBUF_LOG_CONF]->length() > 0 && IfNotEqualHash(tbuf[TBUF_LOG_CONF], saveNewEditData->hash[TBUF_LOG_CONF]))
+		{
+			MakeLogDirPath(service, dir);
+
+			if (!DirAccessOk(dir.c_str(), not showError))
+			{
+				if (recentlyDeletedLogDir)
+				{
+					fl_alert("You have just deleted directory '%s',\n"
+							"it will be recreated to save the file: '%s'\n"
+							"because it is not empty.",
+							dir.c_str(), path.c_str());
+				}
+
+				MESSAGE_DBG("MAKE DIR LOG AGAIN, SERVICE: %s", service);
+				MakeDir(dir.c_str(), showError);
+			}
+
+			MESSAGE_DBG("SAVE LOG CONF, SERVICE: %s", service);
+			tbuf[TBUF_LOG_CONF]->savefile(path.c_str());
+		}
+		else if (FileAccessOk(path.c_str(), not showError) && tbuf[TBUF_LOG_CONF]->length() == 0)
+		{
+			tbuf[TBUF_LOG_CONF]->savefile(path.c_str());
+			AskAndDeleteFile(path);
 		}
 
 		MakeFinishPath(service, path);
@@ -1083,6 +1138,7 @@ void EditNewCb(Fl_Widget* w, void* data)
 
 	tbuf[TBUF_SERV] = new Fl_Text_Buffer();
 	tbuf[TBUF_LOG] = new Fl_Text_Buffer();
+	tbuf[TBUF_LOG_CONF] = new Fl_Text_Buffer();
 	tbuf[TBUF_FINISH] = new Fl_Text_Buffer();
 	tbuf[TBUF_CHECK] = new Fl_Text_Buffer();
 
@@ -1097,17 +1153,30 @@ void EditNewCb(Fl_Widget* w, void* data)
 			tedt[TEDT_SERV] = new Fl_Text_Editor(20, 80, 460, 230);
 			tedt[TEDT_SERV]->box(FL_FLAT_BOX);
 			tedt[TEDT_SERV]->buffer(tbuf[TBUF_SERV]);
-			Fl_Box* lblTimeServ = new Fl_Box(15, 500 - 80 - 90, 460, 10, NULL);
+			Fl_Box* lblTimeServ = new Fl_Box(15, 500 - 80 - 100, 460, 10, NULL);
 			lblTimeServ->align(Fl_Align(133 | FL_ALIGN_INSIDE));
 		lblService->end();
 
-		Fl_Group* lblLog = new Fl_Group(15, 75, 475, 300, "Log");
+		Fl_Group* lblLog = new Fl_Group(15, 75, 475, 300, "Log...");
 			lblLog->hide();
-			tedt[TEDT_LOG] = new Fl_Text_Editor(20, 80, 460, 230);
-			tedt[TEDT_LOG]->box(FL_FLAT_BOX);
-			tedt[TEDT_LOG]->buffer(tbuf[TBUF_LOG]);
-			Fl_Box* lblTimeLog = new Fl_Box(15, 500 - 80 - 90, 460, 10, NULL);
-			lblTimeLog->align(Fl_Align(133 | FL_ALIGN_INSIDE));
+			Fl_Tabs* tabLog = new Fl_Tabs(15, 80, 475, 235);
+			tabLog->selection_color((Fl_Color)LBL_TAB_COLOR);
+				Fl_Group* lblLogRun = new Fl_Group(15, 100, 475, 235, "Run");
+					tedt[TEDT_LOG] = new Fl_Text_Editor(20, 105, 460, 205);
+					tedt[TEDT_LOG]->box(FL_FLAT_BOX);
+					tedt[TEDT_LOG]->buffer(tbuf[TBUF_LOG]);
+					Fl_Box* lblTimeLog = new Fl_Box(15, 500 - 80 - 100, 460, 10, NULL);
+					lblTimeLog->align(Fl_Align(133 | FL_ALIGN_INSIDE));
+				lblLogRun->end();
+
+				Fl_Group* lblLogConf = new Fl_Group(15, 100, 475, 235, "Config");
+					tedt[TEDT_LOG_CONF] = new Fl_Text_Editor(20, 105, 460, 205);
+					tedt[TEDT_LOG_CONF]->box(FL_FLAT_BOX);
+					tedt[TEDT_LOG_CONF]->buffer(tbuf[TBUF_LOG_CONF]);
+					Fl_Box* lblTimeLogConf = new Fl_Box(15, 500 - 80 - 100, 460, 10, NULL);
+					lblTimeLogConf->align(Fl_Align(133 | FL_ALIGN_INSIDE));
+				lblLogConf->end();
+			tabLog->end();
 		lblLog->end();
 
 		Fl_Group* lblFinish = new Fl_Group(15, 75, 475, 300, "Finish");
@@ -1115,7 +1184,7 @@ void EditNewCb(Fl_Widget* w, void* data)
 			tedt[TEDT_FINISH] = new Fl_Text_Editor(20, 80, 460, 230);
 			tedt[TEDT_FINISH]->box(FL_FLAT_BOX);
 			tedt[TEDT_FINISH]->buffer(tbuf[TBUF_FINISH]);
-			Fl_Box* lblTimeFinish = new Fl_Box(15, 500 - 80 - 90, 460, 10, NULL);
+			Fl_Box* lblTimeFinish = new Fl_Box(15, 500 - 80 - 100, 460, 10, NULL);
 			lblTimeFinish->align(Fl_Align(133 | FL_ALIGN_INSIDE));
 		lblFinish->end();
 
@@ -1124,7 +1193,7 @@ void EditNewCb(Fl_Widget* w, void* data)
 			tedt[TEDT_CHECK] = new Fl_Text_Editor(20, 80, 460, 230);
 			tedt[TEDT_CHECK]->box(FL_FLAT_BOX);
 			tedt[TEDT_CHECK]->buffer(tbuf[TBUF_CHECK]);
-			Fl_Box* lblTimeCheck = new Fl_Box(15, 500 - 80 - 90, 460, 10, NULL);
+			Fl_Box* lblTimeCheck = new Fl_Box(15, 500 - 80 - 100, 460, 10, NULL);
 			lblTimeCheck->align(Fl_Align(133 | FL_ALIGN_INSIDE));
 		lblCheck->end();
 
@@ -1144,10 +1213,13 @@ void EditNewCb(Fl_Widget* w, void* data)
 
 	SetFont(lblTimeServ);
 	SetFont(lblTimeLog);
+	SetFont(lblTimeLogConf);
 	SetFont(lblTimeFinish);
 	SetFont(lblTimeCheck);
 	SetFont(lblService);
 	SetFont(lblLog);
+	SetFont(lblLogRun);
+	SetFont(lblLogConf);
 	SetFont(lblFinish);
 	SetFont(lblCheck);
 	SetFont(lblExtra);
@@ -1156,6 +1228,7 @@ void EditNewCb(Fl_Widget* w, void* data)
 	SetFont(box2);
 	SetFont(tedt[TEDT_SERV]);
 	SetFont(tedt[TEDT_LOG]);
+	SetFont(tedt[TEDT_LOG_CONF]);
 	SetFont(tedt[TEDT_FINISH]);
 	SetFont(tedt[TEDT_CHECK]);
 
@@ -1184,11 +1257,14 @@ void EditNewCb(Fl_Widget* w, void* data)
 
 		saveNewEditData.time[LBL_TIME_SERV] = lblTimeServ;
 		saveNewEditData.time[LBL_TIME_LOG] = lblTimeLog;
+		saveNewEditData.time[LBL_TIME_LOG_CONF] = lblTimeLogConf;
 		saveNewEditData.time[LBL_TIME_FINISH] = lblTimeFinish;
 		saveNewEditData.time[LBL_TIME_CHECK] = lblTimeCheck;
 
 		saveNewEditData.label[LBL_SERV] = lblService;
 		saveNewEditData.label[LBL_LOG] = lblLog;
+		saveNewEditData.label[LBL_LOG_RUN] = lblLogRun;
+		saveNewEditData.label[LBL_LOG_CONF] = lblLogConf;
 		saveNewEditData.label[LBL_FINISH] = lblFinish;
 		saveNewEditData.label[LBL_CHECK] = lblCheck;
 
@@ -1205,10 +1281,12 @@ void EditNewCb(Fl_Widget* w, void* data)
 
 	delete tbuf[TBUF_SERV];
 	delete tbuf[TBUF_LOG];
+	delete tbuf[TBUF_LOG_CONF];
 	delete tbuf[TBUF_FINISH];
 	delete tbuf[TBUF_CHECK];
 	delete tedt[TEDT_SERV];
 	delete tedt[TEDT_LOG];
+	delete tedt[TEDT_LOG_CONF];
 	delete tedt[TEDT_FINISH];
 	delete tedt[TEDT_CHECK];
 	delete btn[DELETE];
@@ -1221,13 +1299,17 @@ void EditNewCb(Fl_Widget* w, void* data)
 	delete box2;
 	delete lblTimeServ;
 	delete lblTimeLog;
+	delete lblTimeLogConf;
 	delete lblTimeFinish;
 	delete lblTimeCheck;
 	delete lblService;
-	delete lblLog;
+	delete lblLogRun;
+	delete lblLogConf;
 	delete lblFinish;
 	delete lblCheck;
 	delete lblExtra;
+	delete tabLog;
+	delete lblLog;
 	delete tabs;
 	delete input;
 	delete wnd;
