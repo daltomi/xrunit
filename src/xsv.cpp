@@ -850,6 +850,29 @@ static bool AskAndDeleteDir(std::string const& dir, std::string const& path)
 }
 
 
+static bool IsEmpty(Fl_Text_Buffer* tb)
+{
+	ASSERT_DBG(tb);
+
+	if (tb->length() == 0)
+	{
+		return true;
+	}
+
+	for(int i = 0; i < tb->length(); ++i)
+	{
+		char const c = tb->byte_at(i);
+
+		if (c != ' ' && c != '\n')
+		{
+			return false;
+		}
+	}
+
+	return true;
+}
+
+
 static void EditLoad(struct NewEditData* saveNewEditData)
 {
 	bool const showError = true;
@@ -891,29 +914,29 @@ static void EditLoad(struct NewEditData* saveNewEditData)
 	saveNewEditData->hash[TBUF_CHECK] = CalculateHash(tbuf[TBUF_CHECK]);
 	saveNewEditData->time[LBL_TIME_CHECK]->copy_label(GetModifyFileTime(path.c_str()));
 
-	if (tbuf[TBUF_SERV]->length() > 0)
+	if (!IsEmpty(tbuf[TBUF_SERV]))
 	{
 		saveNewEditData->label[LBL_SERV]->selection_color((Fl_Color)LBL_COLOR);
 	}
-	if (tbuf[TBUF_LOG]->length() > 0 || tbuf[TBUF_LOG_CONF]->length() > 0)
+	if (!IsEmpty(tbuf[TBUF_LOG]) || !IsEmpty(tbuf[TBUF_LOG_CONF]))
 	{
 		saveNewEditData->label[LBL_LOG]->selection_color((Fl_Color)LBL_COLOR);
 
-		if (tbuf[TBUF_LOG]->length() > 0)
+		if (!IsEmpty(tbuf[TBUF_LOG]))
 		{
 			saveNewEditData->label[LBL_LOG_RUN]->selection_color((Fl_Color)LBL_COLOR);
 		}
 
-		if (tbuf[TBUF_LOG_CONF]->length() > 0)
+		if (!IsEmpty(tbuf[TBUF_LOG_CONF]))
 		{
 			saveNewEditData->label[LBL_LOG_CONF]->selection_color((Fl_Color)LBL_COLOR);
 		}
 	}
-	if (tbuf[TBUF_FINISH]->length() > 0)
+	if (!IsEmpty(tbuf[TBUF_FINISH]))
 	{
 		saveNewEditData->label[LBL_FINISH]->selection_color((Fl_Color)LBL_COLOR);
 	}
-	if (tbuf[TBUF_CHECK]->length() > 0)
+	if (!IsEmpty(tbuf[TBUF_CHECK]))
 	{
 		saveNewEditData->label[LBL_CHECK]->selection_color((Fl_Color)LBL_COLOR);
 	}
@@ -934,7 +957,7 @@ static void NewEditSaveCb(UNUSED Fl_Widget* w, void* data)
 
 	int const id = saveNewEditData->id;
 
-	if (tbuf[TBUF_SERV]->length() == 0)
+	if (IsEmpty(tbuf[TBUF_SERV]))
 	{
 		if (NEW == id)
 		{
@@ -982,7 +1005,7 @@ static void NewEditSaveCb(UNUSED Fl_Widget* w, void* data)
 
 		MakeLogDirPath(service, dir);
 
-		if (tbuf[TBUF_LOG]->length() > 0 && IfNotEqualHash(tbuf[TBUF_LOG], saveNewEditData->hash[TBUF_LOG]))
+		if (!IsEmpty(tbuf[TBUF_LOG]) && IfNotEqualHash(tbuf[TBUF_LOG], saveNewEditData->hash[TBUF_LOG]))
 		{
 			MakeSysLogDirPath(service, dir);
 
@@ -1007,7 +1030,7 @@ static void NewEditSaveCb(UNUSED Fl_Widget* w, void* data)
 			tbuf[TBUF_LOG]->savefile(path.c_str());
 			FileToExecutableMode(path.c_str());
 		}
-		else if (DirAccessOk(dir.c_str(), not showError) && tbuf[TBUF_LOG]->length() == 0)
+		else if (DirAccessOk(dir.c_str(), not showError) && IsEmpty(tbuf[TBUF_LOG]))
 		{
 			MakeLogRunPath(service, path);
 			tbuf[TBUF_LOG]->savefile(path.c_str());
@@ -1016,7 +1039,7 @@ static void NewEditSaveCb(UNUSED Fl_Widget* w, void* data)
 
 		MakeLogConfPath(service, path);
 
-		if (tbuf[TBUF_LOG_CONF]->length() > 0 && IfNotEqualHash(tbuf[TBUF_LOG_CONF], saveNewEditData->hash[TBUF_LOG_CONF]))
+		if (!IsEmpty(tbuf[TBUF_LOG_CONF]) && IfNotEqualHash(tbuf[TBUF_LOG_CONF], saveNewEditData->hash[TBUF_LOG_CONF]))
 		{
 			MakeLogDirPath(service, dir);
 
@@ -1037,7 +1060,7 @@ static void NewEditSaveCb(UNUSED Fl_Widget* w, void* data)
 			MESSAGE_DBG("SAVE LOG CONF, SERVICE: %s", service);
 			tbuf[TBUF_LOG_CONF]->savefile(path.c_str());
 		}
-		else if (FileAccessOk(path.c_str(), not showError) && tbuf[TBUF_LOG_CONF]->length() == 0)
+		else if (FileAccessOk(path.c_str(), not showError) && IsEmpty(tbuf[TBUF_LOG_CONF]))
 		{
 			tbuf[TBUF_LOG_CONF]->savefile(path.c_str());
 			AskAndDeleteFile(path);
@@ -1045,26 +1068,26 @@ static void NewEditSaveCb(UNUSED Fl_Widget* w, void* data)
 
 		MakeFinishPath(service, path);
 
-		if (tbuf[TBUF_FINISH]->length() > 0 && IfNotEqualHash(tbuf[TBUF_FINISH], saveNewEditData->hash[TBUF_FINISH]))
+		if (!IsEmpty(tbuf[TBUF_FINISH]) && IfNotEqualHash(tbuf[TBUF_FINISH], saveNewEditData->hash[TBUF_FINISH]))
 		{
 			MESSAGE_DBG("SAVE FINISH, SERVICE: %s", service);
 			tbuf[TBUF_FINISH]->savefile(path.c_str());
 			FileToExecutableMode(path.c_str());
 		}
-		else if (FileAccessOk(path.c_str(), not showError) && tbuf[TBUF_FINISH]->length() == 0)
+		else if (FileAccessOk(path.c_str(), not showError) && IsEmpty(tbuf[TBUF_FINISH]))
 		{
 			AskAndDeleteFile(path);
 		}
 
 		MakeCheckPath(service, path);
 
-		if (tbuf[TBUF_CHECK]->length() > 0 && IfNotEqualHash(tbuf[TBUF_CHECK], saveNewEditData->hash[TBUF_CHECK]))
+		if (!IsEmpty(tbuf[TBUF_CHECK]) && IfNotEqualHash(tbuf[TBUF_CHECK], saveNewEditData->hash[TBUF_CHECK]))
 		{
 			MESSAGE_DBG("SAVE CHECK, SERVICE: %s", service);
 			tbuf[TBUF_CHECK]->savefile(path.c_str());
 			FileToExecutableMode(path.c_str());
 		}
-		else if (FileAccessOk(path.c_str(), not showError) && tbuf[TBUF_CHECK]->length() == 0)
+		else if (FileAccessOk(path.c_str(), not showError) && IsEmpty(tbuf[TBUF_CHECK]))
 		{
 			AskAndDeleteFile(path);
 		}
