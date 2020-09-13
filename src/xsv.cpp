@@ -278,19 +278,24 @@ void FillBrowserEnable(void)
 
 		browser[ENABLE]->add(pb);
 
+		char pbrk[2] = {pb[0],'\0'};
+
+		/*down:*/
 		if (pb[0] == 'd' || pb[0] == 'D')
 		{
 			browser[ENABLE]->icon(browser[ENABLE]->size(), get_icon_down());
 		}
+		/*run:*/
 		else if (pb[0] == 'r' || pb[0] == 'R')
 		{
 			browser[ENABLE]->icon(browser[ENABLE]->size(), get_icon_run());
 		}
-		else if (pb[0] == 'f' || pb[0] == 'F')
-		{
-			browser[ENABLE]->icon(browser[ENABLE]->size(), get_icon_warning());
-		}
-		else if (pb[0] == 'w' || pb[0] == 'W')
+		/*
+		 * fail:
+		 * warning:
+		 * timeout:
+		 * kill:*/
+		else if (strpbrk(pbrk, "fFwWtTkK") != (char*)NULL)
 		{
 			browser[ENABLE]->icon(browser[ENABLE]->size(), get_icon_warning());
 		}
