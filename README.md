@@ -14,10 +14,6 @@ I use Artix Linux, and the project is designed for it.
 
 If you use another distribution you can experiment with the
 preprocessor directives, always compile in debug mode.
-
-### Releases
-
-This is a *rolling release project*, therefore, there will always be only **one release**, the last one, the previous one is eliminated.
 ___
 
 ### Build
