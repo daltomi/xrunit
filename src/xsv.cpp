@@ -1076,6 +1076,7 @@ static void NewEditSaveCb(UNUSED Fl_Widget* w, void* data)
 		}
 		else if (FileAccessOk(path.c_str(), not showError) && IsEmpty(tbuf[TBUF_FINISH]))
 		{
+			tbuf[TBUF_FINISH]->savefile(path.c_str());
 			AskAndDeleteFile(path);
 		}
 
@@ -1089,6 +1090,7 @@ static void NewEditSaveCb(UNUSED Fl_Widget* w, void* data)
 		}
 		else if (FileAccessOk(path.c_str(), not showError) && IsEmpty(tbuf[TBUF_CHECK]))
 		{
+			tbuf[TBUF_CHECK]->savefile(path.c_str());
 			AskAndDeleteFile(path);
 		}
 	}
