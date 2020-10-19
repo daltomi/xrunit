@@ -3,9 +3,10 @@
 Graphical interface for sv - runit
 
 
-<img src="https://git.disroot.org/daltomi/xsv/raw/branch/master/screenshot_00.png"/>
+<img src="https://raw.githubusercontent.com/daltomi/xsv/master/screenshot_00.png"/>
 
-<img src="https://git.disroot.org/daltomi/xsv/raw/branch/master/screenshot_01.png"/>
+<img src="https://raw.githubusercontent.com/daltomi/xsv/master/screenshot_01.png"/>
+
 
 
 ### Support
