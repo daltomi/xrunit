@@ -317,6 +317,26 @@ void FillBrowserEnable(void)
 }
 
 
+static void SetStatus_LoadUnload_Buttons(char const* const data)
+{
+	btn[LOAD]->deactivate();
+	btn[UNLOAD]->deactivate();
+
+	if (data == STR_LOAD)
+	{
+		btn[UNLOAD]->activate();
+	}
+	else if (data == STR_UNLOAD)
+	{
+		btn[LOAD]->activate();
+	}
+	else
+	{
+		STOP_DBG("State not contemplated: %s", data);
+	}
+}
+
+
 static void BrowserListSelection_EqualToBrowserEnable(void)
 {
 	char const* const brwEnableSelectItem = browser[ENABLE]->text(itemSelect[ENABLE]);
@@ -332,7 +352,9 @@ static void BrowserListSelection_EqualToBrowserEnable(void)
 		if (strstr(brwEnableSelectItem, find))
 		{
 			itemSelect[LIST] = item;
-			browser[LIST]->select(itemSelect[LIST]);
+			browser[LIST]->select(item);
+			char* data = (char*)browser[LIST]->data(item);
+			SetStatus_LoadUnload_Buttons(data);
 			break;
 		}
 	}
@@ -368,9 +390,6 @@ void FillBrowserList(void)
 {
 	int iselect_count = SELECT_RESET;
 
-	btn[LOAD]->deactivate();
-	btn[UNLOAD]->deactivate();
-
 	browser[LIST]->clear();
 
 	ListDirectories(SV_DIR, FillBrowserList_All);
@@ -382,19 +401,7 @@ void FillBrowserList(void)
 		if (iselect_count++ == itemSelect[LIST])
 		{
 			char* data = (char*)browser[LIST]->data(item);
-
-			if (data == STR_LOAD)
-			{
-				btn[UNLOAD]->activate();
-			}
-			else if (data == STR_UNLOAD)
-			{
-				btn[LOAD]->activate();
-			}
-			else
-			{
-				STOP_DBG("State not contemplated: %s", data);
-			}
+			SetStatus_LoadUnload_Buttons(data);
 		}
 	}
 
