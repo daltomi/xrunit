@@ -36,7 +36,9 @@ void RemoveNewLine(std::string& str);
 bool AskIfContinue(char const* const service);
 void MakeServicePath(std::string const& service, std::string& path);
 void MakeServiceRunDirPath(std::string const& service, std::string& path);
+#ifdef LIB_NOTIFY
 void ShowNotify(int const id, char const* const service);
+#endif
 char* ExtractServiceNameFromPath(char const* const service);
 char* ExtractServiceNameFromSV(char const* const service);
 
@@ -163,6 +165,7 @@ int main(int argc, char* argv[])
 }
 
 
+#ifdef LIB_NOTIFY
 void ShowNotify(int const id, char const* const service)
 {
 	ASSERT_DBG_STRING(service);
@@ -193,6 +196,10 @@ void ShowNotify(int const id, char const* const service)
 	NotifyShow(NOTIFY_STR_SUMMARY, str);
 	free(name);
 }
+#else
+void ShowNotify(UNUSED int const id, UNUSED char const* const service)
+{ }
+#endif // LIB_NOTIFY
 
 
 void SetFont(Fl_Widget* w)
