@@ -112,7 +112,8 @@ int main(int argc, char* argv[])
 	btn[RUN] = new Fl_Button(BTN_W + BTN_PAD, BTN_Y, BTN_W, BTN_H, "Run");
 	btn[DOWN] = new Fl_Button(BTN_W * 2 + BTN_PAD, BTN_Y, BTN_W, BTN_H, "Down");
 	btn[RESTART] = new Fl_Button(BTN_W * 3 + BTN_PAD, BTN_Y, BTN_W, BTN_H, "Restart");
-	btn[ADD] = new Fl_Button(BTN_W * 4 + BTN_PAD, BTN_Y, BTN_W + 20, BTN_H, "Service...");
+	btn[KILL] = new Fl_Button(BTN_W * 4 + BTN_PAD, BTN_Y, BTN_W, BTN_H, "Kill");
+	btn[ADD] = new Fl_Button(BTN_W * 5 + BTN_PAD, BTN_Y, BTN_W + 20, BTN_H, "Service...");
 
 	SetButtonAlign(QUIT, ADD, 256);
 	SetButtonFont(QUIT, ADD);
@@ -120,6 +121,7 @@ int main(int argc, char* argv[])
 	btn[QUIT]->image(get_icon_quit());
 	btn[RUN]->image(get_icon_run());
 	btn[DOWN]->image(get_icon_down());
+	btn[KILL]->image(get_icon_kill());
 	btn[RESTART]->image(get_icon_restart());
 	btn[ADD]->image(get_icon_add());
 
@@ -127,10 +129,11 @@ int main(int argc, char* argv[])
 	btn[RUN]->callback(CommandCb);
 	btn[DOWN]->callback(CommandCb);
 	btn[RESTART]->callback(CommandCb);
+	btn[KILL]->callback(CommandCb);
 	btn[ADD]->callback(AddServicesCb,(void*)wnd);
 
 	{
-		Fl_Box *o = new Fl_Box(BTN_W * 6 + BTN_PAD, 0, 10, 10);
+		Fl_Box *o = new Fl_Box(BTN_W * 7 + BTN_PAD, 0, 10, 10);
 		o->box(FL_FLAT_BOX);
 		o->hide();
 		grp->resizable(o);
@@ -186,6 +189,9 @@ void ShowNotify(int const id, char const* const service)
 			break;
 		case NOTIFY_DELETE:
 			body = NOTIFY_STR_DELETE;
+			break;
+		case NOTIFY_KILL:
+			body = NOTIFY_STR_KILL;
 			break;
 		default:
 			STOP_DBG("Notify identifier not covered: %d", id);
@@ -565,6 +571,14 @@ void CommandCb(Fl_Widget* w, UNUSED void* data)
 		{
 			RunSv(service, "down");
 			ShowNotify(NOTIFY_DOWN, service);
+		}
+	}
+	else if (btnId == btn[KILL])
+	{
+		if (AskIfContinue(service))
+		{
+			RunSv(service, "kill");
+			ShowNotify(NOTIFY_KILL, service);
 		}
 	}
 	else
@@ -1453,3 +1467,4 @@ void EnabledDisabledServiceCb(Fl_Widget* w, void* data)
 
 	ChangeStateEnabledDisabledButtons(service);
 }
+/* vim: set ts=4 sw=4 tw=500 noet :*/

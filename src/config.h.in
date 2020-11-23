@@ -90,6 +90,7 @@
 #define NOTIFY_STR_UP  "Up service: %s"
 #define NOTIFY_STR_RESTART "Restart service: %s"
 #define NOTIFY_STR_DELETE "Delete service: %s"
+#define NOTIFY_STR_KILL "Kill service: %s"
 
 // popen cmds
 #define SV_LIST SV " status " SV_RUN_DIR"/*"
@@ -123,6 +124,7 @@ enum {
 	RUN,
 	DOWN,
 	RESTART,
+	KILL,
 	ADD,
 	CLOSE,
 	LOAD,
@@ -173,6 +175,7 @@ enum {
 	NOTIFY_UP,
 	NOTIFY_RESTART,
 	NOTIFY_DELETE,
+	NOTIFY_KILL,
 	NOTIFY_MAX,
 };
 
