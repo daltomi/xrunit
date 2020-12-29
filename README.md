@@ -2,6 +2,7 @@
 
 Graphical interface for sv - runit
 
+[![Release](https://img.shields.io/github/v/release/daltomi/xsv)](https://github.com/daltomi/xsv/releases/latest)
 
 <img src="https://github.com/daltomi/xsv/raw/master/screenshot_00.png"/>
 
