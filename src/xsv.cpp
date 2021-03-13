@@ -939,7 +939,7 @@ static void EditLoad(struct NewEditData* saveNewEditData)
 
 	MakeLogConfPath(service, path);
 	tbuf[TBUF_LOG_CONF]->loadfile(path.c_str());
-	saveNewEditData->hash[TBUF_LOG_CONF] = CalculateHash(tbuf[TBUF_LOG]);
+	saveNewEditData->hash[TBUF_LOG_CONF] = CalculateHash(tbuf[TBUF_LOG_CONF]);
 	saveNewEditData->time[LBL_TIME_LOG_CONF]->copy_label(GetModifyFileTime(path.c_str()));
 
 	MakeServiceFinishPath(service, path);
