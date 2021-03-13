@@ -824,7 +824,7 @@ static void MakeLogRunPath(std::string const& service, std::string& path)
 static void MakeLogConfPath(std::string const& service, std::string& path)
 {
 	MakeLogDirPath(service, path);
-	path += "config";
+	path += "conf";
 }
 
 
