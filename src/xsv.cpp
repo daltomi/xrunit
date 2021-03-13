@@ -991,6 +991,25 @@ static void EditLoad(struct NewEditData* saveNewEditData)
 }
 
 
+static void NewEditSaveCb_Common(unsigned int const id, std::string const &path,
+								struct NewEditData* const saveNewEditData, char const* const msg)
+{
+	bool const showError = false;
+
+	if (!IsEmpty(tbuf[id]) && IfNotEqualHash(tbuf[id], saveNewEditData->hash[id]))
+	{
+		MESSAGE_DBG(msg, service);
+		tbuf[id]->savefile(path.c_str());
+		FileToExecutableMode(path.c_str());
+	}
+	else if (FileAccessOk(path.c_str(), showError) && IsEmpty(tbuf[id]))
+	{
+		tbuf[id]->savefile(path.c_str());
+		AskAndDeleteFile(path);
+	}
+}
+
+
 static void NewEditSaveCb(UNUSED Fl_Widget* w, void* data)
 {
 	struct NewEditData* saveNewEditData = (struct NewEditData*)data;
@@ -1115,46 +1134,13 @@ static void NewEditSaveCb(UNUSED Fl_Widget* w, void* data)
 		}
 
 		MakeServiceFinishPath(service, path);
-
-		if (!IsEmpty(tbuf[TBUF_FINISH]) && IfNotEqualHash(tbuf[TBUF_FINISH], saveNewEditData->hash[TBUF_FINISH]))
-		{
-			MESSAGE_DBG("SAVE FINISH, SERVICE: %s", service);
-			tbuf[TBUF_FINISH]->savefile(path.c_str());
-			FileToExecutableMode(path.c_str());
-		}
-		else if (FileAccessOk(path.c_str(), not showError) && IsEmpty(tbuf[TBUF_FINISH]))
-		{
-			tbuf[TBUF_FINISH]->savefile(path.c_str());
-			AskAndDeleteFile(path);
-		}
+		NewEditSaveCb_Common(TBUF_FINISH, path, saveNewEditData, "SAVE FINISH, SERVICE: %s");
 
 		MakeServiceConfPath(service, path);
-
-		if (!IsEmpty(tbuf[TBUF_CONF]) && IfNotEqualHash(tbuf[TBUF_CONF], saveNewEditData->hash[TBUF_CONF]))
-		{
-			MESSAGE_DBG("SAVE CONF, SERVICE: %s", service);
-			tbuf[TBUF_CONF]->savefile(path.c_str());
-			FileToExecutableMode(path.c_str());
-		}
-		else if (FileAccessOk(path.c_str(), not showError) && IsEmpty(tbuf[TBUF_CONF]))
-		{
-			tbuf[TBUF_CONF]->savefile(path.c_str());
-			AskAndDeleteFile(path);
-		}
+		NewEditSaveCb_Common(TBUF_CONF, path, saveNewEditData, "SAVE CONF, SERVICE: %s");
 
 		MakeServiceCheckPath(service, path);
-
-		if (!IsEmpty(tbuf[TBUF_CHECK]) && IfNotEqualHash(tbuf[TBUF_CHECK], saveNewEditData->hash[TBUF_CHECK]))
-		{
-			MESSAGE_DBG("SAVE CHECK, SERVICE: %s", service);
-			tbuf[TBUF_CHECK]->savefile(path.c_str());
-			FileToExecutableMode(path.c_str());
-		}
-		else if (FileAccessOk(path.c_str(), not showError) && IsEmpty(tbuf[TBUF_CHECK]))
-		{
-			tbuf[TBUF_CHECK]->savefile(path.c_str());
-			AskAndDeleteFile(path);
-		}
+		NewEditSaveCb_Common(TBUF_CHECK, path, saveNewEditData, "SAVE CHECK, SERVICE: %s");
 	}
 
 	((Fl_Double_Window*)saveNewEditData->data)->hide();
