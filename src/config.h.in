@@ -146,6 +146,7 @@ enum {
 	TBUF_LOG,
 	TBUF_LOG_CONF,
 	TBUF_FINISH,
+	TBUF_CONF,
 	TBUF_CHECK,
 	TBUF_MAX,
 /* Fl_Text_Editor */
@@ -153,6 +154,7 @@ enum {
 	TEDT_LOG,
 	TEDT_LOG_CONF,
 	TEDT_FINISH,
+	TEDT_CONF,
 	TEDT_CHECK,
 	TEDT_MAX,
 /* Fl_Box - time*/
@@ -160,6 +162,7 @@ enum {
 	LBL_TIME_LOG,
 	LBL_TIME_LOG_CONF,
 	LBL_TIME_FINISH,
+	LBL_TIME_CONF,
 	LBL_TIME_CHECK,
 	LBL_TIME_MAX,
 /* Fl_Group - label*/
@@ -168,6 +171,7 @@ enum {
 	LBL_LOG_RUN,
 	LBL_LOG_CONF,
 	LBL_FINISH,
+	LBL_CONF,
 	LBL_CHECK,
 	LBL_MAX,
 /* notify ids */

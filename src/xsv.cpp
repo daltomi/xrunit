@@ -1,5 +1,5 @@
 /*
-	Copyright © 2020 daltomi <daltomi@disroot.org>
+	Copyright 2020,2021 daltomi <daltomi@disroot.org>
 
 	This file is part of xsv.
 
@@ -792,22 +792,27 @@ static void MakeServiceRunPath(std::string const& service, std::string& path)
 	path += "run";
 }
 
+static void MakeServiceConfPath(std::string const& service, std::string& path)
+{
+	MakeServiceDirPath(service, path);
+	path += "conf";
+}
 
-static void MakeFinishPath(std::string const& service, std::string& path)
+static void MakeServiceFinishPath(std::string const& service, std::string& path)
 {
 	MakeServiceDirPath(service, path);
 	path += "finish";
 }
 
 
-static void MakeCheckPath(std::string const& service, std::string& path)
+static void MakeServiceCheckPath(std::string const& service, std::string& path)
 {
 	MakeServiceDirPath(service, path);
 	path += "check";
 }
 
 
-static void MakeDownPath(std::string const& service, std::string& path)
+static void MakeServiceDownPath(std::string const& service, std::string& path)
 {
 	MakeServiceDirPath(service, path);
 	path += "down";
@@ -937,12 +942,17 @@ static void EditLoad(struct NewEditData* saveNewEditData)
 	saveNewEditData->hash[TBUF_LOG_CONF] = CalculateHash(tbuf[TBUF_LOG]);
 	saveNewEditData->time[LBL_TIME_LOG_CONF]->copy_label(GetModifyFileTime(path.c_str()));
 
-	MakeFinishPath(service, path);
+	MakeServiceFinishPath(service, path);
 	tbuf[TBUF_FINISH]->loadfile(path.c_str());
 	saveNewEditData->hash[TBUF_FINISH] = CalculateHash(tbuf[TBUF_FINISH]);
 	saveNewEditData->time[LBL_TIME_FINISH]->copy_label(GetModifyFileTime(path.c_str()));
 
-	MakeCheckPath(service, path);
+	MakeServiceConfPath(service, path);
+	tbuf[TBUF_CONF]->loadfile(path.c_str());
+	saveNewEditData->hash[TBUF_CONF] = CalculateHash(tbuf[TBUF_CONF]);
+	saveNewEditData->time[LBL_TIME_CONF]->copy_label(GetModifyFileTime(path.c_str()));
+
+	MakeServiceCheckPath(service, path);
 	tbuf[TBUF_CHECK]->loadfile(path.c_str());
 	saveNewEditData->hash[TBUF_CHECK] = CalculateHash(tbuf[TBUF_CHECK]);
 	saveNewEditData->time[LBL_TIME_CHECK]->copy_label(GetModifyFileTime(path.c_str()));
@@ -968,6 +978,10 @@ static void EditLoad(struct NewEditData* saveNewEditData)
 	if (!IsEmpty(tbuf[TBUF_FINISH]))
 	{
 		saveNewEditData->label[LBL_FINISH]->selection_color((Fl_Color)LBL_COLOR);
+	}
+	if (!IsEmpty(tbuf[TBUF_CONF]))
+	{
+		saveNewEditData->label[LBL_CONF]->selection_color((Fl_Color)LBL_COLOR);
 	}
 	if (!IsEmpty(tbuf[TBUF_CHECK]))
 	{
@@ -1099,7 +1113,7 @@ static void NewEditSaveCb(UNUSED Fl_Widget* w, void* data)
 			AskAndDeleteFile(path);
 		}
 
-		MakeFinishPath(service, path);
+		MakeServiceFinishPath(service, path);
 
 		if (!IsEmpty(tbuf[TBUF_FINISH]) && IfNotEqualHash(tbuf[TBUF_FINISH], saveNewEditData->hash[TBUF_FINISH]))
 		{
@@ -1113,7 +1127,21 @@ static void NewEditSaveCb(UNUSED Fl_Widget* w, void* data)
 			AskAndDeleteFile(path);
 		}
 
-		MakeCheckPath(service, path);
+		MakeServiceConfPath(service, path);
+
+		if (!IsEmpty(tbuf[TBUF_CONF]) && IfNotEqualHash(tbuf[TBUF_CONF], saveNewEditData->hash[TBUF_CONF]))
+		{
+			MESSAGE_DBG("SAVE CONF, SERVICE: %s", service);
+			tbuf[TBUF_CONF]->savefile(path.c_str());
+			FileToExecutableMode(path.c_str());
+		}
+		else if (FileAccessOk(path.c_str(), not showError) && IsEmpty(tbuf[TBUF_CONF]))
+		{
+			tbuf[TBUF_CONF]->savefile(path.c_str());
+			AskAndDeleteFile(path);
+		}
+
+		MakeServiceCheckPath(service, path);
 
 		if (!IsEmpty(tbuf[TBUF_CHECK]) && IfNotEqualHash(tbuf[TBUF_CHECK], saveNewEditData->hash[TBUF_CHECK]))
 		{
@@ -1138,7 +1166,7 @@ static void ChangeStateEnabledDisabledButtons(std::string const& service)
 
 	bool showError = true;
 
-	MakeDownPath(service, pathDown);
+	MakeServiceDownPath(service, pathDown);
 
 	if (FileAccessOk(pathDown.c_str(), not showError))
 	{
@@ -1208,11 +1236,15 @@ void EditNewCb(Fl_Widget* w, void* data)
 	tbuf[TBUF_LOG] = new Fl_Text_Buffer();
 	tbuf[TBUF_LOG_CONF] = new Fl_Text_Buffer();
 	tbuf[TBUF_FINISH] = new Fl_Text_Buffer();
+	tbuf[TBUF_CONF] = new Fl_Text_Buffer();
 	tbuf[TBUF_CHECK] = new Fl_Text_Buffer();
 
 	saveNewEditData.hash[TBUF_SERV] = 0;
 	saveNewEditData.hash[TBUF_LOG] = 0;
+	saveNewEditData.hash[TBUF_LOG_CONF] = 0;
 	saveNewEditData.hash[TBUF_FINISH] = 0;
+	saveNewEditData.hash[TBUF_CONF] = 0;
+	saveNewEditData.hash[TBUF_CHECK] = 0;
 
 	Fl_Tabs* tabs = new Fl_Tabs(15, 50, 475, 265);
 	tabs->selection_color((Fl_Color)LBL_TAB_COLOR);
@@ -1237,7 +1269,7 @@ void EditNewCb(Fl_Widget* w, void* data)
 					lblTimeLog->align(Fl_Align(133 | FL_ALIGN_INSIDE));
 				lblLogRun->end();
 
-				Fl_Group* lblLogConf = new Fl_Group(15, 100, 475, 235, "Config");
+				Fl_Group* lblLogConf = new Fl_Group(15, 100, 475, 235, "Conf");
 					tedt[TEDT_LOG_CONF] = new Fl_Text_Editor(20, 105, 460, 205);
 					tedt[TEDT_LOG_CONF]->box(FL_FLAT_BOX);
 					tedt[TEDT_LOG_CONF]->buffer(tbuf[TBUF_LOG_CONF]);
@@ -1255,6 +1287,15 @@ void EditNewCb(Fl_Widget* w, void* data)
 			Fl_Box* lblTimeFinish = new Fl_Box(15, 500 - 80 - 100, 460, 10, NULL);
 			lblTimeFinish->align(Fl_Align(133 | FL_ALIGN_INSIDE));
 		lblFinish->end();
+
+		Fl_Group* lblConf = new Fl_Group(15, 75, 475, 300, "Conf");
+			lblConf->hide();
+			tedt[TEDT_CONF] = new Fl_Text_Editor(20, 80, 460, 230);
+			tedt[TEDT_CONF]->box(FL_FLAT_BOX);
+			tedt[TEDT_CONF]->buffer(tbuf[TBUF_CONF]);
+			Fl_Box* lblTimeConf = new Fl_Box(15, 500 - 80 - 100, 460, 10, NULL);
+			lblTimeConf->align(Fl_Align(133 | FL_ALIGN_INSIDE));
+		lblConf->end();
 
 		Fl_Group* lblCheck = new Fl_Group(15, 75, 475, 300, "Check");
 			lblCheck->hide();
@@ -1283,12 +1324,14 @@ void EditNewCb(Fl_Widget* w, void* data)
 	SetFont(lblTimeLog);
 	SetFont(lblTimeLogConf);
 	SetFont(lblTimeFinish);
+	SetFont(lblTimeConf);
 	SetFont(lblTimeCheck);
 	SetFont(lblService);
 	SetFont(lblLog);
 	SetFont(lblLogRun);
 	SetFont(lblLogConf);
 	SetFont(lblFinish);
+	SetFont(lblConf);
 	SetFont(lblCheck);
 	SetFont(lblExtra);
 	SetFont(box0);
@@ -1298,6 +1341,7 @@ void EditNewCb(Fl_Widget* w, void* data)
 	SetFont(tedt[TEDT_LOG]);
 	SetFont(tedt[TEDT_LOG_CONF]);
 	SetFont(tedt[TEDT_FINISH]);
+	SetFont(tedt[TEDT_CONF]);
 	SetFont(tedt[TEDT_CHECK]);
 
 	btn[SAVE] = new Fl_Button(310, 355 - BTN_H, BTN_W, BTN_H, "Save files");
@@ -1327,6 +1371,7 @@ void EditNewCb(Fl_Widget* w, void* data)
 		saveNewEditData.time[LBL_TIME_LOG] = lblTimeLog;
 		saveNewEditData.time[LBL_TIME_LOG_CONF] = lblTimeLogConf;
 		saveNewEditData.time[LBL_TIME_FINISH] = lblTimeFinish;
+		saveNewEditData.time[LBL_TIME_CONF] = lblTimeConf;
 		saveNewEditData.time[LBL_TIME_CHECK] = lblTimeCheck;
 
 		saveNewEditData.label[LBL_SERV] = lblService;
@@ -1334,6 +1379,7 @@ void EditNewCb(Fl_Widget* w, void* data)
 		saveNewEditData.label[LBL_LOG_RUN] = lblLogRun;
 		saveNewEditData.label[LBL_LOG_CONF] = lblLogConf;
 		saveNewEditData.label[LBL_FINISH] = lblFinish;
+		saveNewEditData.label[LBL_CONF] = lblConf;
 		saveNewEditData.label[LBL_CHECK] = lblCheck;
 
 		EditLoad(&saveNewEditData);
@@ -1351,11 +1397,13 @@ void EditNewCb(Fl_Widget* w, void* data)
 	delete tbuf[TBUF_LOG];
 	delete tbuf[TBUF_LOG_CONF];
 	delete tbuf[TBUF_FINISH];
+	delete tbuf[TBUF_CONF];
 	delete tbuf[TBUF_CHECK];
 	delete tedt[TEDT_SERV];
 	delete tedt[TEDT_LOG];
 	delete tedt[TEDT_LOG_CONF];
 	delete tedt[TEDT_FINISH];
+	delete tedt[TEDT_CONF];
 	delete tedt[TEDT_CHECK];
 	delete btn[DELETE];
 	delete btn[SAVE];
@@ -1369,11 +1417,13 @@ void EditNewCb(Fl_Widget* w, void* data)
 	delete lblTimeLog;
 	delete lblTimeLogConf;
 	delete lblTimeFinish;
+	delete lblTimeConf;
 	delete lblTimeCheck;
 	delete lblService;
 	delete lblLogRun;
 	delete lblLogConf;
 	delete lblFinish;
+	delete lblConf;
 	delete lblCheck;
 	delete lblExtra;
 	delete tabLog;
@@ -1453,7 +1503,7 @@ void EnabledDisabledServiceCb(Fl_Widget* w, void* data)
 
 	std::string fileDown;
 
-	MakeDownPath(service, fileDown);
+	MakeServiceDownPath(service, fileDown);
 
 	if (btnId == btn[DISABLED])
 	{
