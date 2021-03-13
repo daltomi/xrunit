@@ -992,13 +992,12 @@ static void EditLoad(struct NewEditData* saveNewEditData)
 
 
 static void NewEditSaveCb_Common(unsigned int const id, std::string const &path,
-								struct NewEditData* const saveNewEditData, char const* const msg)
+								struct NewEditData* const saveNewEditData)
 {
 	bool const showError = false;
 
 	if (!IsEmpty(tbuf[id]) && IfNotEqualHash(tbuf[id], saveNewEditData->hash[id]))
 	{
-		MESSAGE_DBG(msg, service);
 		tbuf[id]->savefile(path.c_str());
 		FileToExecutableMode(path.c_str());
 	}
@@ -1134,13 +1133,13 @@ static void NewEditSaveCb(UNUSED Fl_Widget* w, void* data)
 		}
 
 		MakeServiceFinishPath(service, path);
-		NewEditSaveCb_Common(TBUF_FINISH, path, saveNewEditData, "SAVE FINISH, SERVICE: %s");
+		NewEditSaveCb_Common(TBUF_FINISH, path, saveNewEditData);
 
 		MakeServiceConfPath(service, path);
-		NewEditSaveCb_Common(TBUF_CONF, path, saveNewEditData, "SAVE CONF, SERVICE: %s");
+		NewEditSaveCb_Common(TBUF_CONF, path, saveNewEditData);
 
 		MakeServiceCheckPath(service, path);
-		NewEditSaveCb_Common(TBUF_CHECK, path, saveNewEditData, "SAVE CHECK, SERVICE: %s");
+		NewEditSaveCb_Common(TBUF_CHECK, path, saveNewEditData);
 	}
 
 	((Fl_Double_Window*)saveNewEditData->data)->hide();
