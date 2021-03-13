@@ -330,7 +330,7 @@ void FillBrowserEnable(void)
 }
 
 
-static void SetStatus_LoadUnload_Buttons(char const* const data)
+static void SetStatus_LoadUnloadButtons(char const* const data)
 {
 	btn[LOAD]->deactivate();
 	btn[UNLOAD]->deactivate();
@@ -367,7 +367,7 @@ static void BrowserListSelection_EqualToBrowserEnable(void)
 			itemSelect[LIST] = item;
 			browser[LIST]->select(item);
 			char* data = (char*)browser[LIST]->data(item);
-			SetStatus_LoadUnload_Buttons(data);
+			SetStatus_LoadUnloadButtons(data);
 			break;
 		}
 	}
@@ -414,7 +414,7 @@ void FillBrowserList(void)
 		if (iselect_count++ == itemSelect[LIST])
 		{
 			char* data = (char*)browser[LIST]->data(item);
-			SetStatus_LoadUnload_Buttons(data);
+			SetStatus_LoadUnloadButtons(data);
 		}
 	}
 
@@ -1147,7 +1147,7 @@ static void NewEditSaveCb(UNUSED Fl_Widget* w, void* data)
 }
 
 
-static void ChangeStateEnabledDisabledButtons(std::string const& service)
+static void ChangeState_EnabledDisabledButtons(std::string const& service)
 {
 	std::string pathDown;
 
@@ -1348,7 +1348,7 @@ void EditNewCb(Fl_Widget* w, void* data)
 
 	if (id == EDIT)
 	{
-		ChangeStateEnabledDisabledButtons(service);
+		ChangeState_EnabledDisabledButtons(service);
 
 		btn[DELETE]->callback(DeleteServiceCb, (void*)&saveNewEditData);
 		btn[ENABLED]->callback(EnabledDisabledServiceCb, (void*)&saveNewEditData);
@@ -1502,6 +1502,6 @@ void EnabledDisabledServiceCb(Fl_Widget* w, void* data)
 		Unlink(fileDown.c_str());
 	}
 
-	ChangeStateEnabledDisabledButtons(service);
+	ChangeState_EnabledDisabledButtons(service);
 }
 /* vim: set ts=4 sw=4 tw=500 noet :*/
