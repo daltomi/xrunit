@@ -961,28 +961,29 @@ static void EditLoad(struct NewEditData* saveNewEditData)
 	{
 		saveNewEditData->label[LBL_SERV]->selection_color((Fl_Color)LBL_COLOR);
 	}
-	if (!IsEmpty(tbuf[TBUF_LOG]) || !IsEmpty(tbuf[TBUF_LOG_CONF]))
+
+	if (!IsEmpty(tbuf[TBUF_LOG]))
 	{
 		saveNewEditData->label[LBL_LOG]->selection_color((Fl_Color)LBL_COLOR);
-
-		if (!IsEmpty(tbuf[TBUF_LOG]))
-		{
-			saveNewEditData->label[LBL_LOG_RUN]->selection_color((Fl_Color)LBL_COLOR);
-		}
-
-		if (!IsEmpty(tbuf[TBUF_LOG_CONF]))
-		{
-			saveNewEditData->label[LBL_LOG_CONF]->selection_color((Fl_Color)LBL_COLOR);
-		}
+		saveNewEditData->label[LBL_LOG_RUN]->selection_color((Fl_Color)LBL_COLOR);
 	}
+
+	if (!IsEmpty(tbuf[TBUF_LOG_CONF]))
+	{
+		saveNewEditData->label[LBL_LOG]->selection_color((Fl_Color)LBL_COLOR);
+		saveNewEditData->label[LBL_LOG_CONF]->selection_color((Fl_Color)LBL_COLOR);
+	}
+
 	if (!IsEmpty(tbuf[TBUF_FINISH]))
 	{
 		saveNewEditData->label[LBL_FINISH]->selection_color((Fl_Color)LBL_COLOR);
 	}
+
 	if (!IsEmpty(tbuf[TBUF_CONF]))
 	{
 		saveNewEditData->label[LBL_CONF]->selection_color((Fl_Color)LBL_COLOR);
 	}
+
 	if (!IsEmpty(tbuf[TBUF_CHECK]))
 	{
 		saveNewEditData->label[LBL_CHECK]->selection_color((Fl_Color)LBL_COLOR);
