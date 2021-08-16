@@ -22,7 +22,7 @@ endif
 
 APP := xsv
 
-APP_VER := "5.1"
+APP_VER := "5.2"
 
 PKG_REV := "1"
 
@@ -34,15 +34,17 @@ CXX ?= g++
 
 FLTK_EXTRA := "--use-images"
 
-CXXLIBS += $(shell fltk-config --ldflags ${FLTK_EXTRA})
+FORTIFY_SOURCE:= -Wl,-z,relro,-z,now
+
+CXXLIBS += $(shell fltk-config --ldflags ${FLTK_EXTRA}) $(FORTIFY_SOURCE)
 
 ifeq ("$(CXX)", "g++")
 CXXLIBS_RELEASE :=-Wl,-s
 endif
 
 CXXFLAGS += -Wall $(shell fltk-config --cxxflags) -Iicons
-CXXFLAGS_RELEASE:= -O3 -DNDEBUG -Wno-write-strings
-CXXFLAGS_DEBUG:= -O2 -g -DDEBUG -Wextra -Wimplicit-fallthrough
+CXXFLAGS_RELEASE:= -DNDEBUG -Wno-write-strings
+CXXFLAGS_DEBUG:= -g -DDEBUG -Wextra -Wimplicit-fallthrough
 
 SOURCE := $(wildcard src/*.cpp)
 

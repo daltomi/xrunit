@@ -23,7 +23,7 @@
 #include <FL/Fl_PNG_Image.H>
 
 static FILE* file = stdout;
-static char name_data[40];
+static char name_data[40 + 6]; // +icon_
 static char input[40];
 static Fl_Image* img = nullptr;
 
@@ -96,7 +96,7 @@ Fl_Image* open_image()
 
 void write_name_data()
 {
-	snprintf(name_data, 40, "icon_%s", input);
+	snprintf(name_data, sizeof(name_data), "icon_%s", input);
 	fprintf(file, "static unsigned char %s [] = {\n", name_data);
 }
 

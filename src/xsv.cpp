@@ -1471,16 +1471,17 @@ void EnabledDisabledServiceCb(Fl_Widget* w, void* data)
 
 	struct NewEditData* saveNewEditData = (struct NewEditData*)data;
 	char const* const service = saveNewEditData->service;
-	char const* msg = "Are you sure to disable the service?";
-	char const* msg_yes = "Yes, disable";
+	int ret = 0;
 
 	if (btnId == btn[ENABLED])
 	{
-		msg = "Are you sure to re-enable the service?";
-		msg_yes = "Yes, re-enable";
+	    ret = fl_choice("Are you sure to re-enable the service?", "No", "Yes, re-enable", NULL);
+	}
+	else
+	{
+	    ret = fl_choice("Are you sure to disable the service?", "No", "Yes, disable", NULL);
 	}
 
-	int const ret = fl_choice(msg, "No", msg_yes, NULL);
 
 	if (ret == 0)
 	{
