@@ -1,0 +1,23 @@
+name: full-check
+
+on: [push, pull_request]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: install_dependencies
+      run: |
+        sudo apt update --fix-missing
+        sudo apt install pkg-config make coreutils libfltk1.3-dev libnotify-dev
+    - name: first_build
+      run: |
+           make
+           sudo make install
+    - name: run_program
+      run: |
+           xsv -v
+
