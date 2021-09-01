@@ -12,7 +12,7 @@ Graphical interface for sv - runit
 
 ### Support
 
-I use Artix Linux, and the project is designed for it.
+~~I use Artix Linux, and the project is designed for it.~~
 
 If you use another distribution you can experiment with the
 preprocessor directives, always compile in debug mode.
