@@ -1,5 +1,5 @@
 /*
-	Copyright 2020,2021 daltomi <daltomi@disroot.org>
+	Copyright 2020,2021 Daniel T. Borelli <danieltborelli@gmail.com>
 
 	This file is part of xsv.
 

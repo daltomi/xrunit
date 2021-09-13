@@ -1,5 +1,5 @@
 #
-#	Copyright © 2020 daltomi <daltomi@disroot.org>
+#	Copyright © 2020 Daniel T. Borelli <danieltborelli@gmail.com>
 #
 #	This file is part of xsv.
 #
@@ -29,7 +29,7 @@ rm icons.h
 
 echo "[*] Generando icons.h ..."
 echo "//Generate by png2c" > icons.h
-echo "//Author: daltomi@disroot.org" >> icons.h
+echo "//Author: danieltborelli@gmail.com" >> icons.h
 echo "//Project: xsv" >> icons.h
 echo "#pragma once" >> icons.h
 for i in *.png; do
