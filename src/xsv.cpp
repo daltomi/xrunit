@@ -63,12 +63,27 @@ static char const* STR_LOAD = "Load";
 static char const* STR_UNLOAD = "Unload";
 static char const* STR_EDIT = "Edit...";
 static char const* STR_NEW = "New...";
-
+static char const* SV_DIR_SELECT = NULL;
 
 static void Exit(void)
 {
 	NotifyEnd();
 }
+
+static void SetSvdirFromEnv()
+{
+	char const* const svdirenv = secure_getenv("SVDIR");
+
+	if (svdirenv != NULL)
+	{
+		SV_DIR_SELECT = strndup(svdirenv, PATH_MAX);
+	}
+	else
+	{
+		SV_DIR_SELECT = SV_DIR;
+	}
+}
+
 
 int main(int argc, char* argv[])
 {
@@ -81,10 +96,12 @@ int main(int argc, char* argv[])
 	ASSERT((strlen(ASK_SERVICES) > 0) && (strlen(ASK_SERVICES) < STR_SZ));
 	ASSERT((strlen(SYS_LOG_DIR) > 0) && (strlen(SYS_LOG_DIR) < STR_SZ));
 
+	SetSvdirFromEnv();
+
 	MESSAGE_DBG("TITLE: %s", TITLE);
 	MESSAGE_DBG("TIME_UPDATE: %d", TIME_UPDATE);
 	MESSAGE_DBG("SV: %s", SV);
-	MESSAGE_DBG("SV_DIR: %s", SV_DIR);
+	MESSAGE_DBG("SV_DIR: %s", SV_DIR_SELECT);
 	MESSAGE_DBG("SV_RUN_DIR: %s", SV_RUN_DIR);
 
 	if (argc == 2)
@@ -405,7 +422,7 @@ void FillBrowserList(void)
 
 	browser[LIST]->clear();
 
-	ListDirectories(SV_DIR, FillBrowserList_All);
+	ListDirectories(SV_DIR_SELECT, FillBrowserList_All);
 
 	ListDirectories(SV_RUN_DIR, FillBrowserList_Load);
 
@@ -759,7 +776,7 @@ void MakeServiceRunDirPath(std::string const& service, std::string& path)
 
 void MakeServicePath(std::string const& service, std::string& path)
 {
-	path = SV_DIR;
+	path = SV_DIR_SELECT;
 	path +=  "/";
 	path += service;
 }

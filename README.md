@@ -75,11 +75,11 @@ ___
 
 * Directories:
 
-| Directive | Description | Default | Type |
-|-------------------------------|---------|---------|---------
-| SV_DIR      |  available services directory | /etc/runit/sv | string
-| SV_RUN_DIR      |  services directory | /run/runit/service | string
-| SYS_LOG_DIR | system log directory | /var/log | string
+| Directive | Description | Default | Type | ENV= |
+|-------------------------------|---------|---------|---------|---------
+| SV_DIR      |  available services directory | /etc/runit/sv | string | SVDIR
+| SV_RUN_DIR      |  services directory | /run/runit/service | string  | -
+| SYS_LOG_DIR | system log directory | /var/log | string | -
 
 
 * Properties:
