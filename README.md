@@ -12,10 +12,11 @@ Graphical interface for sv - runit
 
 ### Support
 
-~~I use Artix Linux, and the project is designed for it.~~
+Each distribution has its own `runit` configuration.
+You can experiment with the preprocessor directives to adapt it to yours (always compile in debug mode).
+Or look in directory `defines` if you find a definition file for your distro.
+At the end of the **Build** section you will find information on how to compile using this file.
 
-If you use another distribution you can experiment with the
-preprocessor directives, always compile in debug mode.
 ___
 
 ### Build
@@ -63,8 +64,6 @@ ___
 ___
 
 ### Preprocessor directives
-
-*(only if you don't use Artix Linux)*
 
 * sv program
 
