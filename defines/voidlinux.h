@@ -1,3 +1,3 @@
 #pragma once
-#define SV_DIR "/etc/sv "
+#define SV_DIR "/etc/sv"
 #define SV_RUN_DIR "/var/service"
