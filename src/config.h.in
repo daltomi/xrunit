@@ -62,6 +62,10 @@
 #define TIME_UPDATE 5
 #endif
 
+#ifndef HOST_OS
+#define HOST_OS HOST_OS_ARCHLINUX
+#endif
+
 #ifndef SV
 #define SV "sv"
 #endif
