@@ -344,6 +344,7 @@ void FillBrowserEnable(void)
 	}
 
 	browser[ENABLE]->select(itemSelect[ENABLE]);
+	browser[ENABLE]->middleline(itemSelect[ENABLE]);
 }
 
 
