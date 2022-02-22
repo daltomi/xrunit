@@ -8,7 +8,7 @@ Graphical interface for sv - runit
 
 <img src="https://github.com/daltomi/xsv/raw/master/screenshot_01.png"/>
 
-
+<img src="https://github.com/daltomi/xsv/raw/master/screenshot_02.png"/>
 
 ### Support
 

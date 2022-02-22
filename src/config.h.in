@@ -1,5 +1,5 @@
 /*
-	Copyright © 2020 Daniel T. Borelli <danieltborelli@gmail.com>
+	Copyright 2020-2022 Daniel T. Borelli <danieltborelli@gmail.com>
 
 	This file is part of xsv.
 
@@ -124,23 +124,36 @@ enum {
 /* Not move */
 
 /* Fl_Button */
-	QUIT,
+/* NO MOVER >> */
 	RUN,
 	DOWN,
 	RESTART,
 	KILL,
+/* << NO MOVER */
+	QUIT,
 	ADD,
 	CLOSE,
 	LOAD,
 	UNLOAD,
 	EDIT,
 	NEW,
+	BTN_MAX,
+/* Fl_Button edit services */
+/* NO MOVER >> */
+	RUN_LOG = 0,
+	DOWN_LOG,
+	RESTART_LOG,
+	KILL_LOG,
+/* << NO MOVER */
+	DELETE_SRV,
+	DISABLED_SRV,
+	ENABLED_SRV,
+	DELETE_LOG,
+	DISABLED_LOG,
+	ENABLED_LOG,
 	SAVE,
 	CANCEL,
-	DELETE,
-	DISABLED,
-	ENABLED,
-	BTN_MAX,
+	BTN_MAX_EDIT,
 /* Fl_Hold_Browser */
 	ENABLE = 0,
 	LIST,
@@ -174,6 +187,7 @@ enum {
 	LBL_LOG,
 	LBL_LOG_RUN,
 	LBL_LOG_CONF,
+	LBL_LOG_EXTRA,
 	LBL_FINISH,
 	LBL_CONF,
 	LBL_CHECK,
@@ -193,6 +207,7 @@ struct NewEditData
 	unsigned long hash[TBUF_MAX];
 	Fl_Box* time[LBL_TIME_MAX];
 	Fl_Group* label[LBL_MAX];
+	Fl_Button* btn[BTN_MAX_EDIT];
 	char const* service;
 	void* data;
 	int id;
