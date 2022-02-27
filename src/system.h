@@ -28,6 +28,8 @@ bool FileAccessOk(char const* const fileName, bool showError);
 
 bool DirAccessOk(char const* const dirName, bool showError);
 
+bool isFileTypeELF(char const* const fileName, bool showError);
+
 FILE* PipeOpen(char const* const cmd);
 
 void PipeClose(FILE* pipe);

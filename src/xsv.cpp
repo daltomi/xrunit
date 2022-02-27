@@ -978,7 +978,18 @@ static void EditLoad(struct NewEditData* saveNewEditData)
 	saveNewEditData->time[LBL_TIME_SERV]->copy_label(GetModifyFileTime(path.c_str()));
 
 	MakeLogRunPath(service, path);
-	tbuf[TBUF_LOG]->loadfile(path.c_str());
+	if (isFileTypeELF(path.c_str(), not showError))
+	{
+		tbuf[TBUF_LOG]->text("ELF executable file detected.\n\n"
+							"We detect that the 'run' file is not a\ntext file.\n\n"
+							"Sorry, but this type of configuration\nis not supported by xsv.\n\n"
+							"All 'Extra...' actions continue to work as normal.");
+		tedt[TEDT_LOG]->deactivate();
+	}
+	else
+	{
+		tbuf[TBUF_LOG]->loadfile(path.c_str());
+	}
 	saveNewEditData->hash[TBUF_LOG] = CalculateHash(tbuf[TBUF_LOG]);
 	saveNewEditData->time[LBL_TIME_LOG]->copy_label(GetModifyFileTime(path.c_str()));
 

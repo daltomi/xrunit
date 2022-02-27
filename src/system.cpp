@@ -140,6 +140,51 @@ bool FileAccessOk(char const* const fileName, bool showError)
 }
 
 
+bool isFileTypeELF(char const* const fileName, bool showError)
+{
+	errno = 0;
+
+	char buffer[4] = {0};
+
+	int fd = open(fileName, O_RDONLY);
+
+	if (-1 == fd)
+	{
+		goto showError_returnFalse;
+	}
+
+	errno = 0;
+
+	if (read(fd, buffer, 4) == -1)
+	{
+		close(fd);
+		goto showError_returnFalse;
+
+	}
+
+	close(fd);
+
+	if (buffer[0] == 0x7F &&
+		buffer[1] == 0x45 &&
+		buffer[2] == 0x4C &&
+		buffer[3] == 0x46)
+	{
+		WARNING_DBG("ELF file detected: %s", fileName);
+		return true;
+	}
+
+	return false;
+
+showError_returnFalse:
+
+	if (showError)
+	{
+		fl_alert("File: %s, error: %s", fileName, strerror(errno));
+	}
+	return false;
+}
+
+
 bool DirAccessOk(char const* const dirName, bool showError)
 {
 	ASSERT_DBG_STRING(dirName);
