@@ -956,6 +956,22 @@ static bool IsEmpty(Fl_Text_Buffer* tb)
 }
 
 
+static bool IsRunELF(Fl_Text_Buffer* buf, Fl_Text_Editor* ed, char const* const path)
+{
+	bool const showError = true;
+
+	if (isFileTypeELF(path, not showError))
+	{
+		buf->text("ELF executable file detected.\n\n"
+					"We detect that the 'run' file is not a\ntext file"
+					" and therefore is not editable.\n\n"
+					"All 'Extra...' actions continue to work as normal.");
+		ed->deactivate();
+		return true;
+	}
+	return false;
+}
+
 static void EditLoad(struct NewEditData* saveNewEditData)
 {
 	bool const showError = true;
@@ -973,23 +989,21 @@ static void EditLoad(struct NewEditData* saveNewEditData)
 		fl_alert("The service '%s' exists but the 'run' file was not found.", service.c_str());
 	}
 
-	tbuf[TBUF_SERV]->loadfile(path.c_str());
+	if (not IsRunELF(tbuf[TBUF_SERV], tedt[TEDT_SERV], path.c_str()))
+	{
+		tbuf[TBUF_SERV]->loadfile(path.c_str());
+	}
+
 	saveNewEditData->hash[TBUF_SERV] = CalculateHash(tbuf[TBUF_SERV]);
 	saveNewEditData->time[LBL_TIME_SERV]->copy_label(GetModifyFileTime(path.c_str()));
 
 	MakeLogRunPath(service, path);
-	if (isFileTypeELF(path.c_str(), not showError))
-	{
-		tbuf[TBUF_LOG]->text("ELF executable file detected.\n\n"
-							"We detect that the 'run' file is not a\ntext file.\n\n"
-							"Sorry, but this type of configuration\nis not supported by xsv.\n\n"
-							"All 'Extra...' actions continue to work as normal.");
-		tedt[TEDT_LOG]->deactivate();
-	}
-	else
+
+	if (not IsRunELF(tbuf[TBUF_LOG], tedt[TEDT_LOG], path.c_str()))
 	{
 		tbuf[TBUF_LOG]->loadfile(path.c_str());
 	}
+
 	saveNewEditData->hash[TBUF_LOG] = CalculateHash(tbuf[TBUF_LOG]);
 	saveNewEditData->time[LBL_TIME_LOG]->copy_label(GetModifyFileTime(path.c_str()));
 
