@@ -1,7 +1,7 @@
 icons.h
 config.h
 png2h
-xsv
+xrunit
 *.o
 *.zip
 AUR
