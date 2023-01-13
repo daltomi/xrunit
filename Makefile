@@ -20,7 +20,7 @@ $(error 'install (coreutils)' NOT FOUND)
 endif
 
 
-APP := xsv
+APP := xrunit
 
 APP_VER := "6.0"
 

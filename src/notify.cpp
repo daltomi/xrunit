@@ -1,20 +1,20 @@
 /*
 	Copyright © 2020 Daniel T. Borelli <danieltborelli@gmail.com>
 
-	This file is part of xsv.
+	This file is part of xrunit.
 
-	xsv is free software: you can redistribute it and/or modify
+	xrunit is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	xsv is distributed in the hope that it will be useful,
+	xrunit is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with xsv.  If not, see <http://www.gnu.org/licenses/>.
+	along with xrunit.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "config.h"
 #include "notify.h"
@@ -73,7 +73,7 @@ error_notification_new:
 
 static int NotifyInit()
 {
-	if (!(notify_is_initted() || notify_init("xsv")))
+	if (!(notify_is_initted() || notify_init("xrunit")))
 	{
 		return 0;
 	}

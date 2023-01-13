@@ -1,14 +1,14 @@
-# xsv
+# xrunit
 
 Graphical interface for sv - runit
 
-[![Release](https://img.shields.io/github/v/release/daltomi/xsv)](https://github.com/daltomi/xsv/releases/latest)
+[![Release](https://img.shields.io/github/v/release/daltomi/xrunit)](https://github.com/daltomi/xrunit/releases/latest)
 
-<img src="https://github.com/daltomi/xsv/raw/master/screenshot_00.png"/>
+<img src="https://github.com/daltomi/xrunit/raw/master/screenshot_00.png"/>
 
-<img src="https://github.com/daltomi/xsv/raw/master/screenshot_01.png"/>
+<img src="https://github.com/daltomi/xrunit/raw/master/screenshot_01.png"/>
 
-<img src="https://github.com/daltomi/xsv/raw/master/screenshot_02.png"/>
+<img src="https://github.com/daltomi/xrunit/raw/master/screenshot_02.png"/>
 
 ### Support
 
