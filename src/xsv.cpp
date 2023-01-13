@@ -1,5 +1,5 @@
 /*
-	Copyright 2020,2022 Daniel T. Borelli <danieltborelli@gmail.com>
+	Copyright 2020,2023 Daniel T. Borelli <danieltborelli@gmail.com>
 
 	This file is part of xsv.
 
@@ -47,7 +47,7 @@ void QuitCb(UNUSED Fl_Widget* w, UNUSED void* data);
 void SelectCb(Fl_Widget* w, UNUSED void* data);
 void CommandSrvCb(Fl_Widget* w, UNUSED void* data);
 void CommandLogCb(Fl_Widget* w, void* data);
-void Command(Fl_Button* btnId, Fl_Button* btns[], char const* const service);
+void Command(Fl_Button* btnId, char const* const service);
 void LoadUnloadCb(Fl_Widget* w, UNUSED void* data);
 void AddServicesCb(UNUSED Fl_Widget* w, void* data);
 void TimerCb(UNUSED void* data);
@@ -212,6 +212,9 @@ void ShowNotify(int const id, char const* const service)
 			break;
 		case NOTIFY_KILL:
 			body = NOTIFY_STR_KILL;
+			break;
+		case NOTIFY_ALARM:
+			body = NOTIFY_STR_ALARM;
 			break;
 		default:
 			STOP_DBG("Notify identifier not covered: %d", id);
@@ -569,11 +572,15 @@ void CommandSrvCb(Fl_Widget* w, UNUSED void* data)
 {
 	Fl_Button* btnId = (Fl_Button*)w;
 
+	ASSERT_DBG(btnId != NULL);
+
 	char const* itemText = browser[ENABLE]->text(itemSelect[ENABLE]);
 
 	char* service = ExtractServiceNameFromPath(itemText);
 
-	Command(btnId, btn, service);
+	MESSAGE_DBG("CommandSrvCb: service: %s", service);
+
+	Command(btnId, service);
 
 	free(service);
 }
@@ -581,6 +588,8 @@ void CommandSrvCb(Fl_Widget* w, UNUSED void* data)
 void CommandLogCb(Fl_Widget* w, void* data)
 {
 	Fl_Button* btnId = (Fl_Button*)w;
+
+	ASSERT_DBG(btnId != NULL);
 
 	struct NewEditData* saveNewEditData = (struct NewEditData*)data;
 
@@ -594,39 +603,52 @@ void CommandLogCb(Fl_Widget* w, void* data)
 
 	MakeLogDirPath(service, path);
 
-	Command(btnId, saveNewEditData->btn, path.c_str());
+	MESSAGE_DBG("CommandLogCb: service: %s, path: %s", service, path.c_str());
+
+	Command(btnId, path.c_str());
 }
 
-void Command(Fl_Button* btnId, Fl_Button* btns[], char const* const service)
+
+void Command(Fl_Button* btnId, char const* const service)
 {
-	if (btnId == btns[RUN] || btnId == btns[RUN_LOG])
+	if (btnId == btn[RUN] || btnId == btn[RUN_LOG])
 	{
+		MESSAGE_DBG("UP service: %s", service);
 		RunSv(service, "up");
 		ShowNotify(NOTIFY_UP, service);
 	}
-	else if (btnId == btns[RESTART] || btnId == btns[RESTART_LOG])
+	else if (btnId == btn[RESTART] || btnId == btn[RESTART_LOG])
 	{
 		if (AskIfContinue(service))
 		{
+			MESSAGE_DBG("RESTART service: %s", service);
 			RunSv(service, "restart");
 			ShowNotify(NOTIFY_RESTART, service);
 		}
 	}
-	else if (btnId == btns[DOWN] || btnId == btns[DOWN_LOG])
+	else if (btnId == btn[DOWN] || btnId == btn[DOWN_LOG])
 	{
 		if (AskIfContinue(service))
 		{
+			MESSAGE_DBG("DOWN service: %s", service);
 			RunSv(service, "down");
 			ShowNotify(NOTIFY_DOWN, service);
 		}
 	}
-	else if (btnId == btns[KILL] || btnId == btns[KILL_LOG])
+	else if (btnId == btn[KILL] || btnId == btn[KILL_LOG])
 	{
 		if (AskIfContinue(service))
 		{
+			MESSAGE_DBG("KILL service: %s", service);
 			RunSv(service, "kill");
 			ShowNotify(NOTIFY_KILL, service);
 		}
+	}
+	else if (btnId == btn[ALARM_LOG])
+	{
+		MESSAGE_DBG("ALARM service: %s", service);
+		RunSv(service, "alarm");
+		ShowNotify(NOTIFY_ALARM, service);
 	}
 	else
 	{
@@ -1236,13 +1258,13 @@ static void ChangeState_EnabledDisabledButtons(std::string const& service, struc
 
 	if (FileAccessOk(path.c_str(), not showError))
 	{
-		saveNewEditData->btn[DISABLED_SRV]->deactivate();
-		saveNewEditData->btn[ENABLED_SRV]->activate();
+		btn[DISABLED_SRV]->deactivate();
+		btn[ENABLED_SRV]->activate();
 	}
 	else
 	{
-		saveNewEditData->btn[DISABLED_SRV]->activate();
-		saveNewEditData->btn[ENABLED_SRV]->deactivate();
+		btn[DISABLED_SRV]->activate();
+		btn[ENABLED_SRV]->deactivate();
 	}
 
 	MakeLogDirPath(service, path);
@@ -1256,13 +1278,13 @@ static void ChangeState_EnabledDisabledButtons(std::string const& service, struc
 
 	if (FileAccessOk(path.c_str(), not showError))
 	{
-		saveNewEditData->btn[DISABLED_LOG]->deactivate();
-		saveNewEditData->btn[ENABLED_LOG]->activate();
+		btn[DISABLED_LOG]->deactivate();
+		btn[ENABLED_LOG]->activate();
 	}
 	else
 	{
-		saveNewEditData->btn[DISABLED_LOG]->activate();
-		saveNewEditData->btn[ENABLED_LOG]->deactivate();
+		btn[DISABLED_LOG]->activate();
+		btn[ENABLED_LOG]->deactivate();
 	}
 }
 
@@ -1364,9 +1386,9 @@ void EditNewCb(Fl_Widget* w, void* data)
 
 				Fl_Group* lblExtraLog = new Fl_Group(15, 110, 475, 235, "Extra...");
 					lblExtraLog->hide();
-					saveNewEditData.btn[DELETE_LOG] = new Fl_Button(25, 112, BTN_W, BTN_H, "Delete...");
-					saveNewEditData.btn[DISABLED_LOG] = new Fl_Button(25, 112 + 60, BTN_W, BTN_H, "Disable...");
-					saveNewEditData.btn[ENABLED_LOG] = new Fl_Button(25, 112 + 60 * 2, BTN_W, BTN_H, "Enable...");
+					btn[DELETE_LOG] = new Fl_Button(25, 112, BTN_W, BTN_H, "Delete...");
+					btn[DISABLED_LOG] = new Fl_Button(25, 112 + 60, BTN_W, BTN_H, "Disable...");
+					btn[ENABLED_LOG] = new Fl_Button(25, 112 + 60 * 2, BTN_W, BTN_H, "Enable...");
 					Fl_Box* box00 = new Fl_Box(30 + BTN_W, 112, 475 - (30 + BTN_W), 60, "Use it to permanently remove the service. It cannot be undone.");
 					Fl_Box* box01 = new Fl_Box(30 + BTN_W, 112 + 60, 475 - (30 + BTN_W), 60,"Use it to disable the service permanently, including when rebooting the system.");
 					Fl_Box* box02 = new Fl_Box(30 + BTN_W, 112 + 60 * 2, 475 - (30 + BTN_W), 60, "Use it to re-enable the service that is currently disabled.");
@@ -1374,22 +1396,29 @@ void EditNewCb(Fl_Widget* w, void* data)
 					box01->align(Fl_Align(133 | FL_ALIGN_INSIDE));
 					box02->align(Fl_Align(133 | FL_ALIGN_INSIDE));
 
-					saveNewEditData.btn[RUN_LOG] = new Fl_Button(BTN_W + BTN_PAD, 100 + 60 * 3, BTN_W, BTN_H, "Run");
-					saveNewEditData.btn[DOWN_LOG] = new Fl_Button(BTN_W * 2 + BTN_PAD, 100 + 60 * 3, BTN_W, BTN_H, "Down");
-					saveNewEditData.btn[RESTART_LOG] = new Fl_Button(BTN_W * 3 + BTN_PAD, 100 + 60 * 3, BTN_W, BTN_H, "Restart");
-					saveNewEditData.btn[KILL_LOG] = new Fl_Button(BTN_W * 4 + BTN_PAD, 100 + 60 * 3, BTN_W, BTN_H, "Kill");
-					saveNewEditData.btn[RUN_LOG]->image(get_icon_run());
-					saveNewEditData.btn[DOWN_LOG]->image(get_icon_down());
-					saveNewEditData.btn[KILL_LOG]->image(get_icon_kill());
-					saveNewEditData.btn[RESTART_LOG]->image(get_icon_restart());
+					{
+						const int btn_pad = 50;
+						btn[RUN_LOG] = new Fl_Button(btn_pad, 100 + 60 * 3, BTN_W, BTN_H, "Run");
+						btn[DOWN_LOG] = new Fl_Button(BTN_W + btn_pad, 100 + 60 * 3, BTN_W, BTN_H, "Down");
+						btn[RESTART_LOG] = new Fl_Button(BTN_W * 2 + btn_pad, 100 + 60 * 3, BTN_W, BTN_H, "Restart");
+						btn[KILL_LOG] = new Fl_Button(BTN_W * 3 + btn_pad, 100 + 60 * 3, BTN_W, BTN_H, "Kill");
+						btn[ALARM_LOG] = new Fl_Button(BTN_W * 4 + btn_pad, 100 + 60 * 3, BTN_W, BTN_H, "Alarm");
+					}
 
-					saveNewEditData.btn[RUN_LOG]->callback(CommandLogCb,(void*)&saveNewEditData);
-					saveNewEditData.btn[DOWN_LOG]->callback(CommandLogCb,(void*)&saveNewEditData);
-					saveNewEditData.btn[RESTART_LOG]->callback(CommandLogCb,(void*)&saveNewEditData);
-					saveNewEditData.btn[KILL_LOG]->callback(CommandLogCb,(void*)&saveNewEditData);
+					btn[RUN_LOG]->image(get_icon_run());
+					btn[DOWN_LOG]->image(get_icon_down());
+					btn[RESTART_LOG]->image(get_icon_restart());
+					btn[KILL_LOG]->image(get_icon_kill());
+					btn[ALARM_LOG]->image(get_icon_alarm());
+
+					btn[RUN_LOG]->callback(CommandLogCb,(void*)&saveNewEditData);
+					btn[DOWN_LOG]->callback(CommandLogCb,(void*)&saveNewEditData);
+					btn[RESTART_LOG]->callback(CommandLogCb,(void*)&saveNewEditData);
+					btn[KILL_LOG]->callback(CommandLogCb,(void*)&saveNewEditData);
+					btn[ALARM_LOG]->callback(CommandLogCb,(void*)&saveNewEditData);
 
 					for (int i=RUN_LOG; i <= KILL_LOG; i++) {
-						lblExtraLog->add(saveNewEditData.btn[i]);
+						lblExtraLog->add(btn[i]);
 					}
 
 				lblExtraLog->end();
@@ -1425,9 +1454,9 @@ void EditNewCb(Fl_Widget* w, void* data)
 
 		Fl_Group* lblExtra = new Fl_Group(15, 75, 475, 300, "Extra...");
 			lblExtra->hide();
-			saveNewEditData.btn[DELETE_SRV] = new Fl_Button(25, 90, BTN_W, BTN_H, "Delete...");
-			saveNewEditData.btn[DISABLED_SRV] = new Fl_Button(25, 90 + 60, BTN_W, BTN_H, "Disable...");
-			saveNewEditData.btn[ENABLED_SRV] = new Fl_Button(25, 90 + 60 * 2, BTN_W, BTN_H, "Enable...");
+			btn[DELETE_SRV] = new Fl_Button(25, 90, BTN_W, BTN_H, "Delete...");
+			btn[DISABLED_SRV] = new Fl_Button(25, 90 + 60, BTN_W, BTN_H, "Disable...");
+			btn[ENABLED_SRV] = new Fl_Button(25, 90 + 60 * 2, BTN_W, BTN_H, "Enable...");
 			Fl_Box* box10 = new Fl_Box(30 + BTN_W, 92, 475 - (30 + BTN_W), 60, "Use it to permanently remove the service. It cannot be undone.");
 			Fl_Box* box11 = new Fl_Box(30 + BTN_W, 92 + 60, 475 - (30 + BTN_W), 60,"Use it to disable the service permanently, including when rebooting the system.");
 			Fl_Box* box12 = new Fl_Box(30 + BTN_W, 92 + 60 * 2, 475 - (30 + BTN_W), 60, "Use it to re-enable the service that is currently disabled.");
@@ -1465,33 +1494,32 @@ void EditNewCb(Fl_Widget* w, void* data)
 	SetFont(tedt[TEDT_CONF]);
 	SetFont(tedt[TEDT_CHECK]);
 
-	saveNewEditData.btn[SAVE] = new Fl_Button(310, 355 - BTN_H, BTN_W, BTN_H, "Save files");
-	saveNewEditData.btn[CANCEL] = new Fl_Button(310 + BTN_W + 2, 355 - BTN_H, BTN_W, BTN_H, "Close");
+	btn[SAVE] = new Fl_Button(310, 355 - BTN_H, BTN_W, BTN_H, "Save files");
+	btn[CANCEL] = new Fl_Button(310 + BTN_W + 2, 355 - BTN_H, BTN_W, BTN_H, "Close");
 
-	saveNewEditData.btn[SAVE]->callback(NewEditSaveCb, (void*)&saveNewEditData);
-	saveNewEditData.btn[CANCEL]->callback(CloseWindowCb, (void*)wnd);
+	btn[SAVE]->callback(NewEditSaveCb, (void*)&saveNewEditData);
+	btn[CANCEL]->callback(CloseWindowCb, (void*)wnd);
 
-	saveNewEditData.btn[DELETE_SRV]->image(get_icon_warning());
-	saveNewEditData.btn[DELETE_LOG]->image(get_icon_warning());
-	saveNewEditData.btn[SAVE]->image(get_icon_save());
-	saveNewEditData.btn[CANCEL]->image(get_icon_quit());
-	saveNewEditData.btn[DISABLED_SRV]->image(get_icon_down());
-	saveNewEditData.btn[DISABLED_LOG]->image(get_icon_down());
-	saveNewEditData.btn[ENABLED_SRV]->image(get_icon_run());
-	saveNewEditData.btn[ENABLED_LOG]->image(get_icon_run());
+	btn[DELETE_SRV]->image(get_icon_warning());
+	btn[DELETE_LOG]->image(get_icon_warning());
+	btn[SAVE]->image(get_icon_save());
+	btn[CANCEL]->image(get_icon_quit());
+	btn[DISABLED_SRV]->image(get_icon_down());
+	btn[DISABLED_LOG]->image(get_icon_down());
+	btn[ENABLED_SRV]->image(get_icon_run());
+	btn[ENABLED_LOG]->image(get_icon_run());
 
-	SetButtonFont(RUN_LOG, CANCEL, saveNewEditData.btn);
-	SetButtonAlign(RUN_LOG, CANCEL, 256, saveNewEditData.btn);
+	SetButtonFont(RUN_LOG, CANCEL, btn);
+	SetButtonAlign(RUN_LOG, CANCEL, 256, btn);
 
 	if (id == EDIT)
 	{
-
-		saveNewEditData.btn[DELETE_SRV]->callback(DeleteServiceCb, (void*)&saveNewEditData);
-		saveNewEditData.btn[ENABLED_SRV]->callback(EnabledDisabledServiceCb, (void*)&saveNewEditData);
-		saveNewEditData.btn[DISABLED_SRV]->callback(EnabledDisabledServiceCb, (void*)&saveNewEditData);
-		saveNewEditData.btn[DELETE_LOG]->callback(DeleteServiceCb, (void*)&saveNewEditData);
-		saveNewEditData.btn[ENABLED_LOG]->callback(EnabledDisabledServiceCb, (void*)&saveNewEditData);
-		saveNewEditData.btn[DISABLED_LOG]->callback(EnabledDisabledServiceCb, (void*)&saveNewEditData);
+		btn[DELETE_SRV]->callback(DeleteServiceCb, (void*)&saveNewEditData);
+		btn[ENABLED_SRV]->callback(EnabledDisabledServiceCb, (void*)&saveNewEditData);
+		btn[DISABLED_SRV]->callback(EnabledDisabledServiceCb, (void*)&saveNewEditData);
+		btn[DELETE_LOG]->callback(DeleteServiceCb, (void*)&saveNewEditData);
+		btn[ENABLED_LOG]->callback(EnabledDisabledServiceCb, (void*)&saveNewEditData);
+		btn[DISABLED_LOG]->callback(EnabledDisabledServiceCb, (void*)&saveNewEditData);
 
 		saveNewEditData.time[LBL_TIME_SERV] = lblTimeServ;
 		saveNewEditData.time[LBL_TIME_LOG] = lblTimeLog;
@@ -1537,7 +1565,7 @@ void EditNewCb(Fl_Widget* w, void* data)
 	delete tbuf[TBUF_CHECK];
 
 	for (int i=RUN_LOG; i <= CANCEL; i++) {
-		delete saveNewEditData.btn[i];
+		delete btn[i];
 	}
 	delete box00;
 	delete box01;
@@ -1587,11 +1615,11 @@ void DeleteServiceCb(Fl_Widget* w, void* data)
 	std::string path;
 	bool showError = true;
 
-	if (btnId == saveNewEditData->btn[DELETE_SRV])
+	if (btnId == btn[DELETE_SRV])
 	{
 		MakeServiceDirPath(service, path);
 	}
-	else if (btnId == saveNewEditData->btn[DELETE_LOG])
+	else if (btnId == btn[DELETE_LOG])
 	{
 		MakeLogDirPath(service, path);
 	}
@@ -1608,7 +1636,7 @@ void DeleteServiceCb(Fl_Widget* w, void* data)
 		return;
 	}
 
-	if (btnId == saveNewEditData->btn[DELETE_SRV])
+	if (btnId == btn[DELETE_SRV])
 	{
 		MakeServiceRunDirPath(service, path);
 
@@ -1619,7 +1647,7 @@ void DeleteServiceCb(Fl_Widget* w, void* data)
 
 		MakeServiceDirPath(service, path);
 	}
-	else /* saveNewEditData.btn[DELETE_LOG] */
+	else /* btn[DELETE_LOG] */
 	{
 		MakeLogDirPath(service, path);
 	}
@@ -1652,7 +1680,7 @@ void EnabledDisabledServiceCb(Fl_Widget* w, void* data)
 
 	int ret = 0;
 
-	if (btnId == saveNewEditData->btn[ENABLED_SRV] || btnId == saveNewEditData->btn[ENABLED_LOG])
+	if (btnId == btn[ENABLED_SRV] || btnId == btn[ENABLED_LOG])
 	{
 	    ret = fl_choice("Are you sure to re-enable the service?", "No", "Yes, re-enable", NULL);
 	}
@@ -1668,11 +1696,11 @@ void EnabledDisabledServiceCb(Fl_Widget* w, void* data)
 
 	std::string fileDown;
 
-	if (btnId == saveNewEditData->btn[ENABLED_SRV] || btnId == saveNewEditData->btn[DISABLED_SRV])
+	if (btnId == btn[ENABLED_SRV] || btnId == btn[DISABLED_SRV])
 	{
 		MakeServiceDownPath(service, fileDown);
 	}
-	else if (btnId == saveNewEditData->btn[ENABLED_LOG] || btnId == saveNewEditData->btn[DISABLED_LOG])
+	else if (btnId == btn[ENABLED_LOG] || btnId == btn[DISABLED_LOG])
 	{
 		MakeLogDownPath(service, fileDown);
 	}
@@ -1681,7 +1709,7 @@ void EnabledDisabledServiceCb(Fl_Widget* w, void* data)
 		STOP_DBG("State not contemplated");
 	}
 
-	if (btnId == saveNewEditData->btn[DISABLED_SRV] || btnId == saveNewEditData->btn[DISABLED_LOG])
+	if (btnId == btn[DISABLED_SRV] || btnId == btn[DISABLED_LOG])
 	{
 		bool showError = true;
 		MakeFile(fileDown.c_str(), showError);

@@ -22,7 +22,7 @@ endif
 
 APP := xsv
 
-APP_VER := "5.6"
+APP_VER := "6.0"
 
 PKG_REV := "1"
 

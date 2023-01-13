@@ -1,5 +1,5 @@
 /*
-	Copyright 2020-2022 Daniel T. Borelli <danieltborelli@gmail.com>
+	Copyright 2020-2023 Daniel T. Borelli <danieltborelli@gmail.com>
 
 	This file is part of xsv.
 
@@ -96,6 +96,7 @@
 #define NOTIFY_STR_RESTART "Restart service: %s"
 #define NOTIFY_STR_DELETE "Delete service: %s"
 #define NOTIFY_STR_KILL "Kill service: %s"
+#define NOTIFY_STR_ALARM "Alarm service: %s"
 
 // popen cmds
 #define SV_LIST SV " status " SV_RUN_DIR"/*"
@@ -125,12 +126,10 @@ enum {
 /* Not move */
 
 /* Fl_Button */
-/* NO MOVER >> */
 	RUN,
 	DOWN,
 	RESTART,
 	KILL,
-/* << NO MOVER */
 	QUIT,
 	ADD,
 	CLOSE,
@@ -138,14 +137,12 @@ enum {
 	UNLOAD,
 	EDIT,
 	NEW,
-	BTN_MAX,
 /* Fl_Button edit services */
-/* NO MOVER >> */
-	RUN_LOG = 0,
+	RUN_LOG,
 	DOWN_LOG,
 	RESTART_LOG,
+	ALARM_LOG,
 	KILL_LOG,
-/* << NO MOVER */
 	DELETE_SRV,
 	DISABLED_SRV,
 	ENABLED_SRV,
@@ -154,7 +151,7 @@ enum {
 	ENABLED_LOG,
 	SAVE,
 	CANCEL,
-	BTN_MAX_EDIT,
+	BTN_MAX,
 /* Fl_Hold_Browser */
 	ENABLE = 0,
 	LIST,
@@ -199,6 +196,7 @@ enum {
 	NOTIFY_RESTART,
 	NOTIFY_DELETE,
 	NOTIFY_KILL,
+	NOTIFY_ALARM,
 	NOTIFY_MAX,
 };
 
@@ -208,7 +206,6 @@ struct NewEditData
 	unsigned long hash[TBUF_MAX];
 	Fl_Box* time[LBL_TIME_MAX];
 	Fl_Group* label[LBL_MAX];
-	Fl_Button* btn[BTN_MAX_EDIT];
 	Fl_Input* input;
 	void* data;
 	int id;
