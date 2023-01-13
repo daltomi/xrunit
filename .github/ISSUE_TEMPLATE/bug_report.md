@@ -7,13 +7,13 @@ assignees: daltomi
 
 ---
 
-(Note: You should build xsv in debug mode for better reporting.)
+(Note: You should build xrunit in debug mode for better reporting.)
 
 **Technical info** (please complete the following information)
  - OS: [e.g. ArtixLinux]
  - Runit version: 
  - FLTK version:
- - xsv version:
+ - xrunit version:
 
 **Describe the bug**
 A clear and concise description of what the bug is.
