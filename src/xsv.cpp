@@ -584,9 +584,15 @@ void CommandLogCb(Fl_Widget* w, void* data)
 
 	struct NewEditData* saveNewEditData = (struct NewEditData*)data;
 
+	ASSERT_DBG(saveNewEditData->input != NULL);
+
+	char const* const service = saveNewEditData->input->value();
+
+	ASSERT_DBG(service != NULL);
+
 	std::string path;
 
-	MakeLogDirPath(saveNewEditData->service, path);
+	MakeLogDirPath(service, path);
 
 	Command(btnId, saveNewEditData->btn, path.c_str());
 }
@@ -1083,7 +1089,11 @@ static void NewEditSaveCb(UNUSED Fl_Widget* w, void* data)
 {
 	struct NewEditData* saveNewEditData = (struct NewEditData*)data;
 
-	char const* const service = saveNewEditData->service;
+	ASSERT_DBG(saveNewEditData->input !=  NULL);
+
+	char const* const service = saveNewEditData->input->value();
+
+	ASSERT_DBG(service != NULL);
 
 	if (strlen(service) == 0 || strchr(service, ' '))
 	{
@@ -1299,13 +1309,12 @@ void EditNewCb(Fl_Widget* w, void* data)
 	{
 		input->type(FL_INPUT_READONLY);
 		input->value(service.c_str());
-		saveNewEditData.service = input->value();
+		saveNewEditData.input = input;
 	}
 	else /* NEW */
 	{
-		input->value(" "); // force asign _value
-		saveNewEditData.service = input->value();
 		input->value(""); // clean
+		saveNewEditData.input = input;
 	}
 
 	tbuf[TBUF_SERV] = new Fl_Text_Buffer();
@@ -1568,7 +1577,12 @@ void DeleteServiceCb(Fl_Widget* w, void* data)
 	Fl_Button const* const btnId = (Fl_Button*)w;
 
 	struct NewEditData* saveNewEditData = (struct NewEditData*)data;
-	char const* const service = saveNewEditData->service;
+
+	ASSERT_DBG(saveNewEditData->input != NULL);
+
+	char const* const service = saveNewEditData->input->value();
+
+	ASSERT_DBG(service != NULL);
 
 	std::string path;
 	bool showError = true;
@@ -1629,7 +1643,13 @@ void EnabledDisabledServiceCb(Fl_Widget* w, void* data)
 	Fl_Button const* const btnId = (Fl_Button*)w;
 
 	struct NewEditData* saveNewEditData = (struct NewEditData*)data;
-	char const* const service = saveNewEditData->service;
+
+	ASSERT_DBG(saveNewEditData->input != NULL);
+
+	char const* const service = saveNewEditData->input->value();
+
+	ASSERT_DBG(service != NULL);
+
 	int ret = 0;
 
 	if (btnId == saveNewEditData->btn[ENABLED_SRV] || btnId == saveNewEditData->btn[ENABLED_LOG])

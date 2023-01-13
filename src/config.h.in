@@ -209,7 +209,7 @@ struct NewEditData
 	Fl_Box* time[LBL_TIME_MAX];
 	Fl_Group* label[LBL_MAX];
 	Fl_Button* btn[BTN_MAX_EDIT];
-	char const* service;
+	Fl_Input* input;
 	void* data;
 	int id;
 };
