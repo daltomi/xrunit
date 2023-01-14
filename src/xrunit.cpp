@@ -442,6 +442,7 @@ void FillBrowserList(void)
 		}
 	}
 
+
 	browser[LIST]->select(itemSelect[LIST]);
 }
 
@@ -677,6 +678,8 @@ void LoadUnloadCb(Fl_Widget* w, UNUSED void* data)
 
 	int const item = GetSelected(browser[LIST]);
 	char const* const service = browser[LIST]->text(item);
+
+	ASSERT_DBG_STRING(service);
 
 	if (btnId == btn[UNLOAD])
 	{
@@ -961,7 +964,7 @@ static bool AskAndDeleteDir(std::string const& dir, std::string const& path)
 }
 
 
-static bool IsEmpty(Fl_Text_Buffer* tb)
+static bool IsEmptyTextBuffer(Fl_Text_Buffer* tb)
 {
 	ASSERT_DBG(tb);
 
@@ -1055,34 +1058,34 @@ static void EditLoad(struct NewEditData* saveNewEditData)
 	saveNewEditData->hash[TBUF_CHECK] = CalculateHash(tbuf[TBUF_CHECK]);
 	saveNewEditData->time[LBL_TIME_CHECK]->copy_label(GetModifyFileTime(path.c_str()));
 
-	if (!IsEmpty(tbuf[TBUF_SERV]))
+	if (!IsEmptyTextBuffer(tbuf[TBUF_SERV]))
 	{
 		saveNewEditData->label[LBL_SERV]->selection_color((Fl_Color)LBL_COLOR);
 	}
 
-	if (!IsEmpty(tbuf[TBUF_LOG]))
+	if (!IsEmptyTextBuffer(tbuf[TBUF_LOG]))
 	{
 		saveNewEditData->label[LBL_LOG]->selection_color((Fl_Color)LBL_COLOR);
 		saveNewEditData->label[LBL_LOG_RUN]->selection_color((Fl_Color)LBL_COLOR);
 	}
 
-	if (!IsEmpty(tbuf[TBUF_LOG_CONF]))
+	if (!IsEmptyTextBuffer(tbuf[TBUF_LOG_CONF]))
 	{
 		saveNewEditData->label[LBL_LOG]->selection_color((Fl_Color)LBL_COLOR);
 		saveNewEditData->label[LBL_LOG_CONF]->selection_color((Fl_Color)LBL_COLOR);
 	}
 
-	if (!IsEmpty(tbuf[TBUF_FINISH]))
+	if (!IsEmptyTextBuffer(tbuf[TBUF_FINISH]))
 	{
 		saveNewEditData->label[LBL_FINISH]->selection_color((Fl_Color)LBL_COLOR);
 	}
 
-	if (!IsEmpty(tbuf[TBUF_CONF]))
+	if (!IsEmptyTextBuffer(tbuf[TBUF_CONF]))
 	{
 		saveNewEditData->label[LBL_CONF]->selection_color((Fl_Color)LBL_COLOR);
 	}
 
-	if (!IsEmpty(tbuf[TBUF_CHECK]))
+	if (!IsEmptyTextBuffer(tbuf[TBUF_CHECK]))
 	{
 		saveNewEditData->label[LBL_CHECK]->selection_color((Fl_Color)LBL_COLOR);
 	}
@@ -1094,16 +1097,52 @@ static void NewEditSaveCb_Common(unsigned int const id, std::string const &path,
 {
 	bool const showError = false;
 
-	if (!IsEmpty(tbuf[id]) && IfNotEqualHash(tbuf[id], saveNewEditData->hash[id]))
+	if (!IsEmptyTextBuffer(tbuf[id]) && IfNotEqualHash(tbuf[id], saveNewEditData->hash[id]))
 	{
 		tbuf[id]->savefile(path.c_str());
 		FileToExecutableMode(path.c_str());
 	}
-	else if (FileAccessOk(path.c_str(), showError) && IsEmpty(tbuf[id]))
+	else if (FileAccessOk(path.c_str(), showError) && IsEmptyTextBuffer(tbuf[id]))
 	{
 		tbuf[id]->savefile(path.c_str());
 		AskAndDeleteFile(path);
 	}
+}
+
+
+static bool IsValidNameService(char const* const service)
+{
+	ASSERT_DBG(service != NULL);
+
+	bool ret = false;
+
+#define ESCAPE ".*\\/"
+
+#define DOT_DOT ".."
+
+
+	if (strlen(service) == 0)
+	{
+		fl_alert("The name of the Service is not indicated.");
+	}
+	else if (strchr(service, ' '))
+	{
+		fl_alert("The name of the Service must not have space characters.");
+	}
+	else if (strstr(service, DOT_DOT))
+	{
+		fl_alert("The name of the Service must not have " DOT_DOT " characters.");
+	}
+	else if (strpbrk(service, ESCAPE))
+	{
+		fl_alert("The name of the Service must not have " ESCAPE " characters.");
+	}
+	else
+	{
+		MESSAGE_DBG("IsValidNameService: OK");
+		ret = true;
+	}
+	return ret;
 }
 
 
@@ -1115,17 +1154,14 @@ static void NewEditSaveCb(UNUSED Fl_Widget* w, void* data)
 
 	char const* const service = saveNewEditData->input->value();
 
-	ASSERT_DBG(service != NULL);
-
-	if (strlen(service) == 0 || strchr(service, ' '))
+	if (!IsValidNameService(service))
 	{
-		fl_alert("The name of the Service is not indicated.");
 		return;
 	}
 
 	int const id = saveNewEditData->id;
 
-	if (IsEmpty(tbuf[TBUF_SERV]))
+	if (IsEmptyTextBuffer(tbuf[TBUF_SERV]))
 	{
 		if (NEW == id)
 		{
@@ -1173,7 +1209,7 @@ static void NewEditSaveCb(UNUSED Fl_Widget* w, void* data)
 
 		MakeLogDirPath(service, dir);
 
-		if (!IsEmpty(tbuf[TBUF_LOG]) && IfNotEqualHash(tbuf[TBUF_LOG],
+		if (!IsEmptyTextBuffer(tbuf[TBUF_LOG]) && IfNotEqualHash(tbuf[TBUF_LOG],
 					saveNewEditData->hash[TBUF_LOG]))
 		{
 			MakeSysLogDirPath(service, dir);
@@ -1201,7 +1237,7 @@ static void NewEditSaveCb(UNUSED Fl_Widget* w, void* data)
 			tbuf[TBUF_LOG]->savefile(path.c_str());
 			FileToExecutableMode(path.c_str());
 		}
-		else if (DirAccessOk(dir.c_str(), not showError) && IsEmpty(tbuf[TBUF_LOG]))
+		else if (DirAccessOk(dir.c_str(), not showError) && IsEmptyTextBuffer(tbuf[TBUF_LOG]))
 		{
 			MakeLogRunPath(service, path);
 			tbuf[TBUF_LOG]->savefile(path.c_str());
@@ -1210,7 +1246,7 @@ static void NewEditSaveCb(UNUSED Fl_Widget* w, void* data)
 
 		MakeLogConfPath(service, path);
 
-		if (!IsEmpty(tbuf[TBUF_LOG_CONF]) && IfNotEqualHash(tbuf[TBUF_LOG_CONF],
+		if (!IsEmptyTextBuffer(tbuf[TBUF_LOG_CONF]) && IfNotEqualHash(tbuf[TBUF_LOG_CONF],
 					saveNewEditData->hash[TBUF_LOG_CONF]))
 		{
 			MakeLogDirPath(service, dir);
@@ -1232,7 +1268,7 @@ static void NewEditSaveCb(UNUSED Fl_Widget* w, void* data)
 			MESSAGE_DBG("SAVE LOG CONF, SERVICE: %s", service);
 			tbuf[TBUF_LOG_CONF]->savefile(path.c_str());
 		}
-		else if (FileAccessOk(path.c_str(), not showError) && IsEmpty(tbuf[TBUF_LOG_CONF]))
+		else if (FileAccessOk(path.c_str(), not showError) && IsEmptyTextBuffer(tbuf[TBUF_LOG_CONF]))
 		{
 			tbuf[TBUF_LOG_CONF]->savefile(path.c_str());
 			AskAndDeleteFile(path);
@@ -1313,6 +1349,7 @@ void EditNewCb(Fl_Widget* w, void* data)
 	}
 
 	int const item = GetSelected(browser[LIST]);
+	ASSERT_DBG(browser[LIST]->text(item) != NULL);
 	std::string service = browser[LIST]->text(item);
 	RemoveNewLine(service);
 
@@ -1678,6 +1715,10 @@ void DeleteServiceCb(Fl_Widget* w, void* data)
 	}
 
 	ShowNotify(NOTIFY_DELETE, service);
+
+	// Bug fix: cuando se elimina un item
+	// luego se podía editar, lo que daba un error.
+	itemSelect[LIST] = SELECT_RESET;
 
 	((Fl_Double_Window*)saveNewEditData->data)->hide();
 }
