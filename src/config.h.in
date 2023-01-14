@@ -49,10 +49,14 @@
 
 #define VERSION @APP_VER@
 
+#ifndef HOST_OS
+#define HOST_OS HOST_OS_ARTIXLINUX
+#endif
+
 #ifdef DEBUG
-#define TITLE "xrunit " VERSION " - Debug"
+#define TITLE "xrunit " VERSION "(debug) - OS: " HOST_OS
 #else
-#define TITLE "xrunit " VERSION
+#define TITLE "xrunit " VERSION " - OS: " HOST_OS
 #endif
 
 #define TITLE_SERVICE TITLE " - Services"
@@ -61,10 +65,6 @@
 
 #ifndef TIME_UPDATE
 #define TIME_UPDATE 5
-#endif
-
-#ifndef HOST_OS
-#define HOST_OS HOST_OS_ARCHLINUX
 #endif
 
 #ifndef SV

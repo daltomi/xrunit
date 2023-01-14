@@ -42,7 +42,7 @@ ifeq ("$(CXX)", "g++")
 CXXLIBS_RELEASE :=-Wl,-s
 endif
 
-CXXFLAGS += -Wall $(shell fltk-config --cxxflags) -Iicons $(FORTIFY_SOURCE) -include defines/hosts_os.h
+CXXFLAGS += -Wall $(shell fltk-config --cxxflags) -Iicons $(FORTIFY_SOURCE) -include include/hosts_os.h
 CXXFLAGS_RELEASE:= -DNDEBUG -Wno-write-strings
 CXXFLAGS_DEBUG:= -g -DDEBUG -Wextra -Wimplicit-fallthrough
 

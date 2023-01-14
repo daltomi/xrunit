@@ -4,14 +4,14 @@ Graphical interface for sv - runit
 
 [![Release](https://img.shields.io/github/v/release/daltomi/xrunit)](https://github.com/daltomi/xrunit/releases/latest)
 
-<img src="https://github.com/daltomi/xrunit/raw/master/preview00.webp"/>
+<img src="https://github.com/daltomi/xrunit/raw/master/preview00.png"/>
 
 
 ### Support
 
 Each distribution has its own `runit` configuration.
 You can experiment with the preprocessor directives to adapt it to yours (always compile in debug mode).
-Or look in directory `defines` if you find a definition file for your distro.
+Or look in directory `include` if you find a definition file for your distro.
 At the end of the **Build** section you will find information on how to compile using this file.
 
 ___
@@ -62,6 +62,9 @@ ___
 
 ### Preprocessor directives
 
+_Note: The default values are based on ArtixLinux._
+
+
 * sv program
 
 | Directive | Description | Default | Type |
@@ -69,13 +72,15 @@ ___
 | SV |  sv binary | /usr/bin/sv | string
 
 
+
 * Directories:
 
 | Directive | Description | Default | Type | ENV= |
 |-------------------------------|---------|---------|---------|---------
 | SV_DIR      |  available services directory | /etc/runit/sv | string | SVDIR
-| SV_RUN_DIR      |  services directory | /run/runit/service | string  | -
+| SV_RUN_DIR  |  services directory | /run/runit/service | string  | -
 | SYS_LOG_DIR | system log directory | /var/log | string | -
+
 
 
 * Properties:
@@ -88,17 +93,35 @@ ___
 | ASK_SERVICES | ask about these services before down/remove | tty,dbus,udev,elogind | string
 
 
-Example:
 
-File `my_define.h`
+#### Examples:
 
-```
+- New file `include/new-host.h`:
+
+```c
+#pragma once
+
+#include "hosts_os.h"
+
+#define HOST_OS "<name>" <see include/hosts_os.h>
+
+// overrides the default
 #define SV "/usr/local/bin/sv"
 #define SV_DIR "/etc/local/runit/sv"
+#define FONT_SZ 12
 ```
 
 Then run make in your terminal:
 
+```bash
+CXXFLAGS="-include include/new-host.h" make debug
 ```
-CXXFLAGS="-include my_define.h" make debug
+
+
+- Another example:
+
+Using an already defined one: `include/voidlinux.h`
+
+```bash
+CXXFLAGS="-include include/voidlinux.h" make debug
 ```
