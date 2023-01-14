@@ -1173,14 +1173,17 @@ static void NewEditSaveCb(UNUSED Fl_Widget* w, void* data)
 
 		MakeLogDirPath(service, dir);
 
-		if (!IsEmpty(tbuf[TBUF_LOG]) && IfNotEqualHash(tbuf[TBUF_LOG], saveNewEditData->hash[TBUF_LOG]))
+		if (!IsEmpty(tbuf[TBUF_LOG]) && IfNotEqualHash(tbuf[TBUF_LOG],
+					saveNewEditData->hash[TBUF_LOG]))
 		{
 			MakeSysLogDirPath(service, dir);
 
 			if (!DirAccessOk(dir.c_str(), not showError))
 			{
-				if (1 == fl_choice("Warning: There is not '%s' directory, required for svlogd.\n"
-							"Do you want to create the directory?", "No", "Yes, create it", 0, dir.c_str()))
+				if (1 == fl_choice("Warning: There is not '%s' directory,"
+							" required for svlogd.\n"
+							"Do you want to create the directory?", "No",
+							"Yes, create it", 0, dir.c_str()))
 				{
 					MakeDir(dir.c_str(), showError);
 				}
@@ -1207,7 +1210,8 @@ static void NewEditSaveCb(UNUSED Fl_Widget* w, void* data)
 
 		MakeLogConfPath(service, path);
 
-		if (!IsEmpty(tbuf[TBUF_LOG_CONF]) && IfNotEqualHash(tbuf[TBUF_LOG_CONF], saveNewEditData->hash[TBUF_LOG_CONF]))
+		if (!IsEmpty(tbuf[TBUF_LOG_CONF]) && IfNotEqualHash(tbuf[TBUF_LOG_CONF],
+					saveNewEditData->hash[TBUF_LOG_CONF]))
 		{
 			MakeLogDirPath(service, dir);
 
@@ -1248,7 +1252,8 @@ static void NewEditSaveCb(UNUSED Fl_Widget* w, void* data)
 }
 
 
-static void ChangeState_EnabledDisabledButtons(std::string const& service, struct NewEditData* saveNewEditData)
+static void ChangeState_EnabledDisabledButtons(std::string const& service,
+		struct NewEditData* saveNewEditData)
 {
 	std::string path;
 
@@ -1389,9 +1394,16 @@ void EditNewCb(Fl_Widget* w, void* data)
 					btn[DELETE_LOG] = new Fl_Button(25, 112, BTN_W, BTN_H, "Delete...");
 					btn[DISABLED_LOG] = new Fl_Button(25, 112 + 60, BTN_W, BTN_H, "Disable...");
 					btn[ENABLED_LOG] = new Fl_Button(25, 112 + 60 * 2, BTN_W, BTN_H, "Enable...");
-					Fl_Box* box00 = new Fl_Box(30 + BTN_W, 112, 475 - (30 + BTN_W), 60, "Use it to permanently remove the service. It cannot be undone.");
-					Fl_Box* box01 = new Fl_Box(30 + BTN_W, 112 + 60, 475 - (30 + BTN_W), 60,"Use it to disable the service permanently, including when rebooting the system.");
-					Fl_Box* box02 = new Fl_Box(30 + BTN_W, 112 + 60 * 2, 475 - (30 + BTN_W), 60, "Use it to re-enable the service that is currently disabled.");
+
+					Fl_Box* box00 = new Fl_Box(30 + BTN_W, 112, 475 - (30 + BTN_W),
+							60, "Use it to permanently remove the service. It cannot be undone.");
+
+					Fl_Box* box01 = new Fl_Box(30 + BTN_W, 112 + 60, 475 - (30 + BTN_W),
+							60,"Use it to disable the service permanently, including when rebooting the system.");
+
+					Fl_Box* box02 = new Fl_Box(30 + BTN_W, 112 + 60 * 2, 475 - (30 + BTN_W),
+							60, "Use it to re-enable the service that is currently disabled.");
+
 					box00->align(Fl_Align(133 | FL_ALIGN_INSIDE));
 					box01->align(Fl_Align(133 | FL_ALIGN_INSIDE));
 					box02->align(Fl_Align(133 | FL_ALIGN_INSIDE));
@@ -1457,9 +1469,16 @@ void EditNewCb(Fl_Widget* w, void* data)
 			btn[DELETE_SRV] = new Fl_Button(25, 90, BTN_W, BTN_H, "Delete...");
 			btn[DISABLED_SRV] = new Fl_Button(25, 90 + 60, BTN_W, BTN_H, "Disable...");
 			btn[ENABLED_SRV] = new Fl_Button(25, 90 + 60 * 2, BTN_W, BTN_H, "Enable...");
-			Fl_Box* box10 = new Fl_Box(30 + BTN_W, 92, 475 - (30 + BTN_W), 60, "Use it to permanently remove the service. It cannot be undone.");
-			Fl_Box* box11 = new Fl_Box(30 + BTN_W, 92 + 60, 475 - (30 + BTN_W), 60,"Use it to disable the service permanently, including when rebooting the system.");
-			Fl_Box* box12 = new Fl_Box(30 + BTN_W, 92 + 60 * 2, 475 - (30 + BTN_W), 60, "Use it to re-enable the service that is currently disabled.");
+
+			Fl_Box* box10 = new Fl_Box(30 + BTN_W, 92, 475 - (30 + BTN_W), 60,
+					"Use it to permanently remove the service. It cannot be undone.");
+
+			Fl_Box* box11 = new Fl_Box(30 + BTN_W, 92 + 60, 475 - (30 + BTN_W),
+					60,"Use it to disable the service permanently, including when rebooting the system.");
+
+			Fl_Box* box12 = new Fl_Box(30 + BTN_W, 92 + 60 * 2, 475 - (30 + BTN_W),
+					60, "Use it to re-enable the service that is currently disabled.");
+
 			box10->align(Fl_Align(133 | FL_ALIGN_INSIDE));
 			box11->align(Fl_Align(133 | FL_ALIGN_INSIDE));
 			box12->align(Fl_Align(133 | FL_ALIGN_INSIDE));
@@ -1628,8 +1647,9 @@ void DeleteServiceCb(Fl_Widget* w, void* data)
 		STOP_DBG("State not contemplated");
 	}
 
-	int const ret = fl_choice("Alert: This action cannot be undone.\nThe directory '%s' will be removed.\nAre you sure to continue?",
-							 "No", "Yes, delete", NULL, path.c_str());
+	int const ret = fl_choice("Alert: This action cannot be undone.\n"
+			"The directory '%s' will be removed.\nAre you sure to continue?",
+			 "No", "Yes, delete", NULL, path.c_str());
 
 	if (ret == 0)
 	{
@@ -1682,11 +1702,13 @@ void EnabledDisabledServiceCb(Fl_Widget* w, void* data)
 
 	if (btnId == btn[ENABLED_SRV] || btnId == btn[ENABLED_LOG])
 	{
-	    ret = fl_choice("Are you sure to re-enable the service?", "No", "Yes, re-enable", NULL);
+	    ret = fl_choice("Are you sure to re-enable the service?", "No",
+				"Yes, re-enable", NULL);
 	}
 	else
 	{
-	    ret = fl_choice("Are you sure to disable the service?", "No", "Yes, disable", NULL);
+		ret = fl_choice("Are you sure to disable the service?", "No",
+				"Yes, disable", NULL);
 	}
 
 	if (ret == 0)
