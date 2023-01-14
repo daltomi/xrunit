@@ -22,7 +22,7 @@ endif
 
 APP := xrunit
 
-APP_VER := "6.2"
+APP_VER := "6.3"
 
 PKG_REV := "1"
 
@@ -42,7 +42,8 @@ ifeq ("$(CXX)", "g++")
 CXXLIBS_RELEASE :=-Wl,-s
 endif
 
-CXXFLAGS += -Wall $(shell fltk-config --cxxflags) -Iicons $(FORTIFY_SOURCE) -include include/hosts_os.h
+CXXFLAGS ?= -include include/artixlinux.h
+CXXFLAGS += -Wall $(shell fltk-config --cxxflags) -Iicons $(FORTIFY_SOURCE)
 CXXFLAGS_RELEASE:= -DNDEBUG -Wno-write-strings
 CXXFLAGS_DEBUG:= -g -DDEBUG -Wextra -Wimplicit-fallthrough
 

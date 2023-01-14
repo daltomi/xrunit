@@ -106,12 +106,13 @@ int main(int argc, char* argv[])
 	MESSAGE_DBG("SV: %s", SV);
 	MESSAGE_DBG("SV_DIR: %s", SV_DIR_SELECT);
 	MESSAGE_DBG("SV_RUN_DIR: %s", SV_RUN_DIR);
+	MESSAGE_DBG("SYS_LOG_DIR: %s", SYS_LOG_DIR);
 
 	if (argc == 2)
 	{
 		if ((strstr(argv[1], "--version") || strstr(argv[1], "-v")))
 		{
-			printf("%s\n", TITLE);
+			printf("\n%s\n", TITLE);
 			exit(EXIT_SUCCESS);
 		}
 	}
@@ -275,6 +276,7 @@ void FillBrowserEnable(void)
 	btn[RUN]->deactivate();
 	btn[ADD]->deactivate();
 	btn[RESTART]->deactivate();
+	btn[KILL]->deactivate();
 
 	int iselect_count = SELECT_RESET;
 
@@ -302,6 +304,7 @@ void FillBrowserEnable(void)
 				btn[DOWN]->activate();
 				btn[RESTART]->activate();
 				btn[ADD]->activate();
+				btn[KILL]->activate();
 			}
 		}
 

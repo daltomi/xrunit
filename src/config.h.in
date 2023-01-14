@@ -50,13 +50,29 @@
 #define VERSION @APP_VER@
 
 #ifndef HOST_OS
-#define HOST_OS HOST_OS_ARTIXLINUX
+#error "HOST_OS NOT DEFINED"
+#endif
+
+#ifndef SV
+#error "SV NOT DEFINED"
+#endif
+
+#ifndef SV_RUN_DIR
+#error "SV_RUN_DIR NOT DEFINED"
+#endif
+
+#ifndef SV_DIR
+#error "SV_DIR NOT DEFINED"
+#endif
+
+#ifndef SYS_LOG_DIR
+#error "SYS_LOG_DIR NOT DEFINED"
 #endif
 
 #ifdef DEBUG
-#define TITLE "xrunit " VERSION "(debug) - OS: " HOST_OS
+#define TITLE "xrunit " VERSION "(debug) - " HOST_OS
 #else
-#define TITLE "xrunit " VERSION " - OS: " HOST_OS
+#define TITLE "xrunit " VERSION " - " HOST_OS
 #endif
 
 #define TITLE_SERVICE TITLE " - Services"
@@ -67,21 +83,6 @@
 #define TIME_UPDATE 5
 #endif
 
-#ifndef SV
-#define SV "sv"
-#endif
-
-#ifndef SV_RUN_DIR
-#define SV_RUN_DIR "/run/runit/service"
-#endif
-
-#ifndef SV_DIR
-#define SV_DIR "/etc/runit/sv"
-#endif
-
-#ifndef SYS_LOG_DIR
-#define SYS_LOG_DIR "/var/log/"
-#endif
 
 #ifndef ASK_SERVICES
 // It doesn't have to be the exact name

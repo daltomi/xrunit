@@ -18,6 +18,9 @@ ___
 
 ### Build
 
+_By default it is compiled for ArtixLinux, see: include/artixlinux.h_
+
+
 #### Dependencies
 
 * C++ standard: >= c++11
@@ -62,7 +65,7 @@ ___
 
 ### Preprocessor directives
 
-_Note: The default values are based on ArtixLinux._
+_Note: The default values are based on ArtixLinux: see include/artixlinux.h_
 
 
 * sv program
@@ -83,7 +86,7 @@ _Note: The default values are based on ArtixLinux._
 
 
 
-* Properties:
+* Properties (optional definition):
 
 | Directive | Description | Default | Type |
 |-------------------------------|---------|---------|---------
@@ -96,25 +99,29 @@ _Note: The default values are based on ArtixLinux._
 
 #### Examples:
 
-- New file `include/new-host.h`:
+- New file `include/custom.h`:
 
 ```c
 #pragma once
 
-#include "hosts_os.h"
+#define HOST_OS "custom"
 
-#define HOST_OS "<name>" <see include/hosts_os.h>
-
-// overrides the default
-#define SV "/usr/local/bin/sv"
-#define SV_DIR "/etc/local/runit/sv"
+// override the default
 #define FONT_SZ 12
+
+#define SV "/usr/local/bin/sv"
+
+#define SV_DIR "/etc/local/runit/sv"
+
+#define SV_RUN_DIR "/var/service"
+
+#define SYS_LOG_DIR "/var/log"
 ```
 
 Then run make in your terminal:
 
 ```bash
-CXXFLAGS="-include include/new-host.h" make debug
+CXXFLAGS="-include include/custom.h" make debug
 ```
 
 
