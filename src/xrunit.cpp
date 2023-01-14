@@ -47,7 +47,7 @@ void QuitCb(UNUSED Fl_Widget* w, UNUSED void* data);
 void SelectCb(Fl_Widget* w, UNUSED void* data);
 void CommandSrvCb(Fl_Widget* w, UNUSED void* data);
 void CommandLogCb(Fl_Widget* w, void* data);
-void Command(Fl_Button* btnId, char const* const service);
+void Command(Fl_Button const* const btnId, char const* const service);
 void LoadUnloadCb(Fl_Widget* w, UNUSED void* data);
 void AddServicesCb(UNUSED Fl_Widget* w, void* data);
 void TimerCb(UNUSED void* data);
@@ -570,7 +570,7 @@ char* ExtractServiceNameFromPath(char const* const service)
 
 void CommandSrvCb(Fl_Widget* w, UNUSED void* data)
 {
-	Fl_Button* btnId = (Fl_Button*)w;
+	Fl_Button const* const btnId = (Fl_Button*)w;
 
 	ASSERT_DBG(btnId != NULL);
 
@@ -587,7 +587,7 @@ void CommandSrvCb(Fl_Widget* w, UNUSED void* data)
 
 void CommandLogCb(Fl_Widget* w, void* data)
 {
-	Fl_Button* btnId = (Fl_Button*)w;
+	Fl_Button const* const btnId = (Fl_Button*)w;
 
 	ASSERT_DBG(btnId != NULL);
 
@@ -609,7 +609,7 @@ void CommandLogCb(Fl_Widget* w, void* data)
 }
 
 
-void Command(Fl_Button* btnId, char const* const service)
+void Command(Fl_Button const* const btnId, char const* const service)
 {
 	if (btnId == btn[RUN] || btnId == btn[RUN_LOG])
 	{
