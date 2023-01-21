@@ -5,8 +5,11 @@
 
 #define SV "/usr/bin/sv"
 
+/*  Note: The paths of the directories without
+          the separator ('/') at the end. */
+
 #define SV_DIR "/etc/runit/sv"
 
 #define SV_RUN_DIR "/run/runit/service"
 
-#define SYS_LOG_DIR "/var/log"
+#define SYS_LOG_DIR "/var/log/"

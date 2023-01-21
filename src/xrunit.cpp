@@ -849,6 +849,7 @@ void MakeLogDirPath(std::string const& service, std::string& path)
 static void MakeSysLogDirPath(std::string const& service, std::string& path)
 {
 	path = SYS_LOG_DIR;
+	path += "/";
 	path += service;
 }
 
