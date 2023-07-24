@@ -18,7 +18,7 @@ ___
 
 ### Build
 
-_By default it is compiled for ArtixLinux, see: include/artixlinux.h_
+_By default it is compiled for Artix Linux, see: include/artix.h_
 
 
 #### Dependencies
@@ -65,7 +65,7 @@ ___
 
 ### Preprocessor directives
 
-_Note: The default values are based on ArtixLinux: see include/artixlinux.h_
+_Note: The default values are based on Artix Linux: see include/artix.h_
 
 
 * sv program
@@ -99,7 +99,15 @@ _Note: The default values are based on ArtixLinux: see include/artixlinux.h_
 
 #### Examples:
 
-- New file `include/custom.h`:
+
+Using an **already** defined one for Void Linux:
+
+```bash
+CXXFLAGS="-include include/void.h" make debug
+```
+
+
+- Another example, new file `include/custom.h`:
 
 ```c
 #pragma once
@@ -122,13 +130,4 @@ Then run make in your terminal:
 
 ```bash
 CXXFLAGS="-include include/custom.h" make debug
-```
-
-
-- Another example:
-
-Using an already defined one: `include/voidlinux.h`
-
-```bash
-CXXFLAGS="-include include/voidlinux.h" make debug
 ```

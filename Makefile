@@ -42,7 +42,7 @@ ifeq ("$(CXX)", "g++")
 CXXLIBS_RELEASE :=-Wl,-s
 endif
 
-CXXFLAGS ?= -include include/artixlinux.h
+CXXFLAGS ?= -include include/artix.h
 CXXFLAGS += -Wall $(shell fltk-config --cxxflags) -Iicons $(FORTIFY_SOURCE)
 CXXFLAGS_RELEASE:= -DNDEBUG -Wno-write-strings
 CXXFLAGS_DEBUG:= -g -DDEBUG -Wextra -Wimplicit-fallthrough
