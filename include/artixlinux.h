@@ -12,4 +12,4 @@
 
 #define SV_RUN_DIR "/run/runit/service"
 
-#define SYS_LOG_DIR "/var/log/"
+#define SYS_LOG_DIR "/var/log"
