@@ -37,6 +37,7 @@ FLTK_EXTRA := "--use-images"
 FORTIFY_SOURCE:= -Wl,-z,relro,-z,now -fstack-protector -D_FORTIFY_SOURCE=2 -O2
 
 CXXLIBS += $(shell fltk-config --ldflags ${FLTK_EXTRA}) $(FORTIFY_SOURCE)
+CXXLIBS_STATIC += $(shell fltk-config --ldstaticflags ${FLTK_EXTRA}) $(FORTIFY_SOURCE)
 
 ifeq ("$(CXX)", "g++")
 CXXLIBS_RELEASE :=-Wl,-s
@@ -65,6 +66,10 @@ release: version icons $(APP)
 
 debug: CXXFLAGS+=$(CXXFLAGS_DEBUG)
 debug: version icons $(APP)
+
+static: CXXFLAGS+=$(CXXFLAGS_RELEASE)
+static: CXXLIBS=$(CXXLIBS_STATIC)
+static: version icons $(APP)
 
 $(APP): $(OBJ)
 	$(CXX) $(OBJ) $(CXXLIBS) -o $(APP)
