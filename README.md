@@ -1,7 +1,3 @@
-Archived project. Migrated to https://codeberg.org/daltomi/xrunit
-
-Archived project. Migrated to https://codeberg.org/daltomi/xrunit
-
 # xrunit
 
 Graphical interface for sv - runit
