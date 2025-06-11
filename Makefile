@@ -34,7 +34,7 @@ CXX ?= g++
 
 FLTK_EXTRA := "--use-images"
 
-FORTIFY_SOURCE:= -Wl,-z,relro,-z,now -fstack-protector -D_FORTIFY_SOURCE=2 -O2
+FORTIFY_SOURCE:= -Wl,-z,relro,-z,now -fstack-protector -D_FORTIFY_SOURCE=3 -O2
 
 CXXLIBS += $(shell fltk-config --ldflags ${FLTK_EXTRA}) $(FORTIFY_SOURCE)
 CXXLIBS_STATIC += $(shell fltk-config --ldstaticflags ${FLTK_EXTRA}) $(FORTIFY_SOURCE)

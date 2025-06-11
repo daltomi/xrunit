@@ -20,8 +20,8 @@
 #!/bin/bash
 echo "[*] Compilando..."
 chmod -w compile_and_run.sh png2h.c
-g++ -c png2h.c $(fltk-config --cxxflags) || exit 1
-g++ png2h.o -o png2h $(fltk-config --ldflags --use-images) || exit 1
+g++ -c png2h.c -fstack-protector -D_FORTIFY_SOURCE=3 -O2 $(fltk-config --cxxflags) || exit 1
+g++ png2h.o -Wl,-z,relro,-z,now -o png2h $(fltk-config --ldflags --use-images) || exit 1
 rm png2h.o
 
 echo "[*] Eliminando icons.h ..."
