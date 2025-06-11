@@ -406,7 +406,7 @@ bool Unlink(char const* const pathname)
 
 
 /*http://www.cse.yorku.ca/~oz/hash.html*/
-unsigned long Hash(char* str)
+unsigned long Hash(char const* str)
 {
 	ASSERT_DBG_STRING(str);
 
