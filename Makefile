@@ -6,6 +6,10 @@ ifeq ("$(shell which pkg-config  2> /dev/null)","")
 $(error 'pkg-config' NOT FOUND)
 endif
 
+ifeq ("$(shell which g++ 2> /dev/null)","")
+$(error 'g++' NOT FOUND)
+endif
+
 # optional: libnotify
 ifeq ("$(LIB_NOTIFY)","1")
 ifeq ("$(shell pkg-config --libs libnotify  2> /dev/null)","")
