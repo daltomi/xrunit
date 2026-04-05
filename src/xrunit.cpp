@@ -42,6 +42,9 @@ void ShowNotify(int const id, char const* const service);
 #endif
 char* ExtractServiceNameFromPath(char const* const service);
 char* ExtractServiceNameFromSV(char const* const service);
+#ifdef IGNORE_RUN_SERVICES
+bool FindIgnoreService(char const* const path);
+#endif
 
 void QuitCb(UNUSED Fl_Widget* w, UNUSED void* data);
 void SelectCb(Fl_Widget* w, UNUSED void* data);
@@ -98,6 +101,9 @@ int main(int argc, char* argv[])
 	ASSERT((strlen(SV) > 0) && (strlen(SV) < STR_SZ));
 	ASSERT((strlen(ASK_SERVICES) > 0) && (strlen(ASK_SERVICES) < STR_SZ));
 	ASSERT((strlen(SYS_LOG_DIR) > 0) && (strlen(SYS_LOG_DIR) < STR_SZ));
+#ifdef IGNORE_RUN_SERVICES
+	ASSERT((strlen(IGNORE_RUN_SERVICES) > 0) && (strlen(IGNORE_RUN_SERVICES) < STR_SZ));
+#endif
 
 	SetSvdirFromEnv();
 
@@ -263,6 +269,27 @@ void SetButtonFont(int const start, int const end, Fl_Button* btns[])
 	}
 }
 
+#ifdef IGNORE_RUN_SERVICES
+bool FindIgnoreService(char const* const path)
+{
+	bool ret = false;
+	//MESSAGE_DBG("%s %s", IGNORE_RUN_SERVICES, path);
+	char *copy = strdup(IGNORE_RUN_SERVICES);
+	ASSERT(copy != NULL);
+	char *t = strtok(copy,":");
+	while (t != NULL)
+	{
+		if (strstr(path, t) != NULL)
+		{
+			ret = true;
+			break;
+		}
+		t = strtok(NULL,":");
+	}
+	free(copy);
+	return ret;
+}
+#endif
 
 void FillBrowserEnable(void)
 {
@@ -289,6 +316,14 @@ void FillBrowserEnable(void)
 			// Only list services names that are in directory format.
 			continue;
 		}
+#ifdef IGNORE_RUN_SERVICES
+		if (FindIgnoreService(buffer))
+		{
+			// Only non-ignored services.
+			continue;
+		}
+#endif
+
 
 		char* pb = buffer;
 

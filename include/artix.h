@@ -13,3 +13,7 @@
 #define SV_RUN_DIR "/run/runit/service"
 
 #define SYS_LOG_DIR "/var/log"
+
+// Only for SV_RUN_DIR
+// Ignore some services. Separator format ':'
+#define IGNORE_RUN_SERVICES "current:supervise"
