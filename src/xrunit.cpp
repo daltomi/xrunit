@@ -1,5 +1,5 @@
 /*
-	Copyright 2020,2023 Daniel T. Borelli <danieltborelli@gmail.com>
+	Copyright 2020,2026 Daniel T. Borelli <danieltborelli@gmail.com>
 
 	This file is part of xrunit.
 
