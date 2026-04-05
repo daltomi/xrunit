@@ -100,10 +100,16 @@ _Note: The default values are based on Artix Linux: see include/artix.h_
 #### Examples:
 
 
-Using an **already** defined one for Void Linux:
+- Using an **already** defined one for Void Linux:
 
 ```bash
 CXXFLAGS="-include include/void.h" make debug
+```
+
+- Using one **already** defined but changing the font size:
+
+```bash
+CXXFLAGS="-DFONT_SZ=12 -include include/artix.h" make debug
 ```
 
 
