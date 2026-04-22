@@ -26,7 +26,7 @@ endif
 
 APP := xrunit
 
-APP_VER := "6.5"
+APP_VER := "6.7"
 
 PKG_REV := "1"
 

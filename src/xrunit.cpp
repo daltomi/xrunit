@@ -199,9 +199,12 @@ int main(int argc, char* argv[])
 void ShowNotify(int const id, char const* const service)
 {
 	ASSERT_DBG_STRING(service);
+
+	MESSAGE_DBG("ShowNotify service name: %s",  service);
+
 	char str[256];
 	char* body = NULL;
-	char* name = ExtractServiceNameFromSV(service);
+	char* name = ExtractServiceNameFromPath(service);
 
 	switch (id)
 	{
@@ -574,19 +577,30 @@ char* ExtractServiceNameFromSV(char const* const service)
 {
 	ASSERT_DBG_STRING(service);
 
+	MESSAGE_DBG("ExtractServiceNameFromSV: service: %s", service);
+
 	char* name = strdup(service);
 	ASSERT_DBG(name);
 
 	char* b = strchr(name, '/');
 
-	/* algunos nombre de servicios no tienen ruta absoluta */
+	/* algunos nombres de servicios no tienen ruta absoluta */
 	if (b == NULL)
 	{
 		return name;
 	}
 
 	char* e = strchr(b, ':');
-	ASSERT_DBG(e);
+
+	if (e == NULL)
+	{
+	/* los servicios LOG no son en crudo sino que son creados en
+	 * runtime:
+	 * */
+		e = strrchr(b, '/');
+		e -= 4; // '/log'
+		ASSERT_DBG(e != b);
+	}
 
 	std::ptrdiff_t const len = e - b;
 
@@ -594,6 +608,7 @@ char* ExtractServiceNameFromSV(char const* const service)
 
 	name[len] = '\0';
 
+	//MESSAGE_DBG("ExtractServiceNameFromSV: name: %s, len: %zu",name,len);
 	return name;
 }
 
